@@ -1,0 +1,28 @@
+{
+  "name": "Conversation",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Auto-generated title for the conversation"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the last message"
+    },
+    "message_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total messages in this conversation"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this conversation is the current active one"
+    }
+  },
+  "required": [
+    "is_active"
+  ]
+}

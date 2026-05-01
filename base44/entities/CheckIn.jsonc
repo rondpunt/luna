@@ -1,0 +1,21 @@
+{
+  "name": "CheckIn",
+  "type": "object",
+  "properties": {
+    "score": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Daily wellbeing score 1-10"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "The date of this check-in"
+    }
+  },
+  "required": [
+    "score",
+    "date"
+  ]
+}
