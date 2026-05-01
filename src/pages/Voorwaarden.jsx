@@ -1,63 +1,56 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 export default function Voorwaarden() {
   return (
-    <div className="min-h-screen py-8 px-6" style={{ backgroundColor: "var(--luna-bg-base)" }}>
-      <div className="max-w-2xl mx-auto">
-        <Link to="/" className="flex items-center gap-2 mb-8">
-          <ArrowLeft className="w-4 h-4" style={{ color: "var(--luna-text-muted)" }} />
-          <span className="text-sm" style={{ color: "var(--luna-text-muted)" }}>Terug</span>
+    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
+      <header className="flex items-center gap-3 px-6 py-4">
+        <Link to="/profiel">
+          <ArrowLeft className="w-5 h-5" style={{ color: "var(--text-primary-luna)" }} />
         </Link>
+        <span className="font-semibold" style={{ color: "var(--text-primary-luna)" }}>
+          Voorwaarden
+        </span>
+      </header>
 
-        <h1 className="text-2xl font-semibold mb-2" style={{ color: "var(--luna-text-primary)" }}>
-          Algemene Voorwaarden
-        </h1>
-        <p className="text-xs mb-8" style={{ color: "var(--luna-text-muted)" }}>
-          Laatst bijgewerkt: mei 2026
+      <main className="px-6 pb-12 max-w-lg mx-auto space-y-6">
+        <p className="text-xs" style={{ color: "var(--text-muted-luna)" }}>
+          Laatst bijgewerkt: april 2026
         </p>
 
-        <div className="space-y-6 text-sm leading-relaxed" style={{ color: "var(--luna-text-secondary)" }}>
-          <Section title="Wat Luna niet kan">
-            Luna stelt geen diagnoses, geeft geen medicatie-advies, biedt geen crisis-interventie en verricht geen klinische beoordelingen. Luna is een gezel, geen therapeut.
-          </Section>
+        <div className="space-y-5 text-sm leading-relaxed" style={{ color: "var(--text-secondary-luna)" }}>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Wat Luna niet kan</h2>
+            <p>Luna stelt geen diagnoses, geeft geen medicatie-advies, vervangt geen therapeut of arts, en voert geen klinische beoordelingen uit. Luna is een AI voor emotioneel welzijn en gezelschap, geen medisch hulpmiddel.</p>
+          </section>
 
-          <Section title="Bij acuut gevaar">
-            Bel 112 of Zelfmoordlijn 1813 (24/7, gratis, anoniem). Voor minderjarigen: Awel 102. Voor Brussel-Frans: 0800 32 123, Télé-Accueil 107.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Bij acuut gevaar</h2>
+            <p>Bel 112 of Zelfmoordlijn 1813 (24/7, gratis, anoniem). Voor minderjarigen: Awel 102.</p>
+          </section>
 
-          <Section title="AI-gebruik">
-            Luna is een AI-systeem. Je praat met een taalmodel, geen mens. We doen ons best om Luna veilig te maken maar fouten kunnen voorkomen.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>AI-gebruik</h2>
+            <p>Luna is een AI-systeem. Je praat met een taalmodel, geen mens. We doen ons best om Luna veilig te maken maar fouten kunnen voorkomen.</p>
+          </section>
 
-          <Section title="Leeftijd">
-            Luna is bedoeld voor gebruikers van 16 jaar en ouder.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Leeftijd</h2>
+            <p>Luna is bedoeld voor personen van 16 jaar en ouder.</p>
+          </section>
 
-          <Section title="Gebruik">
-            Gebruik Luna voor jezelf. Niet om anderen te schaden.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Gebruik</h2>
+            <p>Gebruik Luna voor jezelf, niet om anderen te schaden.</p>
+          </section>
 
-          <Section title="Prijzen">
-            Personal Pro kost €9,99/maand of €79/jaar. Geen verborgen kosten. 14 dagen terugbetaling.
-          </Section>
-
-          <Section title="Toepasselijk recht">
-            Belgisch recht. Bevoegde rechtbank: Nederlandstalige rechtbank van Brussel.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Toepasselijk recht</h2>
+            <p>Belgisch recht. Bevoegde rechtbank: Nederlandstalige rechtbank van Brussel.</p>
+          </section>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function Section({ title, children }) {
-  return (
-    <div>
-      <h2 className="text-base font-semibold mb-2" style={{ color: "var(--luna-text-primary)" }}>
-        {title}
-      </h2>
-      <p>{children}</p>
+      </main>
     </div>
   );
 }

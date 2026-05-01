@@ -1,75 +1,71 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen py-8 px-6" style={{ backgroundColor: "var(--luna-bg-base)" }}>
-      <div className="max-w-2xl mx-auto">
-        <Link to="/" className="flex items-center gap-2 mb-8">
-          <ArrowLeft className="w-4 h-4" style={{ color: "var(--luna-text-muted)" }} />
-          <span className="text-sm" style={{ color: "var(--luna-text-muted)" }}>Terug</span>
+    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
+      <header className="flex items-center gap-3 px-6 py-4">
+        <Link to="/profiel">
+          <ArrowLeft className="w-5 h-5" style={{ color: "var(--text-primary-luna)" }} />
         </Link>
-
-        <h1 className="text-2xl font-semibold mb-2" style={{ color: "var(--luna-text-primary)" }}>
+        <span className="font-semibold" style={{ color: "var(--text-primary-luna)" }}>
           Privacybeleid
-        </h1>
-        <p className="text-xs mb-8" style={{ color: "var(--luna-text-muted)" }}>
-          Laatst bijgewerkt: mei 2026 · Leestijd: 5 min
+        </span>
+      </header>
+
+      <main className="px-6 pb-12 max-w-lg mx-auto space-y-6">
+        <p className="text-xs" style={{ color: "var(--text-muted-luna)" }}>
+          Leestijd: ~3 min · Laatst bijgewerkt: april 2026
         </p>
 
-        <div className="space-y-6 text-sm leading-relaxed" style={{ color: "var(--luna-text-secondary)" }}>
-          <Section title="Wie zijn wij">
-            Luna is een product gericht op emotioneel welzijn. Luna is geen zorgaanbieder en biedt geen diagnoses of behandelingen aan. Contact: hello@luna.app.
-          </Section>
+        <div className="space-y-5 text-sm leading-relaxed" style={{ color: "var(--text-secondary-luna)" }}>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Wie zijn wij</h2>
+            <p>Luna is een app voor emotioneel welzijn. Contacteer ons via hello@luna.app.</p>
+          </section>
 
-          <Section title="Wettelijke basis">
-            We verwerken je gegevens op basis van de uitvoering van de overeenkomst (Art. 6.1.b GDPR). Voor crisis-detectie beroepen we ons op gerechtvaardigd belang (Art. 6.1.f) en vitaal belang (Art. 9.2.c) waar van toepassing.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Wettelijke basis</h2>
+            <p>Uitvoering overeenkomst (Art. 6.1.b GDPR) voor de chatfunctie. Gerechtvaardigd belang (Art. 6.1.f) voor veiligheids- en crisisdetectie.</p>
+          </section>
 
-          <Section title="Welke data">
-            Account-data (e-mail indien account), berichten (vrije tekst), check-in scores, en technische logs. Bij anoniem gebruik: alleen een toestel-ID.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Welke data</h2>
+            <p>Account-data (email indien account), berichten (vrije tekst), check-in scores, technische logs. Geen verkoop aan derden. Geen gebruik voor AI-training.</p>
+          </section>
 
-          <Section title="Geen verkoop, geen AI-training">
-            We verkopen je data niet aan derden. We gebruiken je gesprekken niet om AI-modellen te trainen.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Servers</h2>
+            <p>EU-servers, encryptie in rust en in transit, GDPR-conform.</p>
+          </section>
 
-          <Section title="Servers">
-            Alle data wordt opgeslagen op EU-servers met encryptie in rust en in transit.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Bewaartermijn</h2>
+            <p>Zolang account actief. 30 dagen na verwijdering volledig uit backups.</p>
+          </section>
 
-          <Section title="Bewaartermijn">
-            Data wordt bewaard zolang je account actief is. Na verwijdering: volledig gewist binnen 30 dagen, inclusief uit backups.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Jouw rechten</h2>
+            <p>Toegang, rectificatie, wissen, dataportabiliteit, bezwaar, klacht bij Belgische GBA (Gegevensbeschermingsautoriteit).</p>
+          </section>
 
-          <Section title="Jouw rechten">
-            Je hebt recht op toegang, rectificatie, wissen, dataportabiliteit en bezwaar. Je kunt een klacht indienen bij de Belgische GBA. Gebruik Profiel → Je data om te exporteren of te wissen.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Cookies</h2>
+            <p>Alleen functionele cookies (auth session). Geen tracking, geen analytics cookies.</p>
+          </section>
 
-          <Section title="Cookies">
-            Luna gebruikt alleen functionele cookies (auth-sessie). Geen tracking, geen analytics-cookies.
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Crisis-detectie</h2>
+            <p>Bij signalen van acute nood toont Luna een steunkaart. We sturen geen automatische berichten naar derden, hulpdiensten of contactpersonen.</p>
+          </section>
 
-          <Section title="Crisis-detectie">
-            Bij signalen van acute nood toont Luna een steunkaart. We sturen geen automatische berichten naar derden, hulpdiensten of contactpersonen.
-          </Section>
-
-          <Section title="Contact">
-            hello@luna.app
-          </Section>
+          <section>
+            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Contact</h2>
+            <p>hello@luna.app</p>
+          </section>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function Section({ title, children }) {
-  return (
-    <div>
-      <h2 className="text-base font-semibold mb-2" style={{ color: "var(--luna-text-primary)" }}>
-        {title}
-      </h2>
-      <p>{children}</p>
+      </main>
     </div>
   );
 }
