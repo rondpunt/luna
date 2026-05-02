@@ -1,76 +1,170 @@
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import LunaOrb from "../components/luna/LunaOrb";
-import GlassCard from "../components/luna/GlassCard";
+import { Heart, ShieldCheck } from "lucide-react";
+import { motion } from "framer-motion";
+
+function LunaOrbLight({ size = 160 }) {
+  return (
+    <motion.div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95) 0%, rgba(200,210,255,0.85) 30%, rgba(180,200,240,0.70) 55%, rgba(160,185,230,0.50) 75%, rgba(140,170,220,0.30) 100%)",
+        boxShadow:
+          "0 8px 40px rgba(100,140,220,0.25), 0 2px 12px rgba(180,200,255,0.20)",
+        position: "relative",
+      }}
+      animate={{
+        scale: [1, 1.025, 1],
+      }}
+      transition={{
+        duration: 4,
+        ease: "easeInOut",
+        repeat: Infinity,
+      }}
+    >
+      {/* Inner glow shapes */}
+      <div
+        style={{
+          position: "absolute",
+          top: "20%",
+          left: "18%",
+          width: "55%",
+          height: "55%",
+          borderRadius: "60% 40% 55% 45% / 50% 60% 40% 55%",
+          background:
+            "radial-gradient(circle at 40% 40%, rgba(200,215,255,0.8) 0%, rgba(170,195,250,0.5) 50%, transparent 80%)",
+          filter: "blur(6px)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: "35%",
+          left: "30%",
+          width: "40%",
+          height: "40%",
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(230,220,255,0.7) 0%, rgba(200,210,255,0.4) 60%, transparent 90%)",
+          filter: "blur(8px)",
+        }}
+      />
+      {/* Reflection base */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: -6,
+          left: "20%",
+          width: "60%",
+          height: 10,
+          background:
+            "radial-gradient(ellipse, rgba(100,140,220,0.20) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(4px)",
+        }}
+      />
+    </motion.div>
+  );
+}
 
 export default function Landing() {
-  const handleLogin = () => base44.auth.redirectToLogin("/home");
+  const handleStart = () => base44.auth.redirectToLogin("/home");
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-5 text-center"
+      className="min-h-screen flex flex-col items-center justify-between px-6 py-10"
       style={{
-        background: "radial-gradient(ellipse at 80% -10%, rgba(180,120,20,0.12), transparent 50%), radial-gradient(ellipse at 50% -5%, rgba(79,70,229,0.10), transparent 45%), #080d1e",
+        background: "linear-gradient(160deg, #e8f0fb 0%, #f0f4ff 40%, #e4eef9 100%)",
       }}
     >
-      <LunaOrb size={100} state="idle" className="mb-8" />
+      {/* Top spacer */}
+      <div />
 
-      <h1
-        className="text-4xl mb-3"
-        style={{ fontFamily: "'Lora', Georgia, serif", fontStyle: "italic", color: "rgba(255,255,255,0.92)" }}
-      >
-        luna
-      </h1>
-      <p className="text-base mb-2" style={{ color: "rgba(255,255,255,0.55)", fontFamily: "'DM Sans', sans-serif" }}>
-        Jouw ruimte. Altijd hier.
-      </p>
-      <p className="text-sm mb-10 max-w-xs" style={{ color: "rgba(255,255,255,0.30)", fontFamily: "'DM Sans', sans-serif" }}>
-        Anonieme, empathische AI-gezel voor emotioneel welzijn. Geen oordeel. Geen diagnose.
-      </p>
+      {/* Center content */}
+      <div className="flex flex-col items-center text-center w-full max-w-sm">
+        {/* Orb */}
+        <div className="mb-8">
+          <LunaOrbLight size={160} />
+        </div>
 
-      <div className="w-full max-w-xs space-y-3">
+        {/* Headline */}
+        <h1
+          className="text-[28px] font-bold mb-3 leading-snug"
+          style={{ color: "#1a2340", fontFamily: "'DM Sans', -apple-system, sans-serif" }}
+        >
+          Hoi, ik ben Luna.
+        </h1>
+        <p
+          className="text-base mb-8 leading-relaxed"
+          style={{ color: "#5a6a8a", fontFamily: "'DM Sans', sans-serif", maxWidth: 260 }}
+        >
+          Ik ben hier om naar je te luisteren en je te ondersteunen.
+        </p>
+
+        {/* Feature chips */}
+        <div className="grid grid-cols-2 gap-3 w-full mb-10">
+          <div
+            className="flex flex-col items-center gap-2 py-4 px-3 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.80)",
+              boxShadow: "0 2px 12px rgba(100,140,220,0.10)",
+            }}
+          >
+            <Heart className="w-5 h-5" style={{ color: "#3b5bdb" }} />
+            <span className="text-sm font-medium" style={{ color: "#2d3a5a", fontFamily: "'DM Sans', sans-serif" }}>
+              Empathie
+            </span>
+          </div>
+          <div
+            className="flex flex-col items-center gap-2 py-4 px-3 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.80)",
+              boxShadow: "0 2px 12px rgba(100,140,220,0.10)",
+            }}
+          >
+            <ShieldCheck className="w-5 h-5" style={{ color: "#1e7a8c" }} />
+            <span className="text-sm font-medium" style={{ color: "#2d3a5a", fontFamily: "'DM Sans', sans-serif" }}>
+              Veiligheid
+            </span>
+          </div>
+        </div>
+
+        {/* CTA */}
         <button
-          onClick={handleLogin}
-          className="w-full py-4 rounded-full text-sm font-semibold text-white transition-all active:scale-[0.97]"
+          onClick={handleStart}
+          className="w-full py-4 rounded-full text-base font-semibold text-white flex items-center justify-center gap-2 transition-all active:scale-[0.97]"
           style={{
-            background: "#6366f1",
-            boxShadow: "0 0 24px rgba(99,102,241,0.4)",
+            background: "linear-gradient(135deg, #1e7a8c, #1a6678)",
+            boxShadow: "0 4px 20px rgba(30,122,140,0.35)",
             fontFamily: "'DM Sans', sans-serif",
           }}
         >
-          Begin gratis
+          Start <span style={{ fontSize: 18 }}>→</span>
         </button>
-        <button
-          onClick={handleLogin}
-          className="w-full py-4 rounded-full text-sm font-medium transition-all active:scale-[0.97]"
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.09)",
-            color: "rgba(255,255,255,0.60)",
-            fontFamily: "'DM Sans', sans-serif",
-          }}
+
+        <p
+          className="text-xs mt-4"
+          style={{ color: "#9aa5be", fontFamily: "'DM Sans', sans-serif" }}
         >
-          Inloggen
-        </button>
+          Door verder te gaan ga je akkoord met onze{" "}
+          <Link to="/privacy" style={{ color: "#5a7abf", textDecoration: "underline" }}>
+            privacyvoorwaarden
+          </Link>
+          .
+        </p>
       </div>
 
-      <p className="text-xs mt-8" style={{ color: "rgba(255,255,255,0.20)", fontFamily: "'DM Sans', sans-serif" }}>
-        🇧🇪 Belgisch · 🇪🇺 EU-servers · 🔒 Privé
-      </p>
-
-      <div className="flex gap-4 mt-4">
-        <Link to="/privacy" className="text-xs" style={{ color: "rgba(255,255,255,0.20)", fontFamily: "'DM Sans', sans-serif" }}>Privacy</Link>
-        <Link to="/voorwaarden" className="text-xs" style={{ color: "rgba(255,255,255,0.20)", fontFamily: "'DM Sans', sans-serif" }}>Voorwaarden</Link>
-      </div>
-
-      {/* Crisis */}
+      {/* Bottom crisis */}
       <a
         href="tel:080032123"
-        className="mt-6 px-4 py-2 rounded-full text-xs"
+        className="text-xs px-4 py-2 rounded-full"
         style={{
-          background: "rgba(239,68,68,0.08)",
-          border: "1px solid rgba(239,68,68,0.15)",
-          color: "rgba(248,113,113,0.70)",
+          background: "rgba(220,60,60,0.07)",
+          border: "1px solid rgba(220,60,60,0.15)",
+          color: "rgba(180,50,50,0.70)",
           fontFamily: "'DM Sans', sans-serif",
         }}
       >
