@@ -1,72 +1,104 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, Trash2, Download } from "lucide-react";
+import { ChevronLeft, Download, Trash2 } from "lucide-react";
 
 export default function PrivacyCenter() {
   const [memoryOn, setMemoryOn] = useState(true);
   const [done, setDone] = useState("");
 
   return (
-    <div className="px-5 pt-6 pb-10 space-y-6">
-      <div className="flex items-center gap-3">
-        <Link to="/profile" className="flex h-9 w-9 items-center justify-center rounded-full" style={{ background: "#1c1c1e" }}>
-          <ChevronLeft className="h-5 w-5 text-white" />
+    <div className="min-h-dvh px-4 pt-0 pb-10" style={{ background: "#000" }}>
+      <div
+        className="sticky top-0 z-10 flex items-center gap-3 py-3 mb-6"
+        style={{
+          background: "rgba(0,0,0,0.88)",
+          backdropFilter: "saturate(180%) blur(20px)",
+          borderBottom: "0.5px solid rgba(84,84,88,0.65)",
+        }}
+      >
+        <Link to="/profile" className="flex items-center gap-1 text-[17px] font-medium" style={{ color: "#C25A32" }}>
+          <ChevronLeft className="h-[22px] w-[22px]" strokeWidth={2.5} />
+          Profiel
         </Link>
-        <h1 className="text-xl font-bold text-white">Privacycentrum</h1>
+        <span className="flex-1 text-center text-[17px] font-semibold" style={{ color: "#fff" }}>Privacycentrum</span>
+        <div className="w-16" />
       </div>
 
-      <p className="text-sm leading-6" style={{ color: "rgba(255,255,255,0.55)" }}>
-        Bepaal zelf wat Nora onthoudt en wat van jou blijft.
-      </p>
-
-      {/* Memory toggle */}
-      <div className="rounded-2xl px-4 py-4 flex items-center justify-between" style={{ background: "#1c1c1e" }}>
+      <div className="space-y-6">
+        {/* Memory toggle */}
         <div>
-          <p className="text-sm font-semibold text-white">Geheugen</p>
-          <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>Nora onthoudt context over gesprekken heen</p>
+          <p className="text-[13px] font-medium uppercase tracking-wider mb-1.5 px-1" style={{ color: "rgba(235,235,245,0.55)" }}>
+            INSTELLINGEN
+          </p>
+          <div className="ios-list">
+            <div className="ios-list-row justify-between">
+              <div>
+                <p className="text-[15px]" style={{ color: "#fff" }}>Geheugen</p>
+                <p className="text-[13px]" style={{ color: "rgba(235,235,245,0.45)" }}>
+                  Nora onthoudt context over gesprekken
+                </p>
+              </div>
+              <button
+                onClick={() => setMemoryOn((v) => !v)}
+                className="relative h-[31px] w-[51px] rounded-full transition-colors shrink-0"
+                style={{ background: memoryOn ? "#C25A32" : "#3A3A3C" }}
+              >
+                <span
+                  className="absolute top-[2px] h-[27px] w-[27px] rounded-full bg-white shadow transition-all"
+                  style={{ left: memoryOn ? "22px" : "2px" }}
+                />
+              </button>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={() => setMemoryOn((v) => !v)}
-          className="h-7 w-12 rounded-full transition-colors relative"
-          style={{ background: memoryOn ? "#c25a32" : "#3a3a3c" }}
-        >
-          <span
-            className="absolute top-0.5 h-6 w-6 rounded-full bg-white transition-all"
-            style={{ left: memoryOn ? "calc(100% - 26px)" : "2px" }}
-          />
-        </button>
-      </div>
 
-      {/* Actions */}
-      <div className="space-y-2">
-        <button
-          onClick={() => setDone("export")}
-          className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm text-white text-left transition-all"
-          style={{ background: "#1c1c1e" }}
-        >
-          <Download className="h-5 w-5 text-[#c25a32]" />
-          <span>{done === "export" ? "✓ Export aangemaakt" : "Alle data exporteren"}</span>
-        </button>
-        <button
-          onClick={() => setDone("history")}
-          className="w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 text-sm text-white text-left transition-all"
-          style={{ background: "#1c1c1e" }}
-        >
-          <Trash2 className="h-5 w-5" style={{ color: "rgba(255,255,255,0.50)" }} />
-          <span>{done === "history" ? "✓ Geschiedenis gewist" : "Gespreksgeschiedenis wissen"}</span>
-        </button>
-      </div>
+        {/* Data actions */}
+        <div>
+          <p className="text-[13px] font-medium uppercase tracking-wider mb-1.5 px-1" style={{ color: "rgba(235,235,245,0.55)" }}>
+            DATA
+          </p>
+          <div className="ios-list">
+            <button
+              onClick={() => setDone("export")}
+              className="ios-list-row w-full gap-3"
+            >
+              <Download className="h-5 w-5" style={{ color: "#C25A32" }} />
+              <span className="text-[15px]" style={{ color: "#fff" }}>
+                {done === "export" ? "✓ Export aangemaakt" : "Alle data exporteren"}
+              </span>
+            </button>
+            <button
+              onClick={() => setDone("history")}
+              className="ios-list-row w-full gap-3"
+            >
+              <Trash2 className="h-5 w-5" style={{ color: "rgba(235,235,245,0.55)" }} />
+              <span className="text-[15px]" style={{ color: "#fff" }}>
+                {done === "history" ? "✓ Geschiedenis gewist" : "Gespreksgeschiedenis wissen"}
+              </span>
+            </button>
+          </div>
+        </div>
 
-      {/* Delete account */}
-      <div className="rounded-2xl px-4 py-4" style={{ background: "#1c1c1e", border: "1px solid rgba(255,59,48,0.20)" }}>
-        <p className="text-sm font-semibold text-white mb-1">Account verwijderen</p>
-        <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>Verwijder je account en hele privé geschiedenis definitief. Dit kan niet ongedaan worden.</p>
-        <button
-          className="rounded-xl px-4 py-2 text-sm font-medium"
-          style={{ background: "rgba(255,59,48,0.12)", color: "#ff3b30" }}
-        >
-          Account verwijderen
-        </button>
+        {/* Delete account */}
+        <div>
+          <p className="text-[13px] font-medium uppercase tracking-wider mb-1.5 px-1" style={{ color: "rgba(235,235,245,0.55)" }}>
+            ACCOUNT
+          </p>
+          <div className="ios-list">
+            <div className="ios-list-row flex-col items-start gap-2 py-4">
+              <p className="text-[15px] font-semibold" style={{ color: "#FF453A" }}>Account verwijderen</p>
+              <p className="text-[13px] leading-5" style={{ color: "rgba(235,235,245,0.45)" }}>
+                Verwijdert je account en alle data definitief. Kan niet ongedaan worden.
+              </p>
+              <button
+                className="mt-1 rounded-xl px-4 py-2 text-[14px] font-medium"
+                style={{ background: "rgba(255,69,58,0.15)", color: "#FF453A" }}
+              >
+                Verwijder account
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -17,100 +17,101 @@ export default function Profile() {
     await base44.auth.logout();
   };
 
-  const ACCOUNT = [
-    { icon: Bell, label: "Meldingen", value: "Dagelijks 20:00", action: null },
-    { icon: Gem, label: "Abonnement", value: "Gratis", to: "/pricing" },
-    { icon: Shield, label: "Privacycentrum", value: null, to: "/privacy-center" },
-  ];
-
-  const INFO = [
-    { icon: FileText, label: "Privacybeleid", to: "/privacy" },
-    { icon: FileText, label: "Voorwaarden", to: "/voorwaarden" },
-    { icon: Mail, label: "Feedback sturen", to: "/contact" },
-  ];
-
   return (
-    <div className="px-5 pt-6 pb-8 space-y-6">
-      {/* Avatar + name */}
-      <div className="flex flex-col items-center text-center gap-3 py-4">
+    <div className="px-4 pt-6 pb-8 space-y-8">
+
+      {/* Avatar section */}
+      <div className="flex flex-col items-center gap-3 pt-2">
         <div
-          className="h-20 w-20 rounded-full flex items-center justify-center text-2xl font-bold text-white"
+          className="h-[72px] w-[72px] rounded-full flex items-center justify-center text-[26px] font-semibold text-white"
           style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)" }}
         >
           {initials}
         </div>
-        <div>
-          <p className="text-lg font-bold text-white">{name}</p>
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{email}</p>
+        <div className="text-center">
+          <p className="text-[20px] font-semibold" style={{ color: "#fff", letterSpacing: "-0.2px" }}>{name}</p>
+          <p className="text-[13px] mt-0.5" style={{ color: "rgba(235,235,245,0.50)" }}>{email}</p>
         </div>
       </div>
 
       {/* Pro banner */}
       <Link to="/pricing">
         <div
-          className="rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: "linear-gradient(135deg, rgba(194,90,50,0.30), rgba(194,90,50,0.15))", border: "1px solid rgba(194,90,50,0.35)" }}
+          className="rounded-2xl px-4 py-4 flex items-center gap-3"
+          style={{
+            background: "linear-gradient(135deg, rgba(194,90,50,0.25) 0%, rgba(194,90,50,0.12) 100%)",
+            border: "0.5px solid rgba(194,90,50,0.50)",
+          }}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: "rgba(194,90,50,0.25)" }}>
-            <Gem className="h-5 w-5 text-[#c25a32]" />
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+            style={{ background: "rgba(194,90,50,0.25)" }}
+          >
+            <Gem className="h-5 w-5" style={{ color: "#C25A32" }} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-white">Upgrade naar Nora Plus</p>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.50)" }}>Onbeperkt · Geheugen · €9,99/mnd</p>
+            <p className="text-[15px] font-semibold" style={{ color: "#fff" }}>Upgrade naar Nora Plus</p>
+            <p className="text-[13px]" style={{ color: "rgba(235,235,245,0.50)" }}>Onbeperkt · Geheugen · €9,99/mnd</p>
           </div>
-          <ChevronRight className="h-4 w-4" style={{ color: "rgba(255,255,255,0.35)" }} />
+          <ChevronRight className="h-4 w-4" style={{ color: "rgba(235,235,245,0.30)" }} />
         </div>
       </Link>
 
-      {/* Account */}
-      <Section label="ACCOUNT">
-        {ACCOUNT.map(({ icon: Icon, label, value, to, action }, i) => {
-          const row = (
-            <div className={`flex items-center gap-3 px-4 py-3.5 ${i > 0 ? "border-t border-[rgba(255,255,255,0.06)]" : ""}`}>
-              <Icon className="h-5 w-5 text-[#c25a32]" />
-              <span className="flex-1 text-sm text-white">{label}</span>
-              {value && <span className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>{value}</span>}
-              <ChevronRight className="h-4 w-4" style={{ color: "rgba(255,255,255,0.25)" }} />
-            </div>
-          );
-          return to ? <Link key={label} to={to}>{row}</Link> : <div key={label}>{row}</div>;
-        })}
-      </Section>
+      {/* Account group */}
+      <IosGroup label="ACCOUNT">
+        <IosRow icon={Bell} label="Meldingen" value="20:00" />
+        <IosRow icon={Gem} label="Abonnement" value="Gratis" to="/pricing" />
+        <IosRow icon={Shield} label="Privacycentrum" to="/privacy-center" />
+      </IosGroup>
 
-      {/* Info */}
-      <Section label="OVER">
-        {INFO.map(({ icon: Icon, label, to }, i) => (
-          <Link key={label} to={to} className={`flex items-center gap-3 px-4 py-3.5 ${i > 0 ? "border-t border-[rgba(255,255,255,0.06)]" : ""}`}>
-            <Icon className="h-5 w-5" style={{ color: "rgba(255,255,255,0.40)" }} />
-            <span className="flex-1 text-sm text-white">{label}</span>
-            <ChevronRight className="h-4 w-4" style={{ color: "rgba(255,255,255,0.25)" }} />
-          </Link>
-        ))}
-      </Section>
+      {/* Info group */}
+      <IosGroup label="OVER">
+        <IosRow icon={FileText} label="Privacybeleid" to="/privacy" />
+        <IosRow icon={FileText} label="Voorwaarden" to="/voorwaarden" />
+        <IosRow icon={Mail} label="Feedback sturen" to="/contact" />
+      </IosGroup>
 
       {/* Logout */}
       <button
         onClick={handleLogout}
         disabled={loggingOut}
-        className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-medium transition-all"
-        style={{ background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.20)", color: "#ff3b30" }}
+        className="ios-list w-full ios-list-row justify-center gap-2 text-[15px] font-medium"
+        style={{ color: "#FF453A" }}
       >
         <LogOut className="h-4 w-4" />
         {loggingOut ? "Bezig…" : "Uitloggen"}
       </button>
 
-      <p className="text-center text-xs" style={{ color: "rgba(255,255,255,0.20)" }}>Nora v1.0 · Gemaakt met zorg in België</p>
+      <p className="text-center text-[12px]" style={{ color: "rgba(235,235,245,0.20)" }}>
+        Nora v1.0 · Gemaakt met zorg in België
+      </p>
     </div>
   );
 }
 
-function Section({ label, children }) {
+function IosGroup({ label, children }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-widest mb-2 px-1" style={{ color: "rgba(255,255,255,0.30)" }}>{label}</p>
-      <div className="overflow-hidden rounded-2xl" style={{ background: "#1c1c1e" }}>
-        {children}
-      </div>
+      <p
+        className="text-[13px] font-medium uppercase tracking-wider mb-1.5 px-4"
+        style={{ color: "rgba(235,235,245,0.55)" }}
+      >
+        {label}
+      </p>
+      <div className="ios-list">{children}</div>
     </div>
   );
+}
+
+function IosRow({ icon: Icon, label, value, to }) {
+  const inner = (
+    <div className="ios-list-row gap-3 w-full">
+      <Icon className="h-[18px] w-[18px] shrink-0" style={{ color: "#C25A32" }} />
+      <span className="flex-1 text-[15px]" style={{ color: "#fff" }}>{label}</span>
+      {value && <span className="text-[15px]" style={{ color: "rgba(235,235,245,0.45)" }}>{value}</span>}
+      {to && <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "rgba(235,235,245,0.30)" }} />}
+    </div>
+  );
+  if (to) return <Link to={to}>{inner}</Link>;
+  return inner;
 }

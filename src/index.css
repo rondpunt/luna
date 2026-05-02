@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,40 +6,48 @@
 
 @layer base {
   :root {
-    /* Dark iPhone night-mode palette */
-    --bg-primary: #000000;
-    --bg-secondary: #1c1c1e;
-    --bg-tertiary: #2c2c2e;
-    --bg-elevated: #3a3a3c;
-    --accent: #c25a32;
-    --accent-light: #ee9670;
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255,255,255,0.60);
-    --text-tertiary: rgba(255,255,255,0.30);
-    --separator: rgba(255,255,255,0.08);
-    --separator-strong: rgba(255,255,255,0.12);
+    /* iOS 18 exact system colors — dark */
+    --ios-bg:           #000000;
+    --ios-bg2:          #1C1C1E;
+    --ios-bg3:          #2C2C2E;
+    --ios-bg4:          #3A3A3C;
+    --ios-label:        #FFFFFF;
+    --ios-label2:       rgba(235,235,245,0.60);
+    --ios-label3:       rgba(235,235,245,0.30);
+    --ios-label4:       rgba(235,235,245,0.18);
+    --ios-sep:          rgba(84,84,88,0.65);
+    --ios-sep-opaque:   #38383A;
+    --ios-fill:         rgba(120,120,128,0.36);
+    --ios-fill2:        rgba(120,120,128,0.32);
+    --ios-fill3:        rgba(118,118,128,0.24);
+    --ios-fill4:        rgba(116,116,128,0.18);
+    --ios-accent:       #C25A32;
+    --ios-accent-light: #EE9670;
+    --ios-green:        #30D158;
+    --ios-red:          #FF453A;
+    --ios-blue:         #0A84FF;
 
-    /* shadcn tokens mapped to dark */
+    /* shadcn tokens */
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
     --card: 0 0% 11%;
     --card-foreground: 0 0% 100%;
     --popover: 0 0% 11%;
     --popover-foreground: 0 0% 100%;
-    --primary: 14 70% 56%;
+    --primary: 14 70% 47%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 17%;
     --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 17%;
     --muted-foreground: 0 0% 60%;
-    --accent: 14 70% 56%;
+    --accent: 14 70% 47%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 60%;
+    --destructive: 3 100% 62%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 17%;
+    --border: 0 0% 22%;
     --input: 0 0% 17%;
-    --ring: 14 70% 56%;
-    --radius: 1rem;
+    --ring: 14 70% 47%;
+    --radius: 0.75rem;
   }
 }
 
@@ -47,43 +55,63 @@
   * {
     @apply border-border outline-ring/50;
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
   }
 
   body {
-    background: #000000;
-    color: #ffffff;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--ios-bg);
+    color: var(--ios-label);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overscroll-behavior: none;
-    min-height: 100vh;
+    min-height: 100dvh;
+    font-size: 17px;
+    line-height: 1.47;
   }
 
-  h1, h2, h3, h4 {
-    font-family: 'Inter', -apple-system, system-ui, sans-serif;
-    letter-spacing: -0.02em;
-  }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.2px; }
 
-  input, textarea {
-    font-size: 16px;
-    font-family: 'Inter', -apple-system, system-ui, sans-serif;
-  }
+  input, textarea, button { font-family: inherit; }
+  input { font-size: 17px; }
+  textarea { font-size: 17px; }
 
   ::-webkit-scrollbar { width: 0; height: 0; }
-  ::placeholder { color: rgba(255,255,255,0.30); }
+  ::placeholder { color: var(--ios-label3); }
 }
 
-/* Typing dots */
+/* iOS grouped list style */
+.ios-list {
+  background: var(--ios-bg2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.ios-list-row {
+  display: flex;
+  align-items: center;
+  padding: 11px 16px;
+  min-height: 44px;
+}
+.ios-list-row + .ios-list-row {
+  border-top: 0.5px solid var(--ios-sep);
+}
+
+/* Typing animation */
 .typing-dot {
   display: inline-block;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.40);
-  animation: typingBounce 1.2s ease-in-out infinite;
+  background: var(--ios-label3);
+  animation: typingPulse 1.4s ease-in-out infinite;
 }
-@keyframes typingBounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.40; }
-  30% { transform: translateY(-5px); opacity: 1; }
+@keyframes typingPulse {
+  0%, 60%, 100% { transform: scale(1); opacity: 0.4; }
+  30% { transform: scale(1.3); opacity: 1; }
 }
 
 /* Safe area */
-.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.pb-safe { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+.pt-safe { padding-top: env(safe-area-inset-top, 0px); }

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { ChevronLeft, MoreVertical, Send, Smile } from "lucide-react";
+import { ChevronLeft, Send, Smile } from "lucide-react";
 import { Link } from "react-router-dom";
 import EmojiPicker from "@/components/nora/EmojiPicker";
 
@@ -9,7 +9,7 @@ const STARTERS = [
   "Ik voel me overweldigd",
   "Ik weet niet wat ik voel",
   "Ik heb het moeilijk op het werk",
-  "Ik slaap slecht",
+  "Ik slaap al dagen slecht",
 ];
 
 export default function Chat() {
@@ -20,14 +20,13 @@ export default function Chat() {
   const [showEmoji, setShowEmoji] = useState(false);
   const [started, setStarted] = useState(false);
   const bottomRef = useRef(null);
-  const inputRef = useRef(null);
   const textareaRef = useRef(null);
+  const emojiRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
-  // Create agent conversation on mount
   useEffect(() => {
     let active = true;
     (async () => {
@@ -38,13 +37,12 @@ export default function Chat() {
         });
         if (active) setConversationId(conv.id);
       } catch {
-        // fallback to noraChat function if agent not available
+        // fallback to noraChat
       }
     })();
     return () => { active = false; };
   }, []);
 
-  // Subscribe to agent conversation updates
   useEffect(() => {
     if (!conversationId) return;
     const unsub = base44.agents.subscribeToConversation(conversationId, (data) => {
@@ -58,12 +56,13 @@ export default function Chat() {
   }, [conversationId]);
 
   const sendMessage = async (text) => {
-    const txt = text || input.trim();
+    const txt = (text || input).trim();
     if (!txt || sending) return;
     setInput("");
     setShowEmoji(false);
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
-
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
     const userMsg = { role: "user", content: txt };
     setMessages((prev) => [...prev, userMsg]);
     setSending(true);
@@ -71,17 +70,14 @@ export default function Chat() {
 
     try {
       if (conversationId) {
-        // Use agent
         await base44.agents.addMessage({ id: conversationId }, userMsg);
-        // Response comes via subscription
       } else {
-        // Fallback: noraChat function
         const allMsgs = [...messages, userMsg];
         const res = await base44.functions.invoke("noraChat", { messages: allMsgs, style: "gentle" });
         const reply =
           typeof res?.data?.reply === "string"
             ? res.data.reply
-            : res?.data?.reply?.content || "Ik ben er voor je. Vertel me meer.";
+            : res?.data?.reply?.content ?? "Ik ben er voor je. Vertel me meer.";
         setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
         setSending(false);
       }
@@ -98,53 +94,51 @@ export default function Chat() {
     }
   };
 
-  const insertEmoji = (emoji) => {
-    setInput((prev) => prev + emoji);
-    inputRef.current?.focus();
-  };
-
   return (
     <div className="fixed inset-0 flex flex-col" style={{ background: "#000" }}>
-      {/* Header */}
+      {/* iOS Chat header */}
       <div
-        className="flex items-center gap-3 px-4 py-3 shrink-0"
+        className="flex items-center gap-3 px-4 shrink-0"
         style={{
-          background: "rgba(0,0,0,0.85)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(0,0,0,0.88)",
+          backdropFilter: "saturate(180%) blur(20px)",
+          WebkitBackdropFilter: "saturate(180%) blur(20px)",
+          borderBottom: "0.5px solid rgba(84,84,88,0.65)",
+          paddingTop: "calc(12px + env(safe-area-inset-top, 0px))",
+          paddingBottom: "12px",
         }}
       >
-        <Link to="/" className="flex h-9 w-9 items-center justify-center rounded-full" style={{ background: "#1c1c1e" }}>
-          <ChevronLeft className="h-5 w-5 text-white" />
+        <Link
+          to="/"
+          className="flex items-center gap-1 text-[17px] font-medium"
+          style={{ color: "#C25A32" }}
+        >
+          <ChevronLeft className="h-[22px] w-[22px]" strokeWidth={2.5} />
+          <span className="text-[17px]">Start</span>
         </Link>
 
-        {/* Avatar + name */}
-        <div className="flex items-center gap-2.5 flex-1">
+        {/* Center: avatar + name */}
+        <div className="flex flex-1 flex-col items-center">
           <div className="relative">
             <div
-              className="h-9 w-9 rounded-full flex items-center justify-center text-base font-bold text-white"
+              className="h-8 w-8 rounded-full flex items-center justify-center text-[13px] font-bold text-white"
               style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)" }}
             >
               N
             </div>
             <span
-              className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-black"
-              style={{ background: "#34c759" }}
+              className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-[1.5px] border-black"
+              style={{ background: "#30D158" }}
             />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-white leading-tight">Nora AI</p>
-            <p className="text-[11px]" style={{ color: "#34c759" }}>Online</p>
-          </div>
+          <p className="text-[12px] font-semibold mt-0.5" style={{ color: "#fff" }}>Nora</p>
         </div>
 
-        <button className="flex h-9 w-9 items-center justify-center rounded-full" style={{ background: "#1c1c1e" }}>
-          <MoreVertical className="h-4 w-4" style={{ color: "rgba(255,255,255,0.50)" }} />
-        </button>
+        <div className="w-16" />
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
         {messages.map((m, i) => (
           <Bubble key={i} message={m} />
         ))}
@@ -152,35 +146,39 @@ export default function Chat() {
         {sending && (
           <div className="flex items-end gap-2">
             <div
-              className="h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-xs font-bold text-white mb-0.5"
+              className="h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-[12px] font-bold text-white mb-0.5"
               style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)" }}
             >
               N
             </div>
             <div
-              className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm px-4 py-3"
-              style={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.06)" }}
+              className="flex items-center gap-1.5 rounded-[18px] rounded-bl-[4px] px-4 py-3"
+              style={{ background: "#1C1C1E" }}
             >
               <span className="typing-dot" style={{ animationDelay: "0ms" }} />
-              <span className="typing-dot" style={{ animationDelay: "180ms" }} />
-              <span className="typing-dot" style={{ animationDelay: "360ms" }} />
+              <span className="typing-dot" style={{ animationDelay: "200ms" }} />
+              <span className="typing-dot" style={{ animationDelay: "400ms" }} />
             </div>
           </div>
         )}
 
-        {/* Starter prompts — only before first user message */}
         {!started && (
-          <div className="pt-4 space-y-2">
-            <p className="text-xs text-center" style={{ color: "rgba(255,255,255,0.30)" }}>Of kies een onderwerp</p>
+          <div className="pt-6 space-y-2">
+            <p
+              className="text-center text-[13px] mb-3"
+              style={{ color: "rgba(235,235,245,0.35)" }}
+            >
+              Of kies een onderwerp
+            </p>
             {STARTERS.map((s) => (
               <button
                 key={s}
                 onClick={() => sendMessage(s)}
-                className="w-full text-left rounded-2xl px-4 py-3 text-sm transition-all active:scale-[0.98]"
+                className="w-full text-left rounded-2xl px-4 py-3 text-[15px] transition-all active:scale-[0.98]"
                 style={{
-                  background: "#1c1c1e",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  color: "rgba(255,255,255,0.75)",
+                  background: "#1C1C1E",
+                  color: "rgba(235,235,245,0.85)",
+                  border: "none",
                 }}
               >
                 {s}
@@ -193,52 +191,72 @@ export default function Chat() {
       </div>
 
       {/* Emoji picker */}
-      {showEmoji && <EmojiPicker onSelect={insertEmoji} onClose={() => setShowEmoji(false)} />}
+      {showEmoji && (
+        <EmojiPicker onSelect={(e) => setInput((p) => p + e)} onClose={() => setShowEmoji(false)} />
+      )}
 
-      {/* Input bar */}
+      {/* iOS-style input bar */}
       <div
-        className="shrink-0 px-4 py-3"
+        className="shrink-0"
         style={{
-          background: "rgba(0,0,0,0.85)",
-          backdropFilter: "blur(20px)",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-          paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+          background: "rgba(28,28,30,0.94)",
+          backdropFilter: "saturate(180%) blur(20px)",
+          WebkitBackdropFilter: "saturate(180%) blur(20px)",
+          borderTop: "0.5px solid rgba(84,84,88,0.65)",
+          paddingLeft: "8px",
+          paddingRight: "8px",
+          paddingTop: "8px",
+          paddingBottom: "max(8px, env(safe-area-inset-bottom, 0px))",
         }}
       >
-        <div
-          className="flex items-end gap-2 rounded-2xl px-3 py-2"
-          style={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.10)" }}
-        >
+        <div className="flex items-end gap-2">
+          {/* Emoji button */}
           <button
-            ref={inputRef}
             onClick={() => setShowEmoji((v) => !v)}
-            className="mb-0.5 shrink-0 transition-colors"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full mb-0.5"
+            style={{ background: "rgba(120,120,128,0.24)" }}
           >
-            <Smile className="h-5 w-5" style={{ color: showEmoji ? "#c25a32" : "rgba(255,255,255,0.35)" }} />
+            <Smile className="h-5 w-5" style={{ color: showEmoji ? "#C25A32" : "rgba(235,235,245,0.65)" }} />
           </button>
 
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              e.target.style.height = "auto";
-              e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+          {/* Text input bubble */}
+          <div
+            className="flex flex-1 items-end rounded-[22px] px-3 py-2"
+            style={{
+              background: "#2C2C2E",
+              border: "0.5px solid rgba(84,84,88,0.65)",
+              minHeight: "36px",
             }}
-            onKeyDown={handleKey}
-            placeholder="Typ een bericht…"
-            rows={1}
-            className="flex-1 resize-none bg-transparent text-sm outline-none leading-5 text-white"
-            style={{ minHeight: "20px", maxHeight: "120px" }}
-          />
+          >
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+              }}
+              onKeyDown={handleKey}
+              placeholder="Bericht…"
+              rows={1}
+              className="flex-1 resize-none bg-transparent text-[15px] leading-5 outline-none text-white"
+              style={{ minHeight: "20px", maxHeight: "120px" }}
+            />
+          </div>
 
+          {/* Send button — iOS style */}
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || sending}
-            className="mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all disabled:opacity-30"
-            style={{ background: input.trim() ? "#c25a32" : "rgba(255,255,255,0.12)" }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full mb-0.5 transition-all"
+            style={{
+              background: input.trim() && !sending ? "#C25A32" : "rgba(120,120,128,0.24)",
+            }}
           >
-            <Send className="h-3.5 w-3.5 text-white" />
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5" />
+              <polyline points="5 12 12 5 19 12" />
+            </svg>
           </button>
         </div>
       </div>
@@ -252,8 +270,8 @@ function Bubble({ message }) {
     return (
       <div className="flex justify-end">
         <div
-          className="max-w-[78%] rounded-2xl rounded-br-sm px-4 py-2.5 text-sm text-white leading-6 whitespace-pre-wrap break-words"
-          style={{ background: "#c25a32" }}
+          className="max-w-[75%] rounded-[18px] rounded-br-[4px] px-4 py-2.5 text-[15px] leading-[1.4] text-white break-words"
+          style={{ background: "#C25A32" }}
         >
           {message.content}
         </div>
@@ -263,14 +281,14 @@ function Bubble({ message }) {
   return (
     <div className="flex items-end gap-2">
       <div
-        className="h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-xs font-bold text-white mb-0.5"
+        className="h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-[12px] font-bold text-white mb-0.5"
         style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)" }}
       >
         N
       </div>
       <div
-        className="max-w-[78%] rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm leading-6 whitespace-pre-wrap break-words"
-        style={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.90)" }}
+        className="max-w-[75%] rounded-[18px] rounded-bl-[4px] px-4 py-2.5 text-[15px] leading-[1.4] break-words"
+        style={{ background: "#1C1C1E", color: "rgba(235,235,245,0.92)" }}
       >
         {message.content}
       </div>
