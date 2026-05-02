@@ -39,7 +39,7 @@ export default function ChatFolders() {
       });
     },
     onSuccess: () => {
-      qc.invalidateQueries(["folders"]);
+      qc.invalidateQueries({ queryKey: ["folders"] });
       setNewName("");
       setShowNew(false);
     },

@@ -115,7 +115,7 @@ export default function Home() {
             { to: "/chat",     icon: MessageCircle, label: "Start een gesprek",     sub: "Luna luistert",         color: "#C25A32" },
             { to: "/journal",  icon: BookHeart,     label: "Schrijf in je dagboek", sub: "Vijf minuten is genoeg",color: "#4A9EFF" },
             { to: "/insights", icon: BarChart3,     label: "Bekijk je patronen",    sub: "Wat helpt jou echt?",   color: "#34C77B" },
-            { to: "/chat",     icon: FolderHeart,   label: "Gespreksmappen",        sub: "Thema's en eerdere chats", color: "#F5A623" },
+            { to: "/chat/folders", icon: FolderHeart, label: "Gespreksmappen",        sub: "Thema's en eerdere chats", color: "#F5A623" },
           ].map(({ to, icon: Icon, label, sub, color }) => (
             <Link key={label} to={to} className="list-row gap-3.5">
               <div

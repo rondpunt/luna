@@ -19,84 +19,68 @@ const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 export default function Chat() {
   const [conversationId, setConversationId] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([{ role: "assistant", content: WELCOME }]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [started, setStarted] = useState(false);
-  const [welcomeVisible, setWelcomeVisible] = useState(false);
   const [showFolderHint, setShowFolderHint] = useState(false);
 
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
-  // Track the number of assistant messages we've already shown
-  const deliveredCountRef = useRef(0);
-  // Track messages count for folder hint
-  const messagesCountRef = useRef(0);
+  // How many assistant msgs from the agent we have already shown
+  const shownAssistantCount = useRef(0);
+  const userMessageCount = useRef(0);
 
   const presence = useLunaPresence();
 
-  // Entry flow
+  // Entry presence animation
   useEffect(() => {
     presence.initPresence();
-    const t = setTimeout(() => {
-      setMessages([{ role: "assistant", content: WELCOME }]);
-      deliveredCountRef.current = 1;
-      setWelcomeVisible(true);
-      presence.onLunaReply();
-    }, rand(800, 1300));
+    const t = setTimeout(() => presence.onLunaReply(), rand(800, 1300));
     return () => clearTimeout(t);
   }, []);
 
-  // Agent setup
+  // Create agent conversation
   useEffect(() => {
     let active = true;
-    (async () => {
-      try {
-        const conv = await base44.agents.createConversation({
-          agent_name: "nora_agent",
-          metadata: { title: "Gesprek met Luna" },
-        });
-        if (active) setConversationId(conv.id);
-      } catch { /* fallback to noraChat */ }
-    })();
+    base44.agents.createConversation({
+      agent_name: "nora_agent",
+      metadata: { title: "Gesprek met Luna" },
+    }).then((conv) => {
+      if (active) setConversationId(conv.id);
+    }).catch(() => {});
     return () => { active = false; };
   }, []);
 
-  // Subscription — only pick up NEW assistant messages
+  // Subscription — only react to truly NEW assistant messages
   useEffect(() => {
     if (!conversationId) return;
     const unsub = base44.agents.subscribeToConversation(conversationId, (data) => {
       const assistantMsgs = (data.messages || []).filter((m) => m.role === "assistant");
-      // Only act when there are more assistant messages than we've delivered
-      if (assistantMsgs.length > deliveredCountRef.current) {
-        const newMsg = assistantMsgs[assistantMsgs.length - 1];
-        deliveredCountRef.current = assistantMsgs.length;
-        deliverReply(newMsg.content);
+      if (assistantMsgs.length > shownAssistantCount.current) {
+        const latest = assistantMsgs[assistantMsgs.length - 1];
+        shownAssistantCount.current = assistantMsgs.length;
+        // Small delay for natural feel
+        setTimeout(() => deliverAgentReply(latest.content), rand(200, 500));
       }
     });
     return unsub;
-  }, [conversationId]);
+  }, [conversationId]); // eslint-disable-line
 
-  // Scroll
+  // Scroll to bottom
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
-  // Keep messagesCountRef in sync
-  useEffect(() => {
-    messagesCountRef.current = messages.length;
-  }, [messages.length]);
-
-  // Deliver reply with natural split
-  const deliverReply = useCallback((replyText) => {
-    if (!replyText) return;
-    presence.onLunaReply();
+  const deliverAgentReply = (replyText) => {
+    if (!replyText?.trim()) return;
     setSending(false);
+    presence.onLunaReply();
 
     const words = replyText.split(" ");
-    if (words.length > 38 && Math.random() > 0.4) {
-      const cut = Math.floor(words.length * rand(38, 58) / 100);
+    if (words.length > 40 && Math.random() > 0.4) {
+      const cut = Math.floor(words.length * rand(38, 55) / 100);
       const p1 = words.slice(0, cut).join(" ");
       const p2 = words.slice(cut).join(" ");
       setMessages((prev) => [...prev, { role: "assistant", content: p1 }]);
@@ -105,15 +89,17 @@ export default function Chat() {
         setTimeout(() => {
           setMessages((prev) => [...prev, { role: "assistant", content: p2 }]);
           presence.onLunaReply();
-        }, rand(600, 1000));
-      }, rand(800, 1400));
+        }, rand(700, 1100));
+      }, rand(900, 1500));
     } else {
       setMessages((prev) => [...prev, { role: "assistant", content: replyText }]);
     }
 
-    // Show folder hint after 6 user messages
-    if (messagesCountRef.current >= 6 && !showFolderHint) setShowFolderHint(true);
-  }, [presence, showFolderHint]);
+    userMessageCount.current += 1;
+    if (userMessageCount.current >= 5 && !showFolderHint) {
+      setShowFolderHint(true);
+    }
+  };
 
   const sendMessage = useCallback(async (text) => {
     const txt = (text || input).trim();
@@ -131,7 +117,7 @@ export default function Chat() {
 
     try {
       if (conversationId) {
-        // Agent path — reply comes via subscription
+        // Agent path — reply arrives via subscription
         await base44.agents.addMessage({ id: conversationId }, userMsg);
       } else {
         // Fallback: direct noraChat function
@@ -140,14 +126,14 @@ export default function Chat() {
         const reply = typeof res?.data?.reply === "string"
           ? res.data.reply
           : res?.data?.reply?.content ?? "Ik ben er voor je. Vertel me meer.";
-        setTimeout(() => deliverReply(reply), rand(350, 700));
+        setTimeout(() => deliverAgentReply(reply), rand(350, 700));
       }
     } catch {
       setSending(false);
       presence.onLunaReply();
       setMessages((prev) => [...prev, { role: "assistant", content: "Er liep iets fout. Probeer het opnieuw." }]);
     }
-  }, [input, sending, conversationId, messages, presence, deliverReply]);
+  }, [input, sending, conversationId, messages, presence]);
 
   const handleKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -240,7 +226,7 @@ export default function Chat() {
           </div>
         )}
 
-        {!started && welcomeVisible && (
+        {!started && (
           <div className="pt-5 space-y-2">
             <p className="text-center text-[12px]" style={{ color: "var(--text-3)" }}>of kies een onderwerp</p>
             {STARTERS.map((s) => (
