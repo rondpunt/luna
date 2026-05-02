@@ -1,0 +1,51 @@
+{
+  "name": "UserPreferences",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notificationTime": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string",
+      "enum": [
+        "light",
+        "dark",
+        "auto"
+      ],
+      "default": "auto"
+    },
+    "voiceEnabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "aiResponseStyle": {
+      "type": "string",
+      "enum": [
+        "shorter",
+        "deeper",
+        "practical"
+      ],
+      "default": "shorter"
+    },
+    "preferredLanguage": {
+      "type": "string",
+      "default": "nl"
+    },
+    "crisisDisclaimerAccepted": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "userId"
+  ]
+}

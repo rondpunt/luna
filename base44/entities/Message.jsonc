@@ -3,20 +3,27 @@
   "type": "object",
   "properties": {
     "conversation_id": {
-      "type": "string",
-      "description": "Reference to the conversation"
+      "type": "string"
     },
     "role": {
       "type": "string",
       "enum": [
         "user",
-        "assistant"
-      ],
-      "description": "Who sent the message"
+        "assistant",
+        "system"
+      ]
     },
     "content": {
+      "type": "string"
+    },
+    "mode": {
       "type": "string",
-      "description": "The message text"
+      "enum": [
+        "text",
+        "voice",
+        "system"
+      ],
+      "default": "text"
     },
     "risk_level": {
       "type": "string",
@@ -25,8 +32,7 @@
         "elevated",
         "acute"
       ],
-      "default": "none",
-      "description": "Crisis risk level detected"
+      "default": "none"
     }
   },
   "required": [

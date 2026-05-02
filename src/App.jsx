@@ -7,63 +7,68 @@ import PageNotFound from "./lib/PageNotFound";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import LoadingSplash from "./components/luna/LoadingSplash";
-
-// App pages
+import AppShell from "@/components/nora/AppShell";
 import Landing from "./pages/Landing";
-import Chat from "./pages/Chat";
 import Home from "./pages/Home";
-import Voortgang from "./pages/Voortgang";
-import Profiel from "./pages/Profiel";
-import Bibliotheek from "./pages/Bibliotheek";
+import Chat from "./pages/Chat";
+import Voice from "./pages/Voice";
+import Journal from "./pages/Journal";
+import Insights from "./pages/Insights";
+import Profile from "./pages/Profile";
+import Onboarding from "./pages/Onboarding";
 import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
 import Voorwaarden from "./pages/Voorwaarden";
 import Contact from "./pages/Contact";
+import PrivacyCenter from "./pages/PrivacyCenter";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
+  const { authError } = useAuth();
   const [splashDone, setSplashDone] = useState(false);
 
-  if (!splashDone) {
-    return <LoadingSplash onDone={() => setSplashDone(true)} />;
-  }
+  if (!splashDone) return <LoadingSplash onDone={() => setSplashDone(true)} />;
 
-  if (authError) {
-    if (authError.type === "user_not_registered") {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === "auth_required") {
-      return (
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/prijzen" element={<Pricing />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/voorwaarden" element={<Voorwaarden />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={<Landing />} />
-        </Routes>
-      );
-    }
+  if (authError?.type === "user_not_registered") return <UserNotRegisteredError />;
+
+  if (authError?.type === "auth_required") {
+    return (
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/voorwaarden" element={<Voorwaarden />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="*" element={<Landing />} />
+      </Routes>
+    );
   }
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/chat" element={<Chat />} />
-      <Route path="/voortgang" element={<Voortgang />} />
-      <Route path="/bibliotheek" element={<Bibliotheek />} />
-      <Route path="/profiel" element={<Profiel />} />
-      <Route path="/prijzen" element={<Pricing />} />
+      <Route element={<AppShell />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/voice" element={<Voice />} />
+        <Route path="/journal" element={<Journal />} />
+        <Route path="/insights" element={<Insights />} />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
+      <Route path="/landing" element={<Landing />} />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/voorwaarden" element={<Voorwaarden />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/privacy-center" element={<PrivacyCenter />} />
+      <Route path="/admin" element={<AdminDashboard />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
@@ -75,5 +80,3 @@ function App() {
     </AuthProvider>
   );
 }
-
-export default App;

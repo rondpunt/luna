@@ -1,0 +1,19 @@
+{
+  "name": "VoiceSession",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "transcript": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "userId",
+    "transcript"
+  ]
+}

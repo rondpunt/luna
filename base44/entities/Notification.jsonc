@@ -1,28 +1,27 @@
 {
-  "name": "Conversation",
+  "name": "Notification",
   "type": "object",
   "properties": {
     "userId": {
       "type": "string"
     },
+    "type": {
+      "type": "string"
+    },
     "title": {
       "type": "string"
     },
-    "pinned": {
+    "body": {
+      "type": "string"
+    },
+    "read": {
       "type": "boolean",
       "default": false
-    },
-    "archived": {
-      "type": "boolean",
-      "default": false
-    },
-    "last_message_at": {
-      "type": "string",
-      "format": "date-time"
     }
   },
   "required": [
     "userId",
+    "type",
     "title"
   ]
 }

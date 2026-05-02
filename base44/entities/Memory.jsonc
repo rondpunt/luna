@@ -1,0 +1,32 @@
+{
+  "name": "Memory",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "sourceConversationId": {
+      "type": "string"
+    },
+    "deletedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "userId",
+    "category",
+    "content"
+  ]
+}

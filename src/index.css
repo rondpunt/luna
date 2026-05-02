@@ -6,56 +6,76 @@
 
 @layer base {
   :root {
-    --bg: #080d1e;
-    --surface: rgba(255,255,255,0.04);
-    --border: rgba(255,255,255,0.09);
-    --text: rgba(255,255,255,0.92);
-    --muted: rgba(255,255,255,0.40);
-    --teal: #2dd4bf;
-    --indigo: #818cf8;
-    --indigo-dark: #6366f1;
-    --amber: #fcd34d;
-    --green: #4ade80;
-    --red: #f87171;
+    --bg: #f8f5ef;
+    --surface: rgba(255,255,255,0.72);
+    --border: rgba(120,128,160,0.16);
+    --text: rgba(20,24,38,0.92);
+    --muted: rgba(86,93,120,0.58);
+    --teal: #75d5b8;
+    --indigo: #6e7ef7;
+    --indigo-dark: #5868df;
+    --amber: #f2b55f;
+    --green: #68c48d;
+    --red: #e87272;
 
-    /* Legacy compatibility */
-    --luna-bg-base: #080d1e;
-    --luna-bg-elev: rgba(255,255,255,0.04);
-    --luna-bg-elev-2: rgba(255,255,255,0.07);
-    --luna-orb-purple: #7B5CFF;
-    --luna-orb-warm: #FF7E5F;
-    --luna-accent: #818cf8;
-    --luna-accent-hover: #6366f1;
-    --luna-text-primary: rgba(255,255,255,0.92);
-    --luna-text-secondary: rgba(255,255,255,0.65);
-    --luna-text-muted: rgba(255,255,255,0.40);
-    --luna-success: #4ade80;
-    --luna-warn-soft: #fcd34d;
-    --luna-border: rgba(255,255,255,0.09);
-    --luna-bubble-luna: rgba(255,255,255,0.05);
-    --luna-focus-ring: #818cf8;
+    --luna-bg-base: #f8f5ef;
+    --luna-bg-elev: rgba(255,255,255,0.72);
+    --luna-bg-elev-2: rgba(255,255,255,0.88);
+    --luna-orb-purple: #6e7ef7;
+    --luna-orb-warm: #75d5b8;
+    --luna-accent: #6e7ef7;
+    --luna-accent-hover: #5868df;
+    --luna-text-primary: rgba(20,24,38,0.92);
+    --luna-text-secondary: rgba(55,61,84,0.78);
+    --luna-text-muted: rgba(86,93,120,0.58);
+    --luna-success: #68c48d;
+    --luna-warn-soft: #f2b55f;
+    --luna-border: rgba(120,128,160,0.16);
+    --luna-bubble-luna: rgba(255,255,255,0.78);
+    --luna-focus-ring: #6e7ef7;
 
-    /* Shadcn tokens */
-    --background: 230 60% 5%;
-    --foreground: 249 100% 97%;
-    --card: 232 45% 8%;
-    --card-foreground: 249 100% 97%;
-    --popover: 232 45% 10%;
-    --popover-foreground: 249 100% 97%;
-    --primary: 239 84% 67%;
-    --primary-foreground: 249 100% 97%;
-    --secondary: 232 40% 12%;
-    --secondary-foreground: 249 100% 97%;
-    --muted: 232 30% 15%;
-    --muted-foreground: 230 25% 50%;
-    --accent: 239 84% 67%;
-    --accent-foreground: 249 100% 97%;
-    --destructive: 0 72% 71%;
-    --destructive-foreground: 249 100% 97%;
-    --border: 232 40% 14%;
-    --input: 232 40% 14%;
-    --ring: 239 84% 67%;
-    --radius: 0.75rem;
+    --background: 34 42% 96%;
+    --foreground: 228 22% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 228 22% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 228 22% 14%;
+    --primary: 234 89% 70%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 24% 93%;
+    --secondary-foreground: 228 22% 18%;
+    --muted: 220 24% 93%;
+    --muted-foreground: 226 14% 48%;
+    --accent: 163 53% 65%;
+    --accent-foreground: 228 22% 14%;
+    --destructive: 0 74% 67%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 18% 86%;
+    --input: 220 18% 86%;
+    --ring: 234 89% 70%;
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 228 24% 9%;
+    --foreground: 40 30% 96%;
+    --card: 228 23% 12%;
+    --card-foreground: 40 30% 96%;
+    --popover: 228 23% 12%;
+    --popover-foreground: 40 30% 96%;
+    --primary: 234 89% 74%;
+    --primary-foreground: 228 24% 9%;
+    --secondary: 227 18% 18%;
+    --secondary-foreground: 40 30% 96%;
+    --muted: 227 18% 18%;
+    --muted-foreground: 226 12% 66%;
+    --accent: 163 42% 50%;
+    --accent-foreground: 40 30% 96%;
+    --destructive: 0 72% 64%;
+    --destructive-foreground: 40 30% 96%;
+    --border: 227 15% 22%;
+    --input: 227 15% 22%;
+    --ring: 234 89% 74%;
   }
 }
 
@@ -66,11 +86,11 @@
   }
 
   body {
-    background: radial-gradient(ellipse at 80% -10%, rgba(180,120,20,0.12), transparent 50%),
-                radial-gradient(ellipse at 50% -5%, rgba(79,70,229,0.10), transparent 45%),
-                #080d1e;
+    background: radial-gradient(ellipse at top, rgba(110,126,247,0.12), transparent 45%),
+                radial-gradient(ellipse at 85% 0%, rgba(117,213,184,0.14), transparent 40%),
+                linear-gradient(180deg, #fbf8f3 0%, #f4f1ea 100%);
     background-attachment: fixed;
-    color: rgba(255,255,255,0.92);
+    color: hsl(var(--foreground));
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     overscroll-behavior: none;
     min-height: 100vh;

@@ -1,0 +1,32 @@
+{
+  "name": "JournalEntry",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "templateType": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "moodBefore": {
+      "type": "string"
+    },
+    "moodAfter": {
+      "type": "string"
+    },
+    "aiSummary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "userId",
+    "templateType",
+    "content"
+  ]
+}

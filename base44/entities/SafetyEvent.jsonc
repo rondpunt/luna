@@ -1,0 +1,29 @@
+{
+  "name": "SafetyEvent",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "eventType": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "userId",
+    "eventType",
+    "severity"
+  ]
+}

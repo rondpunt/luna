@@ -1,0 +1,28 @@
+{
+  "name": "Exercise",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "suggested",
+        "started",
+        "completed"
+      ],
+      "default": "suggested"
+    },
+    "completionTime": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "userId",
+    "type"
+  ]
+}

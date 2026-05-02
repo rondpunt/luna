@@ -1,0 +1,58 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "guest",
+        "user",
+        "premium",
+        "admin"
+      ],
+      "default": "user"
+    },
+    "authProvider": {
+      "type": "string",
+      "enum": [
+        "email",
+        "google",
+        "apple",
+        "guest"
+      ],
+      "default": "email"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "avatar": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string",
+      "default": "nl"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "Europe/Brussels"
+    },
+    "communicationStyle": {
+      "type": "string",
+      "enum": [
+        "gentle",
+        "direct",
+        "practical",
+        "reflective"
+      ],
+      "default": "gentle"
+    },
+    "memoryEnabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "onboardingCompleted": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

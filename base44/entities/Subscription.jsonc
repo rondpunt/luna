@@ -1,0 +1,43 @@
+{
+  "name": "Subscription",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "free",
+        "plus",
+        "pro"
+      ],
+      "default": "free"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "trialing",
+        "cancelled"
+      ],
+      "default": "inactive"
+    },
+    "renewsAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "stripeCustomerId": {
+      "type": "string"
+    },
+    "stripeSubscriptionId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "userId",
+    "plan",
+    "status"
+  ]
+}
