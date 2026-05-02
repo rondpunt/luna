@@ -7,6 +7,7 @@ import { nl } from "date-fns/locale";
 import { Lock, TrendingUp, Flame, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import BottomNav from "../components/luna/BottomNav";
+import WellbeingInsight from "../components/luna/WellbeingInsight";
 
 const MOOD_LABELS = ["", "Zwaar", "Zwaar", "Moeilijk", "Wisselend", "Gaat wel", "Gaat wel", "Goed", "Goed", "Heel goed", "Top"];
 
@@ -17,6 +18,11 @@ export default function Voortgang() {
   const { data: checkIns = [] } = useQuery({
     queryKey: ["checkins", period],
     queryFn: () => base44.entities.CheckIn.list("-date", 30),
+  });
+
+  const { data: recentMessages = [] } = useQuery({
+    queryKey: ["messages-analysis"],
+    queryFn: () => base44.entities.Message.list("-created_date", 60),
   });
 
   const days = Array.from({ length: period }, (_, i) => {
@@ -179,7 +185,14 @@ export default function Voortgang() {
           </p>
         </div>
 
-        {/* Pro upsell */}
+        {/* AI Wellbeing Insight — Pro sectie */}
+        <WellbeingInsight
+          messages={recentMessages}
+          checkIns={checkIns}
+          isPro={isPro}
+        />
+
+        {/* Pro upsell — only when not pro and no insight card shown */}
         {!isPro && (
           <Link to="/prijzen">
             <div
