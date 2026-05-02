@@ -5,7 +5,8 @@ module.exports = {
   theme: {
   	extend: {
       fontFamily: {
-        inter: ['var(--font-inter)'],
+        lora: ['Lora', 'Georgia', 'serif'],
+        dm: ['DM Sans', '-apple-system', 'system-ui', 'sans-serif'],
       },
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -53,16 +54,6 @@ module.exports = {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			},
-        luna: {
-          base: 'var(--luna-bg-base)',
-          elev: 'var(--luna-bg-elev)',
-          'elev-2': 'var(--luna-bg-elev-2)',
-          accent: 'var(--luna-accent)',
-          'accent-hover': 'var(--luna-accent-hover)',
-          success: 'var(--luna-success)',
-          warn: 'var(--luna-warn-soft)',
-          border: 'var(--luna-border)',
-        }
   		},
   		keyframes: {
   			'accordion-down': {
@@ -73,20 +64,10 @@ module.exports = {
   				from: { height: 'var(--radix-accordion-content-height)' },
   				to: { height: '0' }
   			},
-        'orb-breathe': {
-          '0%, 100%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(1.03)' }
-        },
-        'orb-pulse': {
-          '0%, 100%': { opacity: '0.8' },
-          '50%': { opacity: '1' }
-        }
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
-        'orb-breathe': 'orb-breathe 4s ease-in-out infinite',
-        'orb-pulse': 'orb-pulse 0.4s ease-in-out infinite'
   		}
   	}
   },

@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import LunaOrb from '../components/luna/LunaOrb';
+import LunaMoon from '../components/luna/LunaMoon';
 
 export default function PageNotFound() {
     const location = useLocation();
@@ -10,7 +10,7 @@ export default function PageNotFound() {
             style={{ background: 'var(--bg-base)' }}
         >
             <div className="max-w-sm w-full text-center space-y-6">
-                <LunaOrb size={100} state="idle" className="mx-auto" />
+                <LunaMoon size={100} state="idle" className="mx-auto" />
 
                 <div className="space-y-2">
                     <h1

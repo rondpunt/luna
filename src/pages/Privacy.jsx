@@ -1,69 +1,78 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
+const sections = [
+  {
+    title: "Wat we verzamelen",
+    text: "E-mailadres (bij registratie), chatberichten, stemmingscores en gebruik-statistieken. Anoniem gebruik is mogelijk zonder e-mailadres.",
+  },
+  {
+    title: "Wettelijke basis (GDPR)",
+    text: "Toestemming voor chatgegevens. Gerechtvaardigd belang voor technische logbestanden. Contractuele noodzaak voor accountgegevens.",
+  },
+  {
+    title: "Beveiliging",
+    text: "EU-servers. Encryptie in rust en in transit. Toegang afgeschermd per account via RLS. Ondersteuningstoegang enkel via gedocumenteerde break-glass procedure.",
+  },
+  {
+    title: "Bewaartermijn",
+    text: "Chatberichten: tot jij ze wist of je account verwijdert. Technische logs: max 90 dagen.",
+  },
+  {
+    title: "Jouw rechten",
+    text: "Inzage, correctie, wissing, overdraagbaarheid. Stuur een mail naar hello@luna.app.",
+  },
+  {
+    title: "Cookies",
+    text: "Alleen functionele cookies voor sessies. Geen tracking, geen advertenties.",
+  },
+  {
+    title: "Crisisdetectie",
+    text: "Luna detecteert bepaalde zoekwoorden om steunbronnen te tonen. Dit is geen medische monitoring. Ga bij acute nood naar 0800 32 123 of 112.",
+  },
+];
+
 export default function Privacy() {
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
-      <header className="flex items-center gap-3 px-6 py-4">
+    <div
+      className="min-h-screen"
+      style={{
+        background: "radial-gradient(ellipse at 80% -10%, rgba(180,120,20,0.12), transparent 50%), radial-gradient(ellipse at 50% -5%, rgba(79,70,229,0.10), transparent 45%), #080d1e",
+      }}
+    >
+      <header className="flex items-center gap-3 px-5 py-4">
         <Link to="/profiel">
-          <ArrowLeft className="w-5 h-5" style={{ color: "var(--text-primary-luna)" }} />
+          <ArrowLeft className="w-5 h-5" style={{ color: "rgba(255,255,255,0.55)" }} />
         </Link>
-        <span className="font-semibold" style={{ color: "var(--text-primary-luna)" }}>
+        <span
+          className="font-semibold text-sm"
+          style={{ color: "rgba(255,255,255,0.88)", fontFamily: "'DM Sans', sans-serif" }}
+        >
           Privacybeleid
         </span>
       </header>
 
-      <main className="px-6 pb-12 max-w-lg mx-auto space-y-6">
-        <p className="text-xs" style={{ color: "var(--text-muted-luna)" }}>
-          Leestijd: ~3 min · Laatst bijgewerkt: april 2026
+      <main className="px-5 pb-12 max-w-lg mx-auto">
+        <p className="text-xs mb-6" style={{ color: "rgba(255,255,255,0.25)", fontFamily: "'DM Sans', sans-serif" }}>
+          Laatst bijgewerkt: mei 2026
         </p>
-
-        <div className="space-y-5 text-sm leading-relaxed" style={{ color: "var(--text-secondary-luna)" }}>
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Wie zijn wij</h2>
-            <p>Luna is een app voor emotioneel welzijn. Contacteer ons via hello@luna.app.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Wettelijke basis</h2>
-            <p>Uitvoering overeenkomst (Art. 6.1.b GDPR) voor de chatfunctie. Gerechtvaardigd belang (Art. 6.1.f) voor veiligheids- en crisisdetectie.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Welke data</h2>
-            <p>Account-data (email indien account), berichten (vrije tekst), check-in scores, technische logs. Geen verkoop aan derden. Geen gebruik voor AI-training.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Servers</h2>
-            <p>EU-servers, encryptie in rust en in transit, GDPR-conform.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Bewaartermijn</h2>
-            <p>Zolang account actief. 30 dagen na verwijdering volledig uit backups.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Jouw rechten</h2>
-            <p>Toegang, rectificatie, wissen, dataportabiliteit, bezwaar, klacht bij Belgische GBA (Gegevensbeschermingsautoriteit).</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Cookies</h2>
-            <p>Alleen functionele cookies (auth session). Geen tracking, geen analytics cookies.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Crisis-detectie</h2>
-            <p>Bij signalen van acute nood toont Luna een steunkaart. We sturen geen automatische berichten naar derden, hulpdiensten of contactpersonen.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold mb-2" style={{ color: "var(--text-primary-luna)" }}>Contact</h2>
-            <p>hello@luna.app</p>
-          </section>
+        <div className="space-y-6">
+          {sections.map(({ title, text }) => (
+            <div key={title}>
+              <h2
+                className="text-sm font-semibold mb-1.5"
+                style={{ color: "rgba(255,255,255,0.88)", fontFamily: "'DM Sans', sans-serif" }}
+              >
+                {title}
+              </h2>
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "rgba(255,255,255,0.50)", fontFamily: "'DM Sans', sans-serif" }}
+              >
+                {text}
+              </p>
+            </div>
+          ))}
         </div>
       </main>
     </div>
