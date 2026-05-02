@@ -1,11 +1,11 @@
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import SectionCard from "./SectionCard";
 
-export default function InsightChartCard({ data }) {
+export default function InsightChartCard({ data, title = "Stemming deze week", subtitle = "Een zachte blik op hoe je week aanvoelt." }) {
   return (
     <SectionCard>
-      <p className="text-sm font-medium text-foreground">Weekly emotional trend</p>
-      <p className="mt-1 text-sm text-muted-foreground">A soft view of how your week has been feeling.</p>
+      <p className="text-sm font-medium text-foreground">{title}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
       <div className="mt-4 h-40">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
