@@ -18,11 +18,11 @@ export default function AppShell() {
   return (
     <div className="min-h-screen text-foreground">
       {/* Topbar */}
-      <header className="sticky top-0 z-40 border-b border-[rgba(63,138,85,0.10)] bg-[rgba(244,249,245,0.85)] backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-[rgba(194,90,50,0.10)] bg-[rgba(253,246,241,0.85)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl items-center justify-center px-5 py-3">
           <Link to="/" className="flex items-center gap-2">
             <NoraLogo className="h-7 w-7" />
-            <span className="text-base font-semibold text-[#1a3326]">Nora</span>
+            <span className="text-base font-semibold text-[#3d1f12]">Nora</span>
           </Link>
         </div>
       </header>
@@ -33,7 +33,7 @@ export default function AppShell() {
 
       {/* Bottom nav */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-[rgba(63,138,85,0.12)] bg-white/90 backdrop-blur-xl"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-[rgba(194,90,50,0.12)] bg-white/90 backdrop-blur-xl"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="mx-auto grid max-w-md grid-cols-6 px-2 pt-2">
@@ -47,11 +47,11 @@ export default function AppShell() {
               >
                 <Icon
                   className="h-5 w-5"
-                  style={{ color: active ? "#3f8a55" : "#8aa294" }}
+                  style={{ color: active ? "#c25a32" : "#b89a8a" }}
                 />
                 <span
                   className="text-[10px] font-medium"
-                  style={{ color: active ? "#3f8a55" : "#8aa294" }}
+                  style={{ color: active ? "#c25a32" : "#b89a8a" }}
                 >
                   {label}
                 </span>

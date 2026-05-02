@@ -4,19 +4,19 @@ export default function PrivacyCenter() {
   return (
     <div className="px-5 pt-6">
       <p className="text-sm text-muted-foreground">{t.privacyCenter.eyebrow}</p>
-      <h1 className="mt-1 text-2xl font-semibold text-[#1a3326]">{t.privacyCenter.title}</h1>
+      <h1 className="mt-1 text-2xl font-semibold text-[#3d1f12]">{t.privacyCenter.title}</h1>
 
-      <p className="mt-6 text-xs font-medium uppercase tracking-[0.16em] text-[#5b7a66]">
+      <p className="mt-6 text-xs font-medium uppercase tracking-[0.16em] text-[#9c6a52]">
         {t.privacyCenter.memoryTitle}
       </p>
       <div
         className="mt-3 overflow-hidden rounded-2xl bg-white"
-        style={{ border: "1px solid rgba(63,138,85,0.12)" }}
+        style={{ border: "1px solid rgba(194,90,50,0.12)" }}
       >
         {t.privacyCenter.memoryItems.map((item, i) => (
           <button
             key={item}
-            className={`flex w-full items-center px-4 py-3.5 text-left text-sm text-[#1a3326] ${i > 0 ? "border-t border-[rgba(63,138,85,0.08)]" : ""}`}
+            className={`flex w-full items-center px-4 py-3.5 text-left text-sm text-[#3d1f12] ${i > 0 ? "border-t border-[rgba(194,90,50,0.08)]" : ""}`}
           >
             {item}
           </button>
@@ -24,8 +24,8 @@ export default function PrivacyCenter() {
       </div>
 
       <button
-        className="mt-6 w-full rounded-full bg-white py-3 text-sm font-medium text-[#1a3326]"
-        style={{ border: "1px solid rgba(63,138,85,0.20)" }}
+        className="mt-6 w-full rounded-full bg-white py-3 text-sm font-medium text-[#3d1f12]"
+        style={{ border: "1px solid rgba(194,90,50,0.20)" }}
       >
         {t.privacyCenter.exportCta}
       </button>

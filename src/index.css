@@ -34,25 +34,25 @@
     --luna-bubble-luna: rgba(255,255,255,0.78);
     --luna-focus-ring: #6e7ef7;
 
-    --background: 130 30% 97%;
-    --foreground: 150 25% 14%;
+    --background: 24 60% 97%;
+    --foreground: 18 35% 16%;
     --card: 0 0% 100%;
-    --card-foreground: 150 25% 14%;
+    --card-foreground: 18 35% 16%;
     --popover: 0 0% 100%;
-    --popover-foreground: 150 25% 14%;
-    --primary: 138 38% 45%;
+    --popover-foreground: 18 35% 16%;
+    --primary: 14 70% 56%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 130 30% 93%;
-    --secondary-foreground: 150 25% 18%;
-    --muted: 130 20% 94%;
-    --muted-foreground: 150 10% 42%;
-    --accent: 138 38% 45%;
+    --secondary: 24 50% 94%;
+    --secondary-foreground: 18 35% 18%;
+    --muted: 24 40% 95%;
+    --muted-foreground: 18 12% 44%;
+    --accent: 14 70% 56%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 74% 67%;
+    --destructive: 0 74% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 130 20% 88%;
-    --input: 130 20% 88%;
-    --ring: 138 38% 45%;
+    --border: 24 30% 90%;
+    --input: 24 30% 90%;
+    --ring: 14 70% 56%;
     --radius: 1.25rem;
   }
 
@@ -86,7 +86,7 @@
   }
 
   body {
-    background: linear-gradient(180deg, #f4f9f5 0%, #ecf5ee 100%);
+    background: linear-gradient(180deg, #fdf6f1 0%, #fbeee5 100%);
     background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;

@@ -36,17 +36,17 @@ export default function Onboarding() {
     return (
       <div
         className="min-h-screen px-5 py-8"
-        style={{ background: "linear-gradient(180deg, #f4f9f5 0%, #ecf5ee 100%)" }}
+        style={{ background: "linear-gradient(180deg, #fdf6f1 0%, #fbeee5 100%)" }}
       >
         <div className="mx-auto max-w-md space-y-6">
           <div className="flex items-center justify-center gap-3 pt-4">
             <NoraLogo className="h-10 w-10" />
-            <p className="text-lg font-semibold text-[#1a3326]">Nora</p>
+            <p className="text-lg font-semibold text-[#3d1f12]">Nora</p>
           </div>
           <PaywallHook onSkip={() => navigate("/")} />
           <button
             onClick={() => navigate("/")}
-            className="block w-full text-center text-xs font-medium text-[#5b7a66]"
+            className="block w-full text-center text-xs font-medium text-[#9c6a52]"
           >
             {t.paywallHook.skip}
           </button>
@@ -60,7 +60,7 @@ export default function Onboarding() {
   return (
     <div
       className="min-h-screen px-5 py-8"
-      style={{ background: "linear-gradient(180deg, #f4f9f5 0%, #ecf5ee 100%)" }}
+      style={{ background: "linear-gradient(180deg, #fdf6f1 0%, #fbeee5 100%)" }}
     >
       <div className="mx-auto flex min-h-[80vh] max-w-md flex-col">
         {/* Progress dots */}
@@ -71,7 +71,7 @@ export default function Onboarding() {
               className="h-1.5 rounded-full transition-all"
               style={{
                 width: i === step ? 28 : 8,
-                background: i <= step ? "#3f8a55" : "rgba(63,138,85,0.18)",
+                background: i <= step ? "#c25a32" : "rgba(194,90,50,0.18)",
               }}
             />
           ))}
@@ -80,11 +80,11 @@ export default function Onboarding() {
         {/* Logo + eyebrow */}
         <div className="mb-6 flex flex-col items-center text-center">
           <NoraLogo className="mb-4 h-14 w-14" />
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#5b7a66]">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#9c6a52]">
             {current.eyebrow}
           </p>
-          <h1 className="mt-2 text-2xl font-semibold text-[#1a3326]">{current.title}</h1>
-          <p className="mt-3 max-w-sm text-sm leading-6 text-[#365a44]">{current.body}</p>
+          <h1 className="mt-2 text-2xl font-semibold text-[#3d1f12]">{current.title}</h1>
+          <p className="mt-3 max-w-sm text-sm leading-6 text-[#7a3a20]">{current.body}</p>
         </div>
 
         {/* Step content */}
@@ -95,7 +95,7 @@ export default function Onboarding() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t.onboarding.namePlaceholder}
-              className="w-full rounded-2xl border border-[rgba(63,138,85,0.20)] bg-white px-4 py-4 text-base outline-none focus:border-[#3f8a55]"
+              className="w-full rounded-2xl border border-[rgba(194,90,50,0.20)] bg-white px-4 py-4 text-base outline-none focus:border-[#c25a32]"
             />
           )}
 
@@ -109,9 +109,9 @@ export default function Onboarding() {
                     onClick={() => toggleGoal(g)}
                     className="rounded-full px-4 py-2 text-sm font-medium transition-all"
                     style={{
-                      background: active ? "#3f8a55" : "white",
-                      color: active ? "white" : "#1a3326",
-                      border: active ? "1px solid #3f8a55" : "1px solid rgba(63,138,85,0.20)",
+                      background: active ? "#c25a32" : "white",
+                      color: active ? "white" : "#3d1f12",
+                      border: active ? "1px solid #c25a32" : "1px solid rgba(194,90,50,0.20)",
                     }}
                   >
                     {g}
@@ -131,16 +131,16 @@ export default function Onboarding() {
                     onClick={() => setTone(key)}
                     className="flex w-full items-center justify-between rounded-2xl px-4 py-4 text-left transition-all"
                     style={{
-                      background: active ? "#e9f5ec" : "white",
-                      border: active ? "1px solid #3f8a55" : "1px solid rgba(63,138,85,0.20)",
+                      background: active ? "#fbe4d6" : "white",
+                      border: active ? "1px solid #c25a32" : "1px solid rgba(194,90,50,0.20)",
                     }}
                   >
                     <div>
-                      <p className="text-sm font-semibold text-[#1a3326]">{label}</p>
-                      <p className="text-xs text-[#5b7a66]">{desc}</p>
+                      <p className="text-sm font-semibold text-[#3d1f12]">{label}</p>
+                      <p className="text-xs text-[#9c6a52]">{desc}</p>
                     </div>
                     {active && (
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#3f8a55]">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#c25a32]">
                         <Check className="h-3.5 w-3.5 text-white" />
                       </div>
                     )}
@@ -154,15 +154,15 @@ export default function Onboarding() {
             <div className="space-y-3">
               <label
                 className="flex cursor-pointer items-start gap-3 rounded-2xl bg-white px-4 py-4"
-                style={{ border: "1px solid rgba(63,138,85,0.20)" }}
+                style={{ border: "1px solid rgba(194,90,50,0.20)" }}
               >
                 <input
                   type="checkbox"
                   checked={consent}
                   onChange={(e) => setConsent(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 accent-[#3f8a55]"
+                  className="mt-0.5 h-4 w-4 accent-[#c25a32]"
                 />
-                <span className="text-sm text-[#1a3326]">{t.onboarding.consent}</span>
+                <span className="text-sm text-[#3d1f12]">{t.onboarding.consent}</span>
               </label>
               <div className="rounded-2xl border border-[rgba(218,77,77,0.20)] bg-[rgba(218,77,77,0.05)] px-4 py-3 text-xs leading-5 text-[#a23a3a]">
                 {t.onboarding.safety}
@@ -177,9 +177,9 @@ export default function Onboarding() {
             <button
               onClick={back}
               className="flex h-12 w-12 items-center justify-center rounded-full bg-white"
-              style={{ border: "1px solid rgba(63,138,85,0.20)" }}
+              style={{ border: "1px solid rgba(194,90,50,0.20)" }}
             >
-              <ArrowLeft className="h-4 w-4 text-[#1a3326]" />
+              <ArrowLeft className="h-4 w-4 text-[#3d1f12]" />
             </button>
           )}
           <button
@@ -187,8 +187,8 @@ export default function Onboarding() {
             disabled={!canNext()}
             className="flex flex-1 items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold text-white transition-all disabled:opacity-40"
             style={{
-              background: "linear-gradient(135deg, #5cb47a 0%, #3f8a55 100%)",
-              boxShadow: "0 6px 20px rgba(63,138,85,0.30)",
+              background: "linear-gradient(135deg, #ee9670 0%, #c25a32 100%)",
+              boxShadow: "0 6px 20px rgba(194,90,50,0.30)",
             }}
           >
             {step === steps.length - 1 ? t.onboarding.finish : t.cta.next}
