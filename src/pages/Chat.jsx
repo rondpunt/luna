@@ -126,6 +126,15 @@ export default function Chat() {
           ))}
         </AnimatePresence>
         {isThinking && <TypingIndicator />}
+
+        {/* Ademende orb onderaan — rustig ankerpunt */}
+        <div className="flex flex-col items-center gap-2 mt-6 mb-2">
+          <LunaOrb size={52} state={orbState} />
+          <p className="text-[11px]" style={{ color: "#9aa5be", fontFamily: "'DM Sans', sans-serif" }}>
+            {orbState === "thinking" ? "Luna denkt met je mee..." : "Luna is hier voor je"}
+          </p>
+        </div>
+
         <div ref={bottomRef} />
       </div>
 
