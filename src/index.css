@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,76 +6,40 @@
 
 @layer base {
   :root {
-    --bg: #f8f5ef;
-    --surface: rgba(255,255,255,0.72);
-    --border: rgba(120,128,160,0.16);
-    --text: rgba(20,24,38,0.92);
-    --muted: rgba(86,93,120,0.58);
-    --teal: #75d5b8;
-    --indigo: #6e7ef7;
-    --indigo-dark: #5868df;
-    --amber: #f2b55f;
-    --green: #68c48d;
-    --red: #e87272;
+    /* Dark iPhone night-mode palette */
+    --bg-primary: #000000;
+    --bg-secondary: #1c1c1e;
+    --bg-tertiary: #2c2c2e;
+    --bg-elevated: #3a3a3c;
+    --accent: #c25a32;
+    --accent-light: #ee9670;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255,255,255,0.60);
+    --text-tertiary: rgba(255,255,255,0.30);
+    --separator: rgba(255,255,255,0.08);
+    --separator-strong: rgba(255,255,255,0.12);
 
-    --luna-bg-base: #f8f5ef;
-    --luna-bg-elev: rgba(255,255,255,0.72);
-    --luna-bg-elev-2: rgba(255,255,255,0.88);
-    --luna-orb-purple: #6e7ef7;
-    --luna-orb-warm: #75d5b8;
-    --luna-accent: #6e7ef7;
-    --luna-accent-hover: #5868df;
-    --luna-text-primary: rgba(20,24,38,0.92);
-    --luna-text-secondary: rgba(55,61,84,0.78);
-    --luna-text-muted: rgba(86,93,120,0.58);
-    --luna-success: #68c48d;
-    --luna-warn-soft: #f2b55f;
-    --luna-border: rgba(120,128,160,0.16);
-    --luna-bubble-luna: rgba(255,255,255,0.78);
-    --luna-focus-ring: #6e7ef7;
-
-    --background: 24 60% 97%;
-    --foreground: 18 35% 16%;
-    --card: 0 0% 100%;
-    --card-foreground: 18 35% 16%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 18 35% 16%;
+    /* shadcn tokens mapped to dark */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 11%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 100%;
     --primary: 14 70% 56%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 24 50% 94%;
-    --secondary-foreground: 18 35% 18%;
-    --muted: 24 40% 95%;
-    --muted-foreground: 18 12% 44%;
+    --secondary: 0 0% 17%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 17%;
+    --muted-foreground: 0 0% 60%;
     --accent: 14 70% 56%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 74% 60%;
+    --destructive: 0 72% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 24 30% 90%;
-    --input: 24 30% 90%;
+    --border: 0 0% 17%;
+    --input: 0 0% 17%;
     --ring: 14 70% 56%;
-    --radius: 1.25rem;
-  }
-
-  .dark {
-    --background: 228 24% 9%;
-    --foreground: 40 30% 96%;
-    --card: 228 23% 12%;
-    --card-foreground: 40 30% 96%;
-    --popover: 228 23% 12%;
-    --popover-foreground: 40 30% 96%;
-    --primary: 234 89% 74%;
-    --primary-foreground: 228 24% 9%;
-    --secondary: 227 18% 18%;
-    --secondary-foreground: 40 30% 96%;
-    --muted: 227 18% 18%;
-    --muted-foreground: 226 12% 66%;
-    --accent: 163 42% 50%;
-    --accent-foreground: 40 30% 96%;
-    --destructive: 0 72% 64%;
-    --destructive-foreground: 40 30% 96%;
-    --border: 227 15% 22%;
-    --input: 227 15% 22%;
-    --ring: 234 89% 74%;
+    --radius: 1rem;
   }
 }
 
@@ -86,98 +50,40 @@
   }
 
   body {
-    background: linear-gradient(180deg, #fdf6f1 0%, #fbeee5 100%);
-    background-attachment: fixed;
-    color: hsl(var(--foreground));
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: #000000;
+    color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     overscroll-behavior: none;
     min-height: 100vh;
   }
 
   h1, h2, h3, h4 {
-    font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
-    letter-spacing: -0.01em;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
 
   input, textarea {
     font-size: 16px;
-    font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
   }
 
-  /* Custom scrollbars */
-  ::-webkit-scrollbar {
-    width: 3px;
-    height: 3px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(129,140,248,0.25);
-    border-radius: 999px;
-  }
-
-  /* Input placeholder */
-  ::placeholder {
-    color: rgba(255,255,255,0.35);
-  }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  ::placeholder { color: rgba(255,255,255,0.30); }
 }
 
-/* Glass card utility */
-.glass-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+/* Typing dots */
+.typing-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.40);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.40; }
+  30% { transform: translateY(-5px); opacity: 1; }
 }
 
-/* Luna screen background */
-.luna-screen {
-  background: radial-gradient(ellipse at 80% -10%, rgba(180,120,20,0.12), transparent 50%),
-              radial-gradient(ellipse at 50% -5%, rgba(79,70,229,0.10), transparent 45%),
-              #080d1e;
-  min-height: 100vh;
-}
-
-/* Moon orb animations */
-@keyframes breathe {
-  0%, 100% { 
-    transform: scale(1); 
-    box-shadow: 0 0 0 1px rgba(251,191,36,0.18), 0 0 20px rgba(180,120,20,0.20), 0 0 40px rgba(79,70,229,0.12);
-  }
-  50% { 
-    transform: scale(1.035); 
-    box-shadow: 0 0 0 1px rgba(251,191,36,0.28), 0 0 28px rgba(180,120,20,0.30), 0 0 56px rgba(79,70,229,0.18);
-  }
-}
-
-@keyframes thinking-pulse {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(129,140,248,0.3), 0 0 16px rgba(99,102,241,0.3), 0 0 32px rgba(79,70,229,0.1); }
-  50% { box-shadow: 0 0 0 1px rgba(129,140,248,0.6), 0 0 32px rgba(99,102,241,0.5), 0 0 56px rgba(79,70,229,0.2); }
-}
-
-@keyframes spoke-flash {
-  0% { box-shadow: 0 0 0 1px rgba(251,191,36,0.8), 0 0 40px rgba(180,120,20,0.7), 0 0 60px rgba(245,158,11,0.4); }
-  100% { box-shadow: 0 0 0 1px rgba(251,191,36,0.18), 0 0 20px rgba(180,120,20,0.20), 0 0 40px rgba(79,70,229,0.12); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes progress-bar {
-  from { width: 0%; }
-  to { width: 100%; }
-}
-
-.luna-breathe { animation: breathe 4s ease-in-out infinite; }
-.luna-thinking { animation: thinking-pulse 1.4s ease-in-out infinite; }
-.luna-spoke { animation: spoke-flash 0.6s ease-out forwards; }
-.luna-float { animation: float 4s ease-in-out infinite; }
-
-/* Bottom nav safe area */
-.bottom-nav-safe {
-  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-}
+/* Safe area */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }

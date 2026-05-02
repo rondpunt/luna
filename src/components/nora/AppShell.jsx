@@ -1,62 +1,64 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Home, MessageCircle, Mic, BookHeart, BarChart3, User } from "lucide-react";
-import { t } from "@/lib/i18n";
-import NoraLogo from "@/components/nora/NoraLogo";
+import { Home, MessageCircle, BookHeart, BarChart3, User } from "lucide-react";
 
-const items = [
-  { to: "/", label: t.nav.home, icon: Home },
-  { to: "/chat", label: t.nav.chat, icon: MessageCircle },
-  { to: "/voice", label: t.nav.voice, icon: Mic },
-  { to: "/journal", label: t.nav.journal, icon: BookHeart },
-  { to: "/insights", label: t.nav.insights, icon: BarChart3 },
-  { to: "/profile", label: t.nav.profile, icon: User },
+const NAV = [
+  { to: "/", label: "Start", icon: Home },
+  { to: "/chat", label: "Chat", icon: MessageCircle },
+  { to: "/journal", label: "Dagboek", icon: BookHeart },
+  { to: "/insights", label: "Inzichten", icon: BarChart3 },
+  { to: "/profile", label: "Profiel", icon: User },
 ];
 
 export default function AppShell() {
-  const location = useLocation();
-  const isChat = location.pathname === "/chat";
+  const { pathname } = useLocation();
+  const isChat = pathname === "/chat";
 
-  if (isChat) {
-    return <Outlet />;
-  }
+  if (isChat) return <Outlet />;
 
   return (
-    <div className="min-h-screen text-foreground">
+    <div className="flex flex-col min-h-screen" style={{ background: "#000" }}>
       {/* Topbar */}
-      <header className="sticky top-0 z-40 border-b border-[rgba(194,90,50,0.10)] bg-[rgba(253,246,241,0.85)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-3xl items-center justify-center px-5 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <NoraLogo className="h-7 w-7" />
-            <span className="text-base font-semibold text-[#3d1f12]">Nora</span>
-          </Link>
-        </div>
+      <header
+        className="sticky top-0 z-40 flex items-center justify-center px-5 py-4"
+        style={{
+          background: "rgba(0,0,0,0.80)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+        }}
+      >
+        <span className="text-base font-semibold text-white tracking-tight">Nora</span>
       </header>
 
-      <main className="mx-auto max-w-3xl pb-28">
+      <main className="flex-1 mx-auto w-full max-w-lg pb-32 overflow-y-auto">
         <Outlet />
       </main>
 
-      {/* Bottom nav */}
+      {/* Bottom tab bar — iOS style */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-[rgba(194,90,50,0.12)] bg-white/90 backdrop-blur-xl"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        className="fixed inset-x-0 bottom-0 z-50"
+        style={{
+          background: "rgba(28,28,30,0.92)",
+          backdropFilter: "blur(20px)",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        }}
       >
-        <div className="mx-auto grid max-w-md grid-cols-6 px-2 pt-2">
-          {items.map(({ to, label, icon: Icon }) => {
-            const active = location.pathname === to;
+        <div className="flex justify-around px-2 pt-2 pb-2 max-w-lg mx-auto">
+          {NAV.map(({ to, label, icon: Icon }) => {
+            const active = pathname === to;
             return (
               <Link
                 key={to}
                 to={to}
-                className="flex flex-col items-center gap-0.5 py-2"
+                className="flex flex-col items-center gap-0.5 py-1 px-3"
               >
                 <Icon
-                  className="h-5 w-5"
-                  style={{ color: active ? "#c25a32" : "#b89a8a" }}
+                  className="h-[22px] w-[22px]"
+                  style={{ color: active ? "#c25a32" : "rgba(255,255,255,0.40)" }}
                 />
                 <span
                   className="text-[10px] font-medium"
-                  style={{ color: active ? "#c25a32" : "#b89a8a" }}
+                  style={{ color: active ? "#c25a32" : "rgba(255,255,255,0.40)" }}
                 >
                   {label}
                 </span>

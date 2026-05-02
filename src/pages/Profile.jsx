@@ -1,88 +1,116 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, User, Mail, CreditCard, MessageSquare, RefreshCcw, Lock, FileText, HelpCircle, Gem } from "lucide-react";
-import { t } from "@/lib/i18n";
-
-const accountItems = [
-  { icon: User, label: "Bijnaam", value: "n" },
-  { icon: Mail, label: "Email", value: "privé@email.be" },
-  { icon: CreditCard, label: "Huidig abonnement", value: t.profile.free },
-  { icon: MessageSquare, label: "Probleem melden" },
-  { icon: RefreshCcw, label: "Aankopen herstellen" },
-];
-
-const aboutItems = [
-  { icon: Lock, label: "Privacybeleid", to: "/privacy" },
-  { icon: FileText, label: "Servicevoorwaarden", to: "/voorwaarden" },
-  { icon: HelpCircle, label: "Feedback verzenden", to: "/contact" },
-];
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronRight, Gem, Shield, FileText, Mail, LogOut, Bell } from "lucide-react";
 
 export default function Profile() {
+  const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const name = user?.full_name || "Jij";
+  const email = user?.email || "";
+  const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await base44.auth.logout();
+  };
+
+  const ACCOUNT = [
+    { icon: Bell, label: "Meldingen", value: "Dagelijks 20:00", action: null },
+    { icon: Gem, label: "Abonnement", value: "Gratis", to: "/pricing" },
+    { icon: Shield, label: "Privacycentrum", value: null, to: "/privacy-center" },
+  ];
+
+  const INFO = [
+    { icon: FileText, label: "Privacybeleid", to: "/privacy" },
+    { icon: FileText, label: "Voorwaarden", to: "/voorwaarden" },
+    { icon: Mail, label: "Feedback sturen", to: "/contact" },
+  ];
+
   return (
-    <div className="px-5 pt-6">
-      <div
-        className="rounded-3xl p-5"
-        style={{
-          background: "linear-gradient(135deg, #fbe4d6 0%, #f6d0bb 100%)",
-          border: "1px solid rgba(194,90,50,0.20)",
-        }}
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <p className="text-base font-semibold leading-tight text-[#3d1f12]">
-              Ontgrendel onbeperkte toegang
-            </p>
-            <p className="mt-1 text-sm text-[#7a3a20]">
-              Voor ononderbroken ondersteuning 24/7
-            </p>
-            <Link
-              to="/pricing"
-              className="mt-4 inline-block rounded-full px-5 py-2.5 text-sm font-semibold text-white"
-              style={{ background: "linear-gradient(135deg, #ee9670 0%, #c25a32 100%)" }}
-            >
-              Nu ontgrendelen
-            </Link>
-          </div>
-          <Gem className="h-14 w-14 text-[#c25a32]" />
+    <div className="px-5 pt-6 pb-8 space-y-6">
+      {/* Avatar + name */}
+      <div className="flex flex-col items-center text-center gap-3 py-4">
+        <div
+          className="h-20 w-20 rounded-full flex items-center justify-center text-2xl font-bold text-white"
+          style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)" }}
+        >
+          {initials}
+        </div>
+        <div>
+          <p className="text-lg font-bold text-white">{name}</p>
+          <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>{email}</p>
         </div>
       </div>
 
-      <p className="mt-8 text-xs font-medium uppercase tracking-[0.16em] text-[#9c6a52]">ACCOUNT</p>
-      <div
-        className="mt-3 overflow-hidden rounded-2xl bg-white"
-        style={{ border: "1px solid rgba(194,90,50,0.12)" }}
-      >
-        {accountItems.map(({ icon: Icon, label, value }, i) => (
-          <div
-            key={label}
-            className={`flex items-center gap-3 px-4 py-3.5 ${i > 0 ? "border-t border-[rgba(194,90,50,0.08)]" : ""}`}
-          >
-            <Icon className="h-5 w-5 text-[#3d1f12]" />
-            <span className="flex-1 text-sm text-[#3d1f12]">{label}</span>
-            {value && <span className="text-sm text-[#9c6a52]">{value}</span>}
-            <ChevronRight className="h-4 w-4 text-[#cbb0a0]" />
+      {/* Pro banner */}
+      <Link to="/pricing">
+        <div
+          className="rounded-2xl p-4 flex items-center gap-3"
+          style={{ background: "linear-gradient(135deg, rgba(194,90,50,0.30), rgba(194,90,50,0.15))", border: "1px solid rgba(194,90,50,0.35)" }}
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: "rgba(194,90,50,0.25)" }}>
+            <Gem className="h-5 w-5 text-[#c25a32]" />
           </div>
-        ))}
-      </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-white">Upgrade naar Nora Plus</p>
+            <p className="text-xs" style={{ color: "rgba(255,255,255,0.50)" }}>Onbeperkt · Geheugen · €9,99/mnd</p>
+          </div>
+          <ChevronRight className="h-4 w-4" style={{ color: "rgba(255,255,255,0.35)" }} />
+        </div>
+      </Link>
 
-      <p className="mt-8 text-xs font-medium uppercase tracking-[0.16em] text-[#9c6a52]">OVER</p>
-      <div
-        className="mt-3 overflow-hidden rounded-2xl bg-white"
-        style={{ border: "1px solid rgba(194,90,50,0.12)" }}
-      >
-        {aboutItems.map(({ icon: Icon, label, to }, i) => (
-          <Link
-            key={label}
-            to={to}
-            className={`flex items-center gap-3 px-4 py-3.5 ${i > 0 ? "border-t border-[rgba(194,90,50,0.08)]" : ""}`}
-          >
-            <Icon className="h-5 w-5 text-[#3d1f12]" />
-            <span className="flex-1 text-sm text-[#3d1f12]">{label}</span>
-            <ChevronRight className="h-4 w-4 text-[#cbb0a0]" />
+      {/* Account */}
+      <Section label="ACCOUNT">
+        {ACCOUNT.map(({ icon: Icon, label, value, to, action }, i) => {
+          const row = (
+            <div className={`flex items-center gap-3 px-4 py-3.5 ${i > 0 ? "border-t border-[rgba(255,255,255,0.06)]" : ""}`}>
+              <Icon className="h-5 w-5 text-[#c25a32]" />
+              <span className="flex-1 text-sm text-white">{label}</span>
+              {value && <span className="text-sm" style={{ color: "rgba(255,255,255,0.40)" }}>{value}</span>}
+              <ChevronRight className="h-4 w-4" style={{ color: "rgba(255,255,255,0.25)" }} />
+            </div>
+          );
+          return to ? <Link key={label} to={to}>{row}</Link> : <div key={label}>{row}</div>;
+        })}
+      </Section>
+
+      {/* Info */}
+      <Section label="OVER">
+        {INFO.map(({ icon: Icon, label, to }, i) => (
+          <Link key={label} to={to} className={`flex items-center gap-3 px-4 py-3.5 ${i > 0 ? "border-t border-[rgba(255,255,255,0.06)]" : ""}`}>
+            <Icon className="h-5 w-5" style={{ color: "rgba(255,255,255,0.40)" }} />
+            <span className="flex-1 text-sm text-white">{label}</span>
+            <ChevronRight className="h-4 w-4" style={{ color: "rgba(255,255,255,0.25)" }} />
           </Link>
         ))}
-      </div>
+      </Section>
 
-      <p className="mt-6 px-2 text-center text-xs text-muted-foreground">Versie 1.0.0</p>
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        disabled={loggingOut}
+        className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-medium transition-all"
+        style={{ background: "rgba(255,59,48,0.12)", border: "1px solid rgba(255,59,48,0.20)", color: "#ff3b30" }}
+      >
+        <LogOut className="h-4 w-4" />
+        {loggingOut ? "Bezig…" : "Uitloggen"}
+      </button>
+
+      <p className="text-center text-xs" style={{ color: "rgba(255,255,255,0.20)" }}>Nora v1.0 · Gemaakt met zorg in België</p>
+    </div>
+  );
+}
+
+function Section({ label, children }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-widest mb-2 px-1" style={{ color: "rgba(255,255,255,0.30)" }}>{label}</p>
+      <div className="overflow-hidden rounded-2xl" style={{ background: "#1c1c1e" }}>
+        {children}
+      </div>
     </div>
   );
 }
