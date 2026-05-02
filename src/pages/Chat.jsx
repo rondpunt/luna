@@ -29,7 +29,10 @@ export default function Chat() {
 
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
-  const pendingReplyRef = useRef(null);
+  // Track the number of assistant messages we've already shown
+  const deliveredCountRef = useRef(0);
+  // Track messages count for folder hint
+  const messagesCountRef = useRef(0);
 
   const presence = useLunaPresence();
 
@@ -38,6 +41,7 @@ export default function Chat() {
     presence.initPresence();
     const t = setTimeout(() => {
       setMessages([{ role: "assistant", content: WELCOME }]);
+      deliveredCountRef.current = 1;
       setWelcomeVisible(true);
       presence.onLunaReply();
     }, rand(800, 1300));
@@ -54,19 +58,21 @@ export default function Chat() {
           metadata: { title: "Gesprek met Luna" },
         });
         if (active) setConversationId(conv.id);
-      } catch { /* fallback */ }
+      } catch { /* fallback to noraChat */ }
     })();
     return () => { active = false; };
   }, []);
 
-  // Subscription
+  // Subscription — only pick up NEW assistant messages
   useEffect(() => {
     if (!conversationId) return;
     const unsub = base44.agents.subscribeToConversation(conversationId, (data) => {
-      const agentMsgs = (data.messages || []).filter((m) => m.role !== "system");
-      if (agentMsgs.length > 0 && pendingReplyRef.current) {
-        pendingReplyRef.current(agentMsgs[agentMsgs.length - 1].content);
-        pendingReplyRef.current = null;
+      const assistantMsgs = (data.messages || []).filter((m) => m.role === "assistant");
+      // Only act when there are more assistant messages than we've delivered
+      if (assistantMsgs.length > deliveredCountRef.current) {
+        const newMsg = assistantMsgs[assistantMsgs.length - 1];
+        deliveredCountRef.current = assistantMsgs.length;
+        deliverReply(newMsg.content);
       }
     });
     return unsub;
@@ -77,8 +83,14 @@ export default function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
-  // Deliver reply with split option
+  // Keep messagesCountRef in sync
+  useEffect(() => {
+    messagesCountRef.current = messages.length;
+  }, [messages.length]);
+
+  // Deliver reply with natural split
   const deliverReply = useCallback((replyText) => {
+    if (!replyText) return;
     presence.onLunaReply();
     setSending(false);
 
@@ -99,9 +111,9 @@ export default function Chat() {
       setMessages((prev) => [...prev, { role: "assistant", content: replyText }]);
     }
 
-    // Show folder hint after 5 messages
-    if (messages.length >= 5 && !showFolderHint) setShowFolderHint(true);
-  }, [presence, messages.length, showFolderHint]);
+    // Show folder hint after 6 user messages
+    if (messagesCountRef.current >= 6 && !showFolderHint) setShowFolderHint(true);
+  }, [presence, showFolderHint]);
 
   const sendMessage = useCallback(async (text) => {
     const txt = (text || input).trim();
@@ -119,11 +131,10 @@ export default function Chat() {
 
     try {
       if (conversationId) {
-        pendingReplyRef.current = (replyContent) => {
-          setTimeout(() => deliverReply(replyContent), rand(350, 750));
-        };
+        // Agent path — reply comes via subscription
         await base44.agents.addMessage({ id: conversationId }, userMsg);
       } else {
+        // Fallback: direct noraChat function
         const allMsgs = [...messages, userMsg];
         const res = await base44.functions.invoke("noraChat", { messages: allMsgs, style: "gentle" });
         const reply = typeof res?.data?.reply === "string"
@@ -145,16 +156,14 @@ export default function Chat() {
     }
   };
 
-  // Status label color
-  const statusColors = {
-    [PRESENCE.ONLINE]:      "#34C77B",
-    [PRESENCE.READING]:     "#4A9EFF",
-    [PRESENCE.TYPING]:      "#F5A623",
-    [PRESENCE.CONNECTING]:  "rgba(240,240,242,0.50)",
-    [PRESENCE.QUIETLY_HERE]:"rgba(240,240,242,0.40)",
-    [PRESENCE.AWAY]:        "rgba(240,240,242,0.30)",
-  };
-  const dotColor = statusColors[presence.state] || "rgba(240,240,242,0.30)";
+  const dotColor = {
+    [PRESENCE.ONLINE]:       "#34C77B",
+    [PRESENCE.READING]:      "#4A9EFF",
+    [PRESENCE.TYPING]:       "#F5A623",
+    [PRESENCE.CONNECTING]:   "rgba(240,240,242,0.50)",
+    [PRESENCE.QUIETLY_HERE]: "rgba(240,240,242,0.40)",
+    [PRESENCE.AWAY]:         "rgba(240,240,242,0.30)",
+  }[presence.state] || "rgba(240,240,242,0.30)";
 
   return (
     <div className="fixed inset-0 flex flex-col" style={{ background: "var(--bg)" }}>
@@ -171,13 +180,11 @@ export default function Chat() {
           paddingBottom: "13px",
         }}
       >
-        {/* Back */}
         <Link to="/" className="flex items-center gap-0.5 shrink-0 btn-press" style={{ color: "#C25A32" }}>
           <ChevronLeft className="h-[22px] w-[22px]" strokeWidth={2.5} />
           <span className="text-[16px] font-medium">Terug</span>
         </Link>
 
-        {/* Center */}
         <div className="flex flex-1 flex-col items-center gap-0.5">
           <div style={{ opacity: presence.state === PRESENCE.IDLE ? 0 : 1, transition: "opacity 0.5s" }}>
             <LunaOrb state={presence.state} size={30} />
@@ -203,15 +210,17 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* Folder button */}
-        <Link to="/chat/folders" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl btn-press" style={{ background: "rgba(255,255,255,0.06)" }}>
+        <Link
+          to="/chat/folders"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl btn-press"
+          style={{ background: "rgba(255,255,255,0.06)" }}
+        >
           <FolderPlus className="h-[18px] w-[18px]" style={{ color: "rgba(240,240,242,0.55)" }} strokeWidth={1.8} />
         </Link>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-2">
-
         <div className="flex justify-center pb-2">
           <span className="text-[12px] px-3 py-1 rounded-full" style={{ color: "var(--text-3)", background: "var(--bg-card)", border: "1px solid var(--line-subtle)" }}>
             Vandaag · alles privé
@@ -247,7 +256,6 @@ export default function Chat() {
           </div>
         )}
 
-        {/* Folder hint */}
         {showFolderHint && started && (
           <div className="msg-enter mt-4">
             <button
@@ -267,12 +275,11 @@ export default function Chat() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Emoji */}
       {showEmoji && (
         <EmojiPicker onSelect={(e) => setInput((p) => p + e)} onClose={() => setShowEmoji(false)} />
       )}
 
-      {/* Input */}
+      {/* Input bar */}
       <div
         className="shrink-0"
         style={{
@@ -345,7 +352,6 @@ function OrbAvatar() {
 
 function Bubble({ message }) {
   const isUser = message.role === "user";
-
   if (isUser) {
     return (
       <div className="flex justify-end msg-enter">
@@ -358,7 +364,6 @@ function Bubble({ message }) {
       </div>
     );
   }
-
   return (
     <div className="flex items-end gap-2.5 msg-enter">
       <OrbAvatar />
