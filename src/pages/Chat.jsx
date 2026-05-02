@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { Phone, Image as ImageIcon, Mic } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import SectionCard from "@/components/nora/SectionCard";
 import { t } from "@/lib/i18n";
+import NoraLogo from "@/components/nora/NoraLogo";
 
 export default function Chat() {
   const [input, setInput] = useState("");
-  const [style, setStyle] = useState("gentle");
   const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState([
     { role: "assistant", content: t.chat.welcomeMsg },
@@ -18,7 +18,7 @@ export default function Chat() {
     setInput("");
     setSending(true);
     try {
-      const res = await base44.functions.invoke("noraChat", { messages: next, style });
+      const res = await base44.functions.invoke("noraChat", { messages: next, style: "gentle" });
       const reply =
         typeof res?.data?.reply === "string"
           ? res.data.reply
@@ -32,121 +32,68 @@ export default function Chat() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 pb-36 pt-6 sm:px-6 lg:px-8">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">{t.chat.header}</p>
-          <h1 className="text-3xl font-semibold tracking-tight">{t.chat.title}</h1>
+    <div className="flex min-h-[calc(100vh-120px)] flex-col">
+      {/* Sub-header met Nora */}
+      <div className="flex items-center justify-between px-5 py-3">
+        <div className="w-8" />
+        <div className="flex items-center gap-2">
+          <NoraLogo className="h-6 w-6" />
+          <span className="text-sm font-semibold text-[#1a3326]">Nora</span>
         </div>
-        <div className="hidden gap-2 md:flex">
-          {t.chat.styles.map((label, i) => {
-            const key = ["gentle", "deeper", "practical"][i] || "gentle";
-            const active = style === key;
-            return (
-              <button
-                key={label}
-                onClick={() => setStyle(key)}
-                className="rounded-full px-4 py-2 text-sm transition-all"
-                style={{
-                  background: active ? "#3f8a55" : "white",
-                  color: active ? "white" : "#1a3326",
-                  border: active ? "1px solid #3f8a55" : "1px solid rgba(63,138,85,0.20)",
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+        <button className="flex h-9 w-9 items-center justify-center rounded-full">
+          <Phone className="h-5 w-5 text-[#1a3326]" />
+        </button>
       </div>
 
-      <div className="grid flex-1 gap-4 lg:grid-cols-[280px_1fr]">
-        <SectionCard className="hidden lg:block">
-          <p className="text-sm font-medium text-foreground">{t.chat.sidebarTitle}</p>
+      {/* Berichten */}
+      <div className="flex-1 space-y-4 px-5 py-4">
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
+            {m.role === "assistant" && <NoraLogo className="mt-1 h-6 w-6 shrink-0" />}
+            <div
+              className={`max-w-[80%] whitespace-pre-wrap text-sm leading-6 ${
+                m.role === "user"
+                  ? "rounded-2xl bg-[#e9f5ec] px-4 py-2.5 text-[#1a3326]"
+                  : "px-1 text-[#1a3326]"
+              }`}
+            >
+              {m.content}
+            </div>
+          </div>
+        ))}
+        {sending && (
+          <div className="flex items-center gap-2 px-1 text-sm text-muted-foreground">
+            <NoraLogo className="h-6 w-6" />
+            Nora typt…
+          </div>
+        )}
+      </div>
+
+      {/* Composer */}
+      <div className="sticky bottom-0 px-4 pb-4 pt-2" style={{ background: "linear-gradient(180deg, transparent 0%, #ecf5ee 30%)" }}>
+        <div
+          className="flex items-center gap-2 rounded-full bg-white px-2 py-1.5"
+          style={{ border: "1px solid rgba(63,138,85,0.18)" }}
+        >
+          <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f1f6f2]">
+            <ImageIcon className="h-4 w-4 text-[#5b7a66]" />
+          </button>
           <input
-            className="mt-4 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none"
-            placeholder={t.chat.searchPlaceholder}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                send();
+              }
+            }}
+            placeholder={t.chat.placeholder}
+            className="flex-1 bg-transparent px-2 text-sm outline-none"
           />
-        </SectionCard>
-
-        <SectionCard className="flex min-h-[70vh] flex-col justify-between overflow-hidden p-0">
-          <div className="border-b border-border/60 px-5 py-4">
-            <p className="text-sm font-medium text-foreground">{t.chat.tonightTitle}</p>
-            <p className="text-sm text-muted-foreground">{t.chat.tonightNote}</p>
-          </div>
-
-          <div className="flex-1 space-y-4 px-5 py-5">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[85%] whitespace-pre-wrap rounded-[24px] px-4 py-3 text-sm leading-6 ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-foreground"
-                  }`}
-                >
-                  {message.content}
-                </div>
-              </div>
-            ))}
-            {sending && (
-              <div className="flex justify-start">
-                <div className="rounded-[24px] bg-secondary px-4 py-3 text-sm text-muted-foreground">
-                  Nora is aan het typen…
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-border/60 px-4 py-4">
-            <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
-              {t.chat.starterPrompts.map((prompt) => (
-                <button
-                  key={prompt}
-                  onClick={() => setInput(prompt)}
-                  className="shrink-0 rounded-full border border-border bg-background px-4 py-2 text-xs text-muted-foreground"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-            <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
-              {t.chat.tools.map((tool) => (
-                <button
-                  key={tool}
-                  className="shrink-0 rounded-full bg-secondary px-3 py-2 text-xs text-foreground"
-                >
-                  {tool}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-end gap-3 rounded-[28px] border border-border bg-background p-3 shadow-sm">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                placeholder={t.chat.placeholder}
-                rows={1}
-                className="min-h-[52px] flex-1 resize-none bg-transparent px-2 py-3 text-sm outline-none"
-              />
-              <button
-                onClick={send}
-                disabled={sending}
-                className="rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
-              >
-                {t.cta.send}
-              </button>
-            </div>
-          </div>
-        </SectionCard>
+          <button className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f1f6f2]">
+            <Mic className="h-4 w-4 text-[#5b7a66]" />
+          </button>
+        </div>
       </div>
     </div>
   );

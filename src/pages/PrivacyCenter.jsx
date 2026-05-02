@@ -1,41 +1,37 @@
-import SectionCard from "@/components/nora/SectionCard";
 import { t } from "@/lib/i18n";
 
 export default function PrivacyCenter() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <div>
-        <p className="text-sm text-muted-foreground">{t.privacyCenter.eyebrow}</p>
-        <h1 className="text-4xl font-semibold tracking-tight">{t.privacyCenter.title}</h1>
+    <div className="px-5 pt-6">
+      <p className="text-sm text-muted-foreground">{t.privacyCenter.eyebrow}</p>
+      <h1 className="mt-1 text-2xl font-semibold text-[#1a3326]">{t.privacyCenter.title}</h1>
+
+      <p className="mt-6 text-xs font-medium uppercase tracking-[0.16em] text-[#5b7a66]">
+        {t.privacyCenter.memoryTitle}
+      </p>
+      <div
+        className="mt-3 overflow-hidden rounded-2xl bg-white"
+        style={{ border: "1px solid rgba(63,138,85,0.12)" }}
+      >
+        {t.privacyCenter.memoryItems.map((item, i) => (
+          <button
+            key={item}
+            className={`flex w-full items-center px-4 py-3.5 text-left text-sm text-[#1a3326] ${i > 0 ? "border-t border-[rgba(63,138,85,0.08)]" : ""}`}
+          >
+            {item}
+          </button>
+        ))}
       </div>
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <SectionCard>
-          <p className="text-lg font-medium text-foreground">{t.privacyCenter.storedTitle}</p>
-          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-            {t.privacyCenter.storedItems.map((s) => <li key={s}>• {s}</li>)}
-          </ul>
-        </SectionCard>
-        <SectionCard>
-          <p className="text-lg font-medium text-foreground">{t.privacyCenter.memoryTitle}</p>
-          <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-            {t.privacyCenter.memoryItems.map((s) => (
-              <div key={s} className="rounded-2xl bg-secondary px-4 py-4">{s}</div>
-            ))}
-          </div>
-        </SectionCard>
-      </div>
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <SectionCard>
-          <p className="text-lg font-medium text-foreground">{t.privacyCenter.exportTitle}</p>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">{t.privacyCenter.exportBody}</p>
-          <button className="mt-4 rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground">{t.privacyCenter.exportCta}</button>
-        </SectionCard>
-        <SectionCard>
-          <p className="text-lg font-medium text-foreground">{t.privacyCenter.deleteTitle}</p>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">{t.privacyCenter.deleteBody}</p>
-          <button className="mt-4 rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm font-medium text-destructive">{t.privacyCenter.deleteCta}</button>
-        </SectionCard>
-      </div>
+
+      <button
+        className="mt-6 w-full rounded-full bg-white py-3 text-sm font-medium text-[#1a3326]"
+        style={{ border: "1px solid rgba(63,138,85,0.20)" }}
+      >
+        {t.privacyCenter.exportCta}
+      </button>
+      <button className="mt-3 w-full rounded-full bg-[rgba(218,77,77,0.08)] py-3 text-sm font-medium text-[#a23a3a]">
+        {t.privacyCenter.deleteCta}
+      </button>
     </div>
   );
 }

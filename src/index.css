@@ -34,26 +34,26 @@
     --luna-bubble-luna: rgba(255,255,255,0.78);
     --luna-focus-ring: #6e7ef7;
 
-    --background: 34 42% 96%;
-    --foreground: 228 22% 14%;
+    --background: 130 30% 97%;
+    --foreground: 150 25% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 228 22% 14%;
+    --card-foreground: 150 25% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 228 22% 14%;
-    --primary: 234 89% 70%;
+    --popover-foreground: 150 25% 14%;
+    --primary: 138 38% 45%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 24% 93%;
-    --secondary-foreground: 228 22% 18%;
-    --muted: 220 24% 93%;
-    --muted-foreground: 226 14% 48%;
-    --accent: 163 53% 65%;
-    --accent-foreground: 228 22% 14%;
+    --secondary: 130 30% 93%;
+    --secondary-foreground: 150 25% 18%;
+    --muted: 130 20% 94%;
+    --muted-foreground: 150 10% 42%;
+    --accent: 138 38% 45%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 74% 67%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 18% 86%;
-    --input: 220 18% 86%;
-    --ring: 234 89% 70%;
-    --radius: 1rem;
+    --border: 130 20% 88%;
+    --input: 130 20% 88%;
+    --ring: 138 38% 45%;
+    --radius: 1.25rem;
   }
 
   .dark {
@@ -86,9 +86,7 @@
   }
 
   body {
-    background: radial-gradient(ellipse at top, rgba(110,126,247,0.12), transparent 45%),
-                radial-gradient(ellipse at 85% 0%, rgba(117,213,184,0.14), transparent 40%),
-                linear-gradient(180deg, #fbf8f3 0%, #f4f1ea 100%);
+    background: linear-gradient(180deg, #f4f9f5 0%, #ecf5ee 100%);
     background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -96,13 +94,14 @@
     min-height: 100vh;
   }
 
+  h1, h2, h3, h4 {
+    font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
   input, textarea {
     font-size: 16px;
     font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
-  }
-
-  h1, h2, h3 {
-    font-family: 'Lora', Georgia, serif;
   }
 
   /* Custom scrollbars */

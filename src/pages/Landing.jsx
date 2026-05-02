@@ -1,49 +1,42 @@
 import { Link } from "react-router-dom";
 import NoraLogo from "@/components/nora/NoraLogo";
-import SectionCard from "@/components/nora/SectionCard";
-import UrgentHelpBanner from "@/components/nora/UrgentHelpBanner";
 import { t } from "@/lib/i18n";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <NoraLogo />
-            <div>
-              <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">{t.appName}</p>
-              <p className="text-sm text-muted-foreground">{t.subTagline}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <UrgentHelpBanner />
-            <Link to="/pricing" className="rounded-full border border-border px-4 py-2 text-sm">{t.pricing.eyebrow}</Link>
-          </div>
+    <div className="min-h-screen px-5 py-8">
+      <div className="mx-auto flex min-h-[80vh] max-w-md flex-col">
+        <div className="flex items-center justify-center gap-2 pt-6">
+          <NoraLogo className="h-8 w-8" />
+          <span className="text-base font-semibold text-[#1a3326]">Nora</span>
         </div>
 
-        <div className="mt-12 grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-          <div>
-            <p className="text-sm text-primary">{t.subTagline}</p>
-            <h1 className="mt-3 text-5xl font-semibold tracking-tight">{t.tagline}</h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-              Babbel, stem, dagboek, check-ins, geheugen en persoonlijke inzichten — gemaakt om je gehoord, rustiger en meer in controle te laten voelen.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/onboarding" className="rounded-2xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground">{t.cta.startFree}</Link>
-              <Link to="/pricing" className="rounded-2xl border border-border px-5 py-3 text-sm font-medium">{t.cta.seePlans}</Link>
-            </div>
-            <p className="mt-5 text-sm text-muted-foreground">Nora is therapie-geïnspireerde steun, geen medische zorg, diagnose of noodhulp.</p>
-          </div>
+        <div className="mt-16 flex-1 text-center">
+          <h1 className="text-3xl font-semibold leading-tight text-[#1a3326]">{t.tagline}</h1>
+          <p className="mt-4 text-sm leading-6 text-[#5b7a66]">{t.subTagline}</p>
+        </div>
 
-          <SectionCard className="bg-[linear-gradient(180deg,rgba(110,126,247,0.12),rgba(117,213,184,0.08))]">
-            <div className="space-y-4">
-              <div className="rounded-2xl bg-background p-4 text-sm text-muted-foreground">Babbelen voor directe steun</div>
-              <div className="rounded-2xl bg-background p-4 text-sm text-muted-foreground">Stemmodus die rustig en privé aanvoelt</div>
-              <div className="rounded-2xl bg-background p-4 text-sm text-muted-foreground">Geheugen dat enkel onthoudt wat jij wil</div>
-              <div className="rounded-2xl bg-background p-4 text-sm text-muted-foreground">Dagelijkse check-ins, dagboek en stemmingstrends</div>
-            </div>
-          </SectionCard>
+        <div className="space-y-3 pb-6">
+          <Link
+            to="/onboarding"
+            className="block w-full rounded-full py-3.5 text-center text-sm font-semibold text-white"
+            style={{
+              background: "linear-gradient(135deg, #5cb47a 0%, #3f8a55 100%)",
+              boxShadow: "0 6px 20px rgba(63,138,85,0.30)",
+            }}
+          >
+            {t.cta.startFree}
+          </Link>
+          <Link
+            to="/pricing"
+            className="block w-full rounded-full bg-white py-3.5 text-center text-sm font-medium text-[#1a3326]"
+            style={{ border: "1px solid rgba(63,138,85,0.20)" }}
+          >
+            {t.cta.seePlans}
+          </Link>
+          <p className="px-4 pt-2 text-center text-xs leading-5 text-muted-foreground">
+            Nora is geen noodhulp en geen medische zorg. Bij direct gevaar bel 112 of de Zelfmoordlijn 1813.
+          </p>
         </div>
       </div>
     </div>

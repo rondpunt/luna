@@ -1,6 +1,9 @@
 export default function SectionCard({ children, className = "" }) {
   return (
-    <div className={`rounded-[28px] border border-border/60 bg-card/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl ${className}`}>
+    <div
+      className={`rounded-3xl bg-white p-5 ${className}`}
+      style={{ border: "1px solid rgba(63,138,85,0.12)" }}
+    >
       {children}
     </div>
   );

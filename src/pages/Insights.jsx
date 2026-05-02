@@ -1,5 +1,4 @@
-import SectionCard from "@/components/nora/SectionCard";
-import InsightChartCard from "@/components/nora/InsightChartCard";
+import { AreaChart, Area, ResponsiveContainer, XAxis } from "recharts";
 import { t } from "@/lib/i18n";
 
 const trend = [
@@ -11,24 +10,36 @@ const trend = [
 
 export default function Insights() {
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 lg:px-8">
-      <div>
-        <p className="text-sm text-muted-foreground">{t.insights.eyebrow}</p>
-        <h1 className="text-3xl font-semibold tracking-tight">{t.insights.title}</h1>
+    <div className="px-5 pt-6">
+      <p className="text-sm text-muted-foreground">{t.insights.eyebrow}</p>
+      <h1 className="mt-1 text-2xl font-semibold text-[#1a3326]">{t.insights.title}</h1>
+
+      <div className="mt-6 h-44">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={trend}>
+            <defs>
+              <linearGradient id="noraTrend" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3f8a55" stopOpacity={0.30} />
+                <stop offset="95%" stopColor="#3f8a55" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "#8aa294", fontSize: 12 }} />
+            <Area type="monotone" dataKey="value" stroke="#3f8a55" fill="url(#noraTrend)" strokeWidth={2.5} />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
-      <div className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <InsightChartCard data={trend} />
-        <SectionCard className="bg-primary/5">
-          <p className="text-sm font-medium text-foreground">{t.insights.weekly}</p>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">{t.insights.weeklyBody}</p>
-        </SectionCard>
-      </div>
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+
+      <p className="mt-2 text-xs font-medium uppercase tracking-[0.16em] text-[#5b7a66]">
+        {t.insights.weekly}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{t.insights.weeklyBody}</p>
+
+      <div className="mt-6 space-y-4">
         {t.insights.cards.map(([title, body]) => (
-          <SectionCard key={title}>
-            <p className="text-sm font-medium text-foreground">{title}</p>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">{body}</p>
-          </SectionCard>
+          <div key={title} className="border-t border-[rgba(63,138,85,0.10)] pt-4">
+            <p className="text-sm font-semibold text-[#1a3326]">{title}</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p>
+          </div>
         ))}
       </div>
     </div>
