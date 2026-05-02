@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, MessageCircle, TrendingUp, User } from "lucide-react";
+import { Home, MessageCircle, BookOpen, User } from "lucide-react";
 
 const navItems = [
   { path: "/home", icon: Home, label: "Home" },
   { path: "/chat", icon: MessageCircle, label: "Chat" },
-  { path: "/voortgang", icon: TrendingUp, label: "Voortgang" },
+  { path: "/bibliotheek", icon: BookOpen, label: "Bibliotheek" },
   { path: "/profiel", icon: User, label: "Profiel" },
 ];
 
@@ -15,30 +15,13 @@ export default function BottomNav() {
     <nav
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{
-        background: "rgba(5,8,20,0.95)",
-        borderTop: "1px solid rgba(255,255,255,0.07)",
+        background: "rgba(245,248,255,0.97)",
+        borderTop: "1px solid rgba(180,190,220,0.30)",
         backdropFilter: "blur(20px)",
-        paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
+        paddingBottom: "calc(8px + env(safe-area-inset-bottom, 0px))",
       }}
     >
-      {/* Crisis strip */}
-      <div className="flex justify-center pt-2 pb-1">
-        <a
-          href="tel:080032123"
-          className="px-3 py-0.5 rounded-full text-[10px] tracking-wide"
-          style={{
-            background: "rgba(239,68,68,0.10)",
-            border: "1px solid rgba(239,68,68,0.18)",
-            color: "rgba(248,113,113,0.80)",
-            fontFamily: "'DM Sans', sans-serif",
-          }}
-        >
-          0800 32 123 · 106
-        </a>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center justify-around max-w-md mx-auto px-4 pt-1 pb-1">
+      <div className="flex items-center justify-around max-w-md mx-auto px-4 pt-2 pb-1">
         {navItems.map(({ path, icon: Icon, label }) => {
           const isActive =
             location.pathname === path ||
@@ -52,24 +35,20 @@ export default function BottomNav() {
               <Icon
                 className="w-[22px] h-[22px] transition-all"
                 style={{
-                  color: isActive ? "#818cf8" : "rgba(255,255,255,0.35)",
-                  filter: isActive ? "drop-shadow(0 0 6px rgba(129,140,248,0.5))" : "none",
+                  color: isActive ? "#1e7a8c" : "#9aa5be",
                 }}
               />
               <span
                 className="text-[10px] font-medium"
                 style={{
-                  color: isActive ? "#818cf8" : "rgba(255,255,255,0.35)",
+                  color: isActive ? "#1e7a8c" : "#9aa5be",
                   fontFamily: "'DM Sans', sans-serif",
                 }}
               >
                 {label}
               </span>
               {isActive && (
-                <div
-                  className="w-1 h-1 rounded-full"
-                  style={{ background: "#818cf8" }}
-                />
+                <div className="w-1 h-1 rounded-full" style={{ background: "#1e7a8c" }} />
               )}
             </Link>
           );

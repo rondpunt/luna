@@ -14,6 +14,7 @@ import Chat from "./pages/Chat";
 import Home from "./pages/Home";
 import Voortgang from "./pages/Voortgang";
 import Profiel from "./pages/Profiel";
+import Bibliotheek from "./pages/Bibliotheek";
 import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
 import Voorwaarden from "./pages/Voorwaarden";
@@ -51,6 +52,7 @@ const AuthenticatedApp = () => {
       <Route path="/home" element={<Home />} />
       <Route path="/chat" element={<Chat />} />
       <Route path="/voortgang" element={<Voortgang />} />
+      <Route path="/bibliotheek" element={<Bibliotheek />} />
       <Route path="/profiel" element={<Profiel />} />
       <Route path="/prijzen" element={<Pricing />} />
       <Route path="/privacy" element={<Privacy />} />

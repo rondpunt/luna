@@ -90,24 +90,29 @@ export default function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-screen" style={{ background: "#080d1e" }}>
+    <div className="flex flex-col h-screen" style={{ background: "linear-gradient(160deg, #f0f4ff 0%, #f5f7ff 60%, #eef2fb 100%)" }}>
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3 shrink-0"
         style={{
-          background: "rgba(5,8,20,0.95)",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          background: "rgba(245,248,255,0.95)",
+          borderBottom: "1px solid rgba(180,190,220,0.25)",
           backdropFilter: "blur(20px)",
         }}
       >
-        <LunaOrb size={32} state={orbState} />
-        <span className="text-base" style={{ fontFamily: "'Lora', Georgia, serif", fontStyle: "italic", color: "rgba(255,255,255,0.92)" }}>
-          Luna
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+          style={{ background: "linear-gradient(135deg, #a5b4fc, #818cf8)", color: "white" }}
+        >
+          L
+        </div>
+        <span className="text-base font-semibold" style={{ fontFamily: "'DM Sans', sans-serif", color: "#1a2340" }}>
+          Chat met Luna
         </span>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-6" style={{ paddingBottom: 120 }}>
+      <div className="flex-1 overflow-y-auto px-4 py-4" style={{ paddingBottom: 120 }}>
         <AnimatePresence initial={false}>
           {messages.map((msg, i) => (
             <motion.div
@@ -126,11 +131,11 @@ export default function Chat() {
 
       {/* Input */}
       <div
-        className="shrink-0 px-4 pt-3 pb-safe"
+        className="shrink-0 px-4 pt-3"
         style={{
           paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))",
-          background: "rgba(5,8,20,0.95)",
-          borderTop: "1px solid rgba(255,255,255,0.07)",
+          background: "rgba(245,248,255,0.95)",
+          borderTop: "1px solid rgba(180,190,220,0.25)",
           backdropFilter: "blur(20px)",
         }}
       >
@@ -144,9 +149,9 @@ export default function Chat() {
             placeholder="Schrijf hier..."
             className="flex-1 resize-none rounded-2xl px-4 py-3 text-sm outline-none"
             style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              color: "rgba(255,255,255,0.88)",
+              background: "rgba(255,255,255,0.90)",
+              border: "1px solid rgba(180,190,220,0.35)",
+              color: "#1a2340",
               fontFamily: "'DM Sans', sans-serif",
               maxHeight: 120,
             }}
@@ -155,12 +160,12 @@ export default function Chat() {
             onClick={sendMessage}
             disabled={!input.trim() || isThinking}
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all active:scale-90 disabled:opacity-40"
-            style={{ background: "#6366f1", boxShadow: "0 0 14px rgba(99,102,241,0.4)" }}
+            style={{ background: "linear-gradient(135deg, #1e7a8c, #1a6678)", boxShadow: "0 4px 12px rgba(30,122,140,0.30)" }}
           >
             <Send className="w-4 h-4 text-white" />
           </button>
         </div>
-        <p className="text-center mt-2 text-[10px]" style={{ color: "rgba(255,255,255,0.20)", fontFamily: "'DM Sans', sans-serif" }}>
+        <p className="text-center mt-2 text-[10px]" style={{ color: "#b0b8cc", fontFamily: "'DM Sans', sans-serif" }}>
           In nood? Bel 0800 32 123 of 106
         </p>
       </div>
