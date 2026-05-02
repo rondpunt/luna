@@ -14,6 +14,11 @@ const items = [
 
 export default function AppShell() {
   const location = useLocation();
+  const isChat = location.pathname === "/chat";
+
+  if (isChat) {
+    return <Outlet />;
+  }
 
   return (
     <div className="min-h-screen text-foreground">
