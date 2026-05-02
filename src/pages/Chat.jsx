@@ -1,91 +1,167 @@
-import { useState, useRef, useEffect } from "react";
+/**
+ * Chat.jsx — Luna AI companion chat.
+ * Presence system: ethical, warm, never deceptive.
+ * Luna is an AI companion. The presence cues create social aliveness, not human impersonation.
+ */
+
+import { useState, useRef, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { ChevronLeft, Send, Smile } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Send, Smile } from "lucide-react";
 import EmojiPicker from "@/components/nora/EmojiPicker";
+import LunaChatHeader from "@/components/luna/LunaChatHeader";
+import { useLunaPresence, PRESENCE } from "@/hooks/useLunaPresence";
 
 const WELCOME = "Hé, fijn dat je er bent. Wat voelt nu het zwaarst voor jou?";
+
 const STARTERS = [
   "Ik voel me overweldigd",
   "Ik weet niet wat ik voel",
-  "Ik heb het moeilijk op het werk",
-  "Ik slaap al dagen slecht",
+  "Het gaat moeilijk op het werk",
+  "Ik slaap slecht de laatste tijd",
 ];
+
+// Randomized pacing ranges (ms) — varies so it never feels robotic
+const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 export default function Chat() {
   const [conversationId, setConversationId] = useState(null);
-  const [messages, setMessages] = useState([{ role: "assistant", content: WELCOME }]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [started, setStarted] = useState(false);
+  const [welcomeVisible, setWelcomeVisible] = useState(false);
+
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
-  const emojiRef = useRef(null);
+  const pendingReplyRef = useRef(null);
 
+  const presence = useLunaPresence();
+
+  // ── Entry flow ──
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, sending]);
+    presence.initPresence();
 
+    // Show welcome message after Luna comes online
+    const t = setTimeout(() => {
+      setMessages([{ role: "assistant", content: WELCOME }]);
+      setWelcomeVisible(true);
+      presence.onLunaReply();
+    }, rand(900, 1400));
+
+    return () => clearTimeout(t);
+  }, []);
+
+  // ── Agent setup ──
   useEffect(() => {
     let active = true;
     (async () => {
       try {
         const conv = await base44.agents.createConversation({
           agent_name: "nora_agent",
-          metadata: { title: "Gesprek met Nora" },
+          metadata: { title: "Gesprek met Luna" },
         });
         if (active) setConversationId(conv.id);
-      } catch {
-        // fallback to noraChat
-      }
+      } catch { /* fallback to noraChat */ }
     })();
     return () => { active = false; };
   }, []);
 
+  // ── Agent subscription ──
   useEffect(() => {
     if (!conversationId) return;
     const unsub = base44.agents.subscribeToConversation(conversationId, (data) => {
       const agentMsgs = (data.messages || []).filter((m) => m.role !== "system");
-      if (agentMsgs.length > 0) {
-        setMessages([{ role: "assistant", content: WELCOME }, ...agentMsgs]);
-        setSending(false);
+      if (agentMsgs.length > 0 && pendingReplyRef.current) {
+        pendingReplyRef.current(agentMsgs[agentMsgs.length - 1].content);
+        pendingReplyRef.current = null;
       }
     });
     return unsub;
   }, [conversationId]);
 
-  const sendMessage = async (text) => {
+  // ── Scroll to bottom ──
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, sending]);
+
+  // ── Deliver reply with pacing ──
+  const deliverReply = useCallback((replyText) => {
+    presence.onLunaReply();
+    setSending(false);
+
+    // Occasionally split long replies into two bubbles
+    const words = replyText.split(" ");
+    if (words.length > 35 && Math.random() > 0.45) {
+      const splitAt = Math.floor(words.length * rand(40, 60) / 100);
+      const part1 = words.slice(0, splitAt).join(" ");
+      const part2 = words.slice(splitAt).join(" ");
+
+      setMessages((prev) => [...prev, { role: "assistant", content: part1 }]);
+
+      // Second bubble after short pause
+      const pauseMs = rand(900, 1600);
+      setTimeout(() => {
+        presence.onUserMessage(0); // brief typing flicker
+        setTimeout(() => {
+          setMessages((prev) => [...prev, { role: "assistant", content: part2 }]);
+          presence.onLunaReply();
+        }, rand(700, 1100));
+      }, pauseMs);
+    } else {
+      setMessages((prev) => [...prev, { role: "assistant", content: replyText }]);
+    }
+  }, [presence]);
+
+  // ── Send message ──
+  const sendMessage = useCallback(async (text) => {
     const txt = (text || input).trim();
     if (!txt || sending) return;
+
     setInput("");
     setShowEmoji(false);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+
     const userMsg = { role: "user", content: txt };
     setMessages((prev) => [...prev, userMsg]);
     setSending(true);
     setStarted(true);
 
+    // Trigger presence: reading → typing
+    presence.onUserMessage(txt.length);
+
     try {
       if (conversationId) {
+        // Agent path — reply comes via subscription callback
+        pendingReplyRef.current = (replyContent) => {
+          // Extra pacing: wait for typing state to feel real
+          const extraMs = rand(400, 900);
+          setTimeout(() => deliverReply(replyContent), extraMs);
+        };
         await base44.agents.addMessage({ id: conversationId }, userMsg);
       } else {
+        // Fallback: noraChat function
         const allMsgs = [...messages, userMsg];
-        const res = await base44.functions.invoke("noraChat", { messages: allMsgs, style: "gentle" });
+        const res = await base44.functions.invoke("noraChat", {
+          messages: allMsgs,
+          style: "gentle",
+        });
         const reply =
           typeof res?.data?.reply === "string"
             ? res.data.reply
             : res?.data?.reply?.content ?? "Ik ben er voor je. Vertel me meer.";
-        setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-        setSending(false);
+        const extraMs = rand(400, 800);
+        setTimeout(() => deliverReply(reply), extraMs);
       }
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Sorry, er liep iets mis. Probeer het opnieuw." }]);
       setSending(false);
+      presence.onLunaReply();
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Er liep iets mis. Probeer het opnieuw." },
+      ]);
     }
-  };
+  }, [input, sending, conversationId, messages, presence, deliverReply]);
 
   const handleKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -96,61 +172,36 @@ export default function Chat() {
 
   return (
     <div className="fixed inset-0 flex flex-col" style={{ background: "#000" }}>
-      {/* iOS Chat header */}
-      <div
-        className="flex items-center gap-3 px-4 shrink-0"
-        style={{
-          background: "rgba(0,0,0,0.88)",
-          backdropFilter: "saturate(180%) blur(20px)",
-          WebkitBackdropFilter: "saturate(180%) blur(20px)",
-          borderBottom: "0.5px solid rgba(84,84,88,0.65)",
-          paddingTop: "calc(12px + env(safe-area-inset-top, 0px))",
-          paddingBottom: "12px",
-        }}
-      >
-        <Link
-          to="/"
-          className="flex items-center gap-1 text-[17px] font-medium"
-          style={{ color: "#C25A32" }}
-        >
-          <ChevronLeft className="h-[22px] w-[22px]" strokeWidth={2.5} />
-          <span className="text-[17px]">Start</span>
-        </Link>
 
-        {/* Center: avatar + name */}
-        <div className="flex flex-1 flex-col items-center">
-          <div className="relative">
-            <div
-              className="h-8 w-8 rounded-full flex items-center justify-center text-[13px] font-bold text-white"
-              style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)" }}
-            >
-              N
-            </div>
-            <span
-              className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-[1.5px] border-black"
-              style={{ background: "#30D158" }}
-            />
-          </div>
-          <p className="text-[12px] font-semibold mt-0.5" style={{ color: "#fff" }}>Nora</p>
-        </div>
-
-        <div className="w-16" />
-      </div>
+      {/* Live presence header */}
+      <LunaChatHeader
+        state={presence.state}
+        statusLabel={presence.statusLabel}
+        statusColor={presence.statusColor}
+      />
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-2">
+
+        {/* Date */}
+        <div className="flex justify-center py-1">
+          <span className="text-[12px] font-medium" style={{ color: "rgba(235,235,245,0.35)" }}>
+            Vandaag
+          </span>
+        </div>
+
+        {/* Message bubbles — fade in */}
         {messages.map((m, i) => (
           <Bubble key={i} message={m} />
         ))}
 
+        {/* Typing indicator while sending */}
         {sending && (
           <div className="flex items-end gap-2">
             <div
-              className="h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-[12px] font-bold text-white mb-0.5"
-              style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)" }}
-            >
-              N
-            </div>
+              className="h-7 w-7 shrink-0 rounded-full flex items-center justify-center mb-0.5"
+              style={{ background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 100%)" }}
+            />
             <div
               className="flex items-center gap-1.5 rounded-[18px] rounded-bl-[4px] px-4 py-3"
               style={{ background: "#1C1C1E" }}
@@ -162,23 +213,21 @@ export default function Chat() {
           </div>
         )}
 
-        {!started && (
-          <div className="pt-6 space-y-2">
-            <p
-              className="text-center text-[13px] mb-3"
-              style={{ color: "rgba(235,235,245,0.35)" }}
-            >
+        {/* Starter prompts */}
+        {!started && welcomeVisible && (
+          <div className="pt-4 space-y-2">
+            <p className="text-center text-[13px] pb-1" style={{ color: "rgba(235,235,245,0.30)" }}>
               Of kies een onderwerp
             </p>
             {STARTERS.map((s) => (
               <button
                 key={s}
                 onClick={() => sendMessage(s)}
-                className="w-full text-left rounded-2xl px-4 py-3 text-[15px] transition-all active:scale-[0.98]"
+                className="w-full text-left rounded-[18px] px-4 py-3.5 text-[15px] transition-opacity active:opacity-60"
                 style={{
-                  background: "#1C1C1E",
-                  color: "rgba(235,235,245,0.85)",
-                  border: "none",
+                  background: "rgba(120,120,128,0.18)",
+                  border: "0.5px solid rgba(84,84,88,0.55)",
+                  color: "rgba(235,235,245,0.80)",
                 }}
               >
                 {s}
@@ -192,40 +241,40 @@ export default function Chat() {
 
       {/* Emoji picker */}
       {showEmoji && (
-        <EmojiPicker onSelect={(e) => setInput((p) => p + e)} onClose={() => setShowEmoji(false)} />
+        <EmojiPicker
+          onSelect={(e) => setInput((p) => p + e)}
+          onClose={() => setShowEmoji(false)}
+        />
       )}
 
-      {/* iOS-style input bar */}
+      {/* Input bar */}
       <div
-        className="shrink-0"
+        className="shrink-0 px-3 py-2"
         style={{
-          background: "rgba(28,28,30,0.94)",
-          backdropFilter: "saturate(180%) blur(20px)",
-          WebkitBackdropFilter: "saturate(180%) blur(20px)",
+          background: "rgba(18,18,20,0.96)",
+          backdropFilter: "saturate(180%) blur(24px)",
+          WebkitBackdropFilter: "saturate(180%) blur(24px)",
           borderTop: "0.5px solid rgba(84,84,88,0.65)",
-          paddingLeft: "8px",
-          paddingRight: "8px",
-          paddingTop: "8px",
-          paddingBottom: "max(8px, env(safe-area-inset-bottom, 0px))",
+          paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
         }}
       >
         <div className="flex items-end gap-2">
-          {/* Emoji button */}
+          {/* Emoji */}
           <button
             onClick={() => setShowEmoji((v) => !v)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full mb-0.5"
-            style={{ background: "rgba(120,120,128,0.24)" }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full mb-0.5 transition-colors"
+            style={{ background: "rgba(120,120,128,0.22)", color: showEmoji ? "#C25A32" : "rgba(235,235,245,0.50)" }}
           >
-            <Smile className="h-5 w-5" style={{ color: showEmoji ? "#C25A32" : "rgba(235,235,245,0.65)" }} />
+            <Smile className="h-5 w-5" />
           </button>
 
-          {/* Text input bubble */}
+          {/* Text field */}
           <div
-            className="flex flex-1 items-end rounded-[22px] px-3 py-2"
+            className="flex-1 flex items-end rounded-[22px] px-4 py-2.5"
             style={{
               background: "#2C2C2E",
               border: "0.5px solid rgba(84,84,88,0.65)",
-              minHeight: "36px",
+              minHeight: "40px",
             }}
           >
             <textarea
@@ -237,26 +286,21 @@ export default function Chat() {
                 e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
               }}
               onKeyDown={handleKey}
-              placeholder="Bericht…"
+              placeholder="Bericht"
               rows={1}
-              className="flex-1 resize-none bg-transparent text-[15px] leading-5 outline-none text-white"
-              style={{ minHeight: "20px", maxHeight: "120px" }}
+              className="flex-1 resize-none bg-transparent text-[17px] text-white outline-none leading-5"
+              style={{ minHeight: "22px", maxHeight: "120px" }}
             />
           </div>
 
-          {/* Send button — iOS style */}
+          {/* Send */}
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || sending}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full mb-0.5 transition-all"
-            style={{
-              background: input.trim() && !sending ? "#C25A32" : "rgba(120,120,128,0.24)",
-            }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full mb-0.5 transition-all disabled:opacity-35"
+            style={{ background: input.trim() && !sending ? "#C25A32" : "rgba(120,120,128,0.24)" }}
           >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="19" x2="12" y2="5" />
-              <polyline points="5 12 12 5 19 12" />
-            </svg>
+            <Send className="h-4 w-4 text-white" />
           </button>
         </div>
       </div>
@@ -264,13 +308,15 @@ export default function Chat() {
   );
 }
 
+// ── Bubble ──
 function Bubble({ message }) {
   const isUser = message.role === "user";
+
   if (isUser) {
     return (
-      <div className="flex justify-end">
+      <div className="flex justify-end animate-fade-up">
         <div
-          className="max-w-[75%] rounded-[18px] rounded-br-[4px] px-4 py-2.5 text-[15px] leading-[1.4] text-white break-words"
+          className="max-w-[75%] rounded-[18px] rounded-br-[4px] px-4 py-2.5 text-[17px] text-white leading-[1.45] break-words"
           style={{ background: "#C25A32" }}
         >
           {message.content}
@@ -278,17 +324,19 @@ function Bubble({ message }) {
       </div>
     );
   }
+
   return (
-    <div className="flex items-end gap-2">
+    <div className="flex items-end gap-2 animate-fade-up">
       <div
-        className="h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-[12px] font-bold text-white mb-0.5"
-        style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)" }}
-      >
-        N
-      </div>
+        className="h-7 w-7 shrink-0 rounded-full mb-0.5"
+        style={{
+          background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 60%, #7a2d14 100%)",
+          flexShrink: 0,
+        }}
+      />
       <div
-        className="max-w-[75%] rounded-[18px] rounded-bl-[4px] px-4 py-2.5 text-[15px] leading-[1.4] break-words"
-        style={{ background: "#1C1C1E", color: "rgba(235,235,245,0.92)" }}
+        className="max-w-[75%] rounded-[18px] rounded-bl-[4px] px-4 py-2.5 text-[17px] leading-[1.45] break-words"
+        style={{ background: "#1C1C1E", color: "rgba(235,235,245,0.93)" }}
       >
         {message.content}
       </div>

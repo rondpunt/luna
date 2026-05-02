@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { MessageCircle, BookHeart, BarChart3, ChevronRight, Flame } from "lucide-react";
+import LunaPresenceBadge from "@/components/luna/LunaPresenceBadge";
 
 const MOODS = [
   { label: "Zwaar", emoji: "😔" },
@@ -89,6 +90,11 @@ export default function Home() {
             </Link>
           ))}
         </div>
+      </div>
+
+      {/* Luna presence badge */}
+      <div className="px-1">
+        <LunaPresenceBadge />
       </div>
 
       {/* Privacy note */}
