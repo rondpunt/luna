@@ -8,6 +8,21 @@
     "title": {
       "type": "string"
     },
+    "folderId": {
+      "type": "string",
+      "description": "Optionele map-ID"
+    },
+    "folderName": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Korte AI-samenvatting van het gesprek"
+    },
+    "mood": {
+      "type": "string",
+      "description": "Stemming aan begin van gesprek"
+    },
     "pinned": {
       "type": "boolean",
       "default": false
@@ -19,6 +34,10 @@
     "last_message_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "message_count": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

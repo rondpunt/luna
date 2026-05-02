@@ -3,31 +3,30 @@ import { ChevronLeft, Mail } from "lucide-react";
 
 export default function Contact() {
   return (
-    <div className="min-h-screen px-4 py-6 space-y-6" style={{ background: "#000", paddingTop: "env(safe-area-inset-top, 44px)" }}>
+    <div className="min-h-screen px-4 py-6 space-y-6" style={{ background: "var(--bg)", paddingTop: "env(safe-area-inset-top, 44px)" }}>
       <div className="flex items-center gap-2">
-        <Link to="/profile" className="flex items-center gap-1" style={{ color: "#FF6B3D" }}>
+        <Link to="/profile" className="flex items-center gap-1 btn-press" style={{ color: "#C25A32" }}>
           <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
-          <span className="text-[17px] font-medium">Profiel</span>
+          <span className="text-[16px] font-medium">Profiel</span>
         </Link>
       </div>
 
-      <h1 className="text-[34px] font-bold text-white">Contact</h1>
+      <h1 className="text-[30px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.5px" }}>Contact</h1>
 
-      <div className="rounded-2xl p-6" style={{ background: "#1C1C1E" }}>
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}>
         <div
-          className="flex h-16 w-16 items-center justify-center rounded-[18px] mb-5"
-          style={{ background: "rgba(255,107,61,0.20)" }}
+          className="flex h-14 w-14 items-center justify-center rounded-[18px] mb-5"
+          style={{ background: "rgba(194,90,50,0.15)" }}
         >
-          <Mail className="h-8 w-8" style={{ color: "#FF6B3D" }} strokeWidth={1.8} />
+          <Mail className="h-7 w-7" style={{ color: "#C25A32" }} strokeWidth={1.7} />
         </div>
-        <p className="text-[20px] font-semibold text-white mb-2">Vragen of feedback?</p>
-        <p className="text-[17px] leading-[1.5] mb-6" style={{ color: "rgba(235,235,245,0.55)" }}>
-          Mail het Nora-team via <span className="text-white font-medium">hello@nora.app</span> — we lezen alles en antwoorden binnen 48u.
+        <p className="text-[19px] font-bold mb-2" style={{ color: "var(--text)" }}>Vragen of feedback?</p>
+        <p className="text-[16px] leading-[1.6] mb-6" style={{ color: "var(--text-2)" }}>
+          Stuur een mail naar <span className="font-semibold" style={{ color: "var(--text)" }}>hello@luna.app</span> — we lezen alles en antwoorden binnen 48u.
         </p>
         <a
-          href="mailto:hello@nora.app"
-          className="block w-full rounded-[14px] py-4 text-center text-[17px] font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #FF8C60, #FF6B3D)" }}
+          href="mailto:hello@luna.app"
+          className="block w-full rounded-2xl py-4 text-center text-[16px] font-semibold text-white btn-press accent-gradient"
         >
           Stuur een mail
         </a>

@@ -1,0 +1,36 @@
+{
+  "name": "ChatFolder",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Naam van de map, bv. 'Angst', 'Werk', 'Familie'"
+    },
+    "emoji": {
+      "type": "string",
+      "description": "Emoji voor de map"
+    },
+    "color": {
+      "type": "string",
+      "description": "Hex kleur voor de map"
+    },
+    "description": {
+      "type": "string"
+    },
+    "pinned": {
+      "type": "boolean",
+      "default": false
+    },
+    "archived": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "userId",
+    "name"
+  ]
+}

@@ -1,26 +1,20 @@
-/**
- * Chat.jsx — Luna AI companion chat.
- * Presence system: ethical, warm, never deceptive.
- * Luna is an AI companion. The presence cues create social aliveness, not human impersonation.
- */
-
 import { useState, useRef, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Send, Smile } from "lucide-react";
+import { Send, Smile, ChevronLeft, FolderPlus } from "lucide-react";
+import { Link } from "react-router-dom";
 import EmojiPicker from "@/components/nora/EmojiPicker";
-import LunaChatHeader from "@/components/luna/LunaChatHeader";
+import LunaOrb from "@/components/luna/LunaOrb";
 import { useLunaPresence, PRESENCE } from "@/hooks/useLunaPresence";
 
-const WELCOME = "Hé, fijn dat je er bent. Wat voelt nu het zwaarst voor jou?";
+const WELCOME = "Goed dat je er bent. Wat zit je dwars vandaag?";
 
 const STARTERS = [
-  "Ik voel me overweldigd",
-  "Ik weet niet wat ik voel",
+  "Ik voel me compleet overweldigd",
+  "Ik weet niet eens wat ik voel",
   "Het gaat moeilijk op het werk",
   "Ik slaap slecht de laatste tijd",
 ];
 
-// Randomized pacing ranges (ms) — varies so it never feels robotic
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 export default function Chat() {
@@ -31,6 +25,7 @@ export default function Chat() {
   const [showEmoji, setShowEmoji] = useState(false);
   const [started, setStarted] = useState(false);
   const [welcomeVisible, setWelcomeVisible] = useState(false);
+  const [showFolderHint, setShowFolderHint] = useState(false);
 
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
@@ -38,21 +33,18 @@ export default function Chat() {
 
   const presence = useLunaPresence();
 
-  // ── Entry flow ──
+  // Entry flow
   useEffect(() => {
     presence.initPresence();
-
-    // Show welcome message after Luna comes online
     const t = setTimeout(() => {
       setMessages([{ role: "assistant", content: WELCOME }]);
       setWelcomeVisible(true);
       presence.onLunaReply();
-    }, rand(900, 1400));
-
+    }, rand(800, 1300));
     return () => clearTimeout(t);
   }, []);
 
-  // ── Agent setup ──
+  // Agent setup
   useEffect(() => {
     let active = true;
     (async () => {
@@ -62,12 +54,12 @@ export default function Chat() {
           metadata: { title: "Gesprek met Luna" },
         });
         if (active) setConversationId(conv.id);
-      } catch { /* fallback to noraChat */ }
+      } catch { /* fallback */ }
     })();
     return () => { active = false; };
   }, []);
 
-  // ── Agent subscription ──
+  // Subscription
   useEffect(() => {
     if (!conversationId) return;
     const unsub = base44.agents.subscribeToConversation(conversationId, (data) => {
@@ -80,40 +72,37 @@ export default function Chat() {
     return unsub;
   }, [conversationId]);
 
-  // ── Scroll to bottom ──
+  // Scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
-  // ── Deliver reply with pacing ──
+  // Deliver reply with split option
   const deliverReply = useCallback((replyText) => {
     presence.onLunaReply();
     setSending(false);
 
-    // Occasionally split long replies into two bubbles
     const words = replyText.split(" ");
-    if (words.length > 35 && Math.random() > 0.45) {
-      const splitAt = Math.floor(words.length * rand(40, 60) / 100);
-      const part1 = words.slice(0, splitAt).join(" ");
-      const part2 = words.slice(splitAt).join(" ");
-
-      setMessages((prev) => [...prev, { role: "assistant", content: part1 }]);
-
-      // Second bubble after short pause
-      const pauseMs = rand(900, 1600);
+    if (words.length > 38 && Math.random() > 0.4) {
+      const cut = Math.floor(words.length * rand(38, 58) / 100);
+      const p1 = words.slice(0, cut).join(" ");
+      const p2 = words.slice(cut).join(" ");
+      setMessages((prev) => [...prev, { role: "assistant", content: p1 }]);
       setTimeout(() => {
-        presence.onUserMessage(0); // brief typing flicker
+        presence.onUserMessage(0);
         setTimeout(() => {
-          setMessages((prev) => [...prev, { role: "assistant", content: part2 }]);
+          setMessages((prev) => [...prev, { role: "assistant", content: p2 }]);
           presence.onLunaReply();
-        }, rand(700, 1100));
-      }, pauseMs);
+        }, rand(600, 1000));
+      }, rand(800, 1400));
     } else {
       setMessages((prev) => [...prev, { role: "assistant", content: replyText }]);
     }
-  }, [presence]);
 
-  // ── Send message ──
+    // Show folder hint after 5 messages
+    if (messages.length >= 5 && !showFolderHint) setShowFolderHint(true);
+  }, [presence, messages.length, showFolderHint]);
+
   const sendMessage = useCallback(async (text) => {
     const txt = (text || input).trim();
     if (!txt || sending) return;
@@ -126,40 +115,26 @@ export default function Chat() {
     setMessages((prev) => [...prev, userMsg]);
     setSending(true);
     setStarted(true);
-
-    // Trigger presence: reading → typing
     presence.onUserMessage(txt.length);
 
     try {
       if (conversationId) {
-        // Agent path — reply comes via subscription callback
         pendingReplyRef.current = (replyContent) => {
-          // Extra pacing: wait for typing state to feel real
-          const extraMs = rand(400, 900);
-          setTimeout(() => deliverReply(replyContent), extraMs);
+          setTimeout(() => deliverReply(replyContent), rand(350, 750));
         };
         await base44.agents.addMessage({ id: conversationId }, userMsg);
       } else {
-        // Fallback: noraChat function
         const allMsgs = [...messages, userMsg];
-        const res = await base44.functions.invoke("noraChat", {
-          messages: allMsgs,
-          style: "gentle",
-        });
-        const reply =
-          typeof res?.data?.reply === "string"
-            ? res.data.reply
-            : res?.data?.reply?.content ?? "Ik ben er voor je. Vertel me meer.";
-        const extraMs = rand(400, 800);
-        setTimeout(() => deliverReply(reply), extraMs);
+        const res = await base44.functions.invoke("noraChat", { messages: allMsgs, style: "gentle" });
+        const reply = typeof res?.data?.reply === "string"
+          ? res.data.reply
+          : res?.data?.reply?.content ?? "Ik ben er voor je. Vertel me meer.";
+        setTimeout(() => deliverReply(reply), rand(350, 700));
       }
     } catch {
       setSending(false);
       presence.onLunaReply();
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Er liep iets mis. Probeer het opnieuw." },
-      ]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "Er liep iets fout. Probeer het opnieuw." }]);
     }
   }, [input, sending, conversationId, messages, presence, deliverReply]);
 
@@ -170,65 +145,101 @@ export default function Chat() {
     }
   };
 
-  return (
-    <div className="fixed inset-0 flex flex-col" style={{ background: "#000" }}>
+  // Status label color
+  const statusColors = {
+    [PRESENCE.ONLINE]:      "#34C77B",
+    [PRESENCE.READING]:     "#4A9EFF",
+    [PRESENCE.TYPING]:      "#F5A623",
+    [PRESENCE.CONNECTING]:  "rgba(240,240,242,0.50)",
+    [PRESENCE.QUIETLY_HERE]:"rgba(240,240,242,0.40)",
+    [PRESENCE.AWAY]:        "rgba(240,240,242,0.30)",
+  };
+  const dotColor = statusColors[presence.state] || "rgba(240,240,242,0.30)";
 
-      {/* Live presence header */}
-      <LunaChatHeader
-        state={presence.state}
-        statusLabel={presence.statusLabel}
-        statusColor={presence.statusColor}
-      />
+  return (
+    <div className="fixed inset-0 flex flex-col" style={{ background: "var(--bg)" }}>
+
+      {/* Header */}
+      <div
+        className="flex items-center shrink-0 px-4 gap-3"
+        style={{
+          background: "rgba(10,10,11,0.94)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          paddingTop: "calc(14px + env(safe-area-inset-top, 0px))",
+          paddingBottom: "13px",
+        }}
+      >
+        {/* Back */}
+        <Link to="/" className="flex items-center gap-0.5 shrink-0 btn-press" style={{ color: "#C25A32" }}>
+          <ChevronLeft className="h-[22px] w-[22px]" strokeWidth={2.5} />
+          <span className="text-[16px] font-medium">Terug</span>
+        </Link>
+
+        {/* Center */}
+        <div className="flex flex-1 flex-col items-center gap-0.5">
+          <div style={{ opacity: presence.state === PRESENCE.IDLE ? 0 : 1, transition: "opacity 0.5s" }}>
+            <LunaOrb state={presence.state} size={30} />
+          </div>
+          <p className="text-[13px] font-semibold" style={{ color: "var(--text)", letterSpacing: "-0.1px" }}>Luna</p>
+          <div className="flex items-center gap-1.5 h-[16px]">
+            {presence.statusLabel && (
+              <>
+                {[PRESENCE.ONLINE, PRESENCE.READING, PRESENCE.TYPING].includes(presence.state) && (
+                  <span
+                    className="h-1.5 w-1.5 rounded-full shrink-0"
+                    style={{
+                      background: dotColor,
+                      animation: presence.state === PRESENCE.TYPING ? "presencePulse 1s infinite" : "none",
+                    }}
+                  />
+                )}
+                <span className="text-[11px] font-medium transition-all" style={{ color: dotColor }}>
+                  {presence.statusLabel}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Folder button */}
+        <Link to="/chat/folders" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl btn-press" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <FolderPlus className="h-[18px] w-[18px]" style={{ color: "rgba(240,240,242,0.55)" }} strokeWidth={1.8} />
+        </Link>
+      </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-2">
 
-        {/* Date */}
-        <div className="flex justify-center py-1">
-          <span className="text-[12px] font-medium" style={{ color: "rgba(235,235,245,0.35)" }}>
-            Vandaag
+        <div className="flex justify-center pb-2">
+          <span className="text-[12px] px-3 py-1 rounded-full" style={{ color: "var(--text-3)", background: "var(--bg-card)", border: "1px solid var(--line-subtle)" }}>
+            Vandaag · alles privé
           </span>
         </div>
 
-        {/* Message bubbles — fade in */}
-        {messages.map((m, i) => (
-          <Bubble key={i} message={m} />
-        ))}
+        {messages.map((m, i) => <Bubble key={i} message={m} />)}
 
-        {/* Typing indicator while sending */}
         {sending && (
-          <div className="flex items-end gap-2">
-            <div
-              className="h-7 w-7 shrink-0 rounded-full flex items-center justify-center mb-0.5"
-              style={{ background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 100%)" }}
-            />
-            <div
-              className="flex items-center gap-1.5 rounded-[18px] rounded-bl-[4px] px-4 py-3"
-              style={{ background: "#1C1C1E" }}
-            >
+          <div className="flex items-end gap-2.5 msg-enter">
+            <OrbAvatar />
+            <div className="flex items-center gap-1.5 rounded-[18px] rounded-bl-[5px] px-4 py-3.5" style={{ background: "var(--bg-elevated)", border: "1px solid var(--line)" }}>
               <span className="typing-dot" style={{ animationDelay: "0ms" }} />
-              <span className="typing-dot" style={{ animationDelay: "200ms" }} />
-              <span className="typing-dot" style={{ animationDelay: "400ms" }} />
+              <span className="typing-dot" style={{ animationDelay: "180ms" }} />
+              <span className="typing-dot" style={{ animationDelay: "360ms" }} />
             </div>
           </div>
         )}
 
-        {/* Starter prompts */}
         {!started && welcomeVisible && (
-          <div className="pt-4 space-y-2">
-            <p className="text-center text-[13px] pb-1" style={{ color: "rgba(235,235,245,0.30)" }}>
-              Of kies een onderwerp
-            </p>
+          <div className="pt-5 space-y-2">
+            <p className="text-center text-[12px]" style={{ color: "var(--text-3)" }}>of kies een onderwerp</p>
             {STARTERS.map((s) => (
               <button
                 key={s}
                 onClick={() => sendMessage(s)}
-                className="w-full text-left rounded-[18px] px-4 py-3.5 text-[15px] transition-opacity active:opacity-60"
-                style={{
-                  background: "rgba(120,120,128,0.18)",
-                  border: "0.5px solid rgba(84,84,88,0.55)",
-                  color: "rgba(235,235,245,0.80)",
-                }}
+                className="w-full text-left rounded-[16px] px-4 py-3.5 text-[15px] transition-all btn-press"
+                style={{ background: "var(--bg-card)", border: "1px solid var(--line)", color: "var(--text-2)" }}
               >
                 {s}
               </button>
@@ -236,46 +247,55 @@ export default function Chat() {
           </div>
         )}
 
+        {/* Folder hint */}
+        {showFolderHint && started && (
+          <div className="msg-enter mt-4">
+            <button
+              onClick={() => setShowFolderHint(false)}
+              className="w-full rounded-2xl px-4 py-3 text-left flex items-center gap-3"
+              style={{ background: "rgba(245,166,35,0.08)", border: "1px solid rgba(245,166,35,0.25)" }}
+            >
+              <span className="text-[18px]">📂</span>
+              <div className="flex-1">
+                <p className="text-[13px] font-semibold" style={{ color: "#F5A623" }}>Dit gesprek bewaren?</p>
+                <p className="text-[12px] mt-0.5" style={{ color: "var(--text-2)" }}>Sla het op in een map om later verder te gaan.</p>
+              </div>
+            </button>
+          </div>
+        )}
+
         <div ref={bottomRef} />
       </div>
 
-      {/* Emoji picker */}
+      {/* Emoji */}
       {showEmoji && (
-        <EmojiPicker
-          onSelect={(e) => setInput((p) => p + e)}
-          onClose={() => setShowEmoji(false)}
-        />
+        <EmojiPicker onSelect={(e) => setInput((p) => p + e)} onClose={() => setShowEmoji(false)} />
       )}
 
-      {/* Input bar */}
+      {/* Input */}
       <div
-        className="shrink-0 px-3 py-2"
+        className="shrink-0"
         style={{
-          background: "rgba(18,18,20,0.96)",
-          backdropFilter: "saturate(180%) blur(24px)",
-          WebkitBackdropFilter: "saturate(180%) blur(24px)",
-          borderTop: "0.5px solid rgba(84,84,88,0.65)",
+          background: "rgba(10,10,11,0.96)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          borderTop: "1px solid rgba(255,255,255,0.07)",
+          padding: "10px 12px",
           paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
         }}
       >
         <div className="flex items-end gap-2">
-          {/* Emoji */}
           <button
             onClick={() => setShowEmoji((v) => !v)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full mb-0.5 transition-colors"
-            style={{ background: "rgba(120,120,128,0.22)", color: showEmoji ? "#C25A32" : "rgba(235,235,245,0.50)" }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full btn-press"
+            style={{ background: "var(--bg-elevated)", border: "1px solid var(--line)" }}
           >
-            <Smile className="h-5 w-5" />
+            <Smile className="h-[18px] w-[18px]" style={{ color: showEmoji ? "#C25A32" : "var(--text-2)" }} />
           </button>
 
-          {/* Text field */}
           <div
             className="flex-1 flex items-end rounded-[22px] px-4 py-2.5"
-            style={{
-              background: "#2C2C2E",
-              border: "0.5px solid rgba(84,84,88,0.65)",
-              minHeight: "40px",
-            }}
+            style={{ background: "var(--bg-input)", border: "1px solid var(--line)", minHeight: "42px" }}
           >
             <textarea
               ref={textareaRef}
@@ -288,19 +308,21 @@ export default function Chat() {
               onKeyDown={handleKey}
               placeholder="Bericht"
               rows={1}
-              className="flex-1 resize-none bg-transparent text-[17px] text-white outline-none leading-5"
+              className="flex-1 resize-none bg-transparent text-[16px] text-white outline-none leading-[1.4]"
               style={{ minHeight: "22px", maxHeight: "120px" }}
             />
           </div>
 
-          {/* Send */}
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || sending}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full mb-0.5 transition-all disabled:opacity-35"
-            style={{ background: input.trim() && !sending ? "#C25A32" : "rgba(120,120,128,0.24)" }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full btn-press transition-all"
+            style={{
+              background: input.trim() && !sending ? "#C25A32" : "var(--bg-elevated)",
+              border: "1px solid var(--line)",
+            }}
           >
-            <Send className="h-4 w-4 text-white" />
+            <Send className="h-4 w-4" style={{ color: input.trim() && !sending ? "#fff" : "var(--text-3)" }} />
           </button>
         </div>
       </div>
@@ -308,15 +330,27 @@ export default function Chat() {
   );
 }
 
-// ── Bubble ──
+function OrbAvatar() {
+  return (
+    <div
+      className="h-7 w-7 shrink-0 rounded-full mb-0.5"
+      style={{
+        background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 55%, #7a2d14 100%)",
+        boxShadow: "0 0 10px 3px rgba(194,90,50,0.25)",
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
 function Bubble({ message }) {
   const isUser = message.role === "user";
 
   if (isUser) {
     return (
-      <div className="flex justify-end animate-fade-up">
+      <div className="flex justify-end msg-enter">
         <div
-          className="max-w-[75%] rounded-[18px] rounded-br-[4px] px-4 py-2.5 text-[17px] text-white leading-[1.45] break-words"
+          className="max-w-[78%] rounded-[18px] rounded-br-[5px] px-4 py-3 text-[16px] text-white leading-[1.5] break-words"
           style={{ background: "#C25A32" }}
         >
           {message.content}
@@ -326,17 +360,11 @@ function Bubble({ message }) {
   }
 
   return (
-    <div className="flex items-end gap-2 animate-fade-up">
+    <div className="flex items-end gap-2.5 msg-enter">
+      <OrbAvatar />
       <div
-        className="h-7 w-7 shrink-0 rounded-full mb-0.5"
-        style={{
-          background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 60%, #7a2d14 100%)",
-          flexShrink: 0,
-        }}
-      />
-      <div
-        className="max-w-[75%] rounded-[18px] rounded-bl-[4px] px-4 py-2.5 text-[17px] leading-[1.45] break-words"
-        style={{ background: "#1C1C1E", color: "rgba(235,235,245,0.93)" }}
+        className="max-w-[78%] rounded-[18px] rounded-bl-[5px] px-4 py-3 text-[16px] leading-[1.5] break-words"
+        style={{ background: "var(--bg-elevated)", border: "1px solid var(--line)", color: "var(--text)" }}
       >
         {message.content}
       </div>

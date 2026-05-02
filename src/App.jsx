@@ -22,6 +22,7 @@ import Voorwaarden from "./pages/Voorwaarden";
 import Contact from "./pages/Contact";
 import PrivacyCenter from "./pages/PrivacyCenter";
 import AdminDashboard from "./pages/AdminDashboard";
+import ChatFolders from "./pages/ChatFolders";
 
 const AuthenticatedApp = () => {
   const { authError } = useAuth();
@@ -63,6 +64,7 @@ const AuthenticatedApp = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy-center" element={<PrivacyCenter />} />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/chat/folders" element={<ChatFolders />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

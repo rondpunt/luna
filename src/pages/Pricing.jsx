@@ -13,36 +13,41 @@ const TIERS = [
   },
   {
     key: "plus",
-    name: "Plus",
+    name: "Luna Plus",
     price: "€9,99",
     per: "/mnd",
     note: "Voor dagelijkse steun",
-    features: ["Onbeperkt babbelen", "Geheugen", "Volledig dagboek", "Wekelijkse inzichten"],
+    features: ["Onbeperkt babbelen", "Geheugen over gesprekken", "Volledig dagboek", "Gespreksmappen", "Wekelijkse inzichten"],
     featured: true,
   },
   {
     key: "pro",
-    name: "Pro",
+    name: "Luna Pro",
     price: "€19,99",
     per: "/mnd",
     note: "Diepere reflectie",
-    features: ["Alles van Plus", "Langetermijn geheugen", "Patronenanalyse", "Routines"],
+    features: ["Alles van Plus", "Langetermijngeheugen", "Patroonanalyse", "Gepersonaliseerde routines"],
     featured: false,
   },
 ];
 
 export default function Pricing() {
   return (
-    <div className="min-h-screen px-4 py-6 space-y-6" style={{ background: "#000", paddingTop: "env(safe-area-inset-top, 44px)" }}>
-      {/* Back nav */}
+    <div
+      className="min-h-screen px-4 py-6 space-y-5"
+      style={{ background: "var(--bg)", paddingTop: "env(safe-area-inset-top, 44px)" }}
+    >
       <div className="flex items-center gap-2 mb-2">
-        <Link to="/profile" className="flex items-center gap-1" style={{ color: "#FF6B3D" }}>
+        <Link to="/profile" className="flex items-center gap-1 btn-press" style={{ color: "#C25A32" }}>
           <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
-          <span className="text-[17px] font-medium">Profiel</span>
+          <span className="text-[16px] font-medium">Profiel</span>
         </Link>
       </div>
 
-      <h1 className="text-[34px] font-bold text-white">Abonnementen</h1>
+      <div>
+        <h1 className="text-[30px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.5px" }}>Abonnementen</h1>
+        <p className="text-[16px] mt-1" style={{ color: "var(--text-2)" }}>Kies wat bij jou past.</p>
+      </div>
 
       <div className="space-y-3">
         {TIERS.map((tier) => (
@@ -50,37 +55,38 @@ export default function Pricing() {
             key={tier.key}
             className="rounded-2xl p-5"
             style={{
-              background: tier.featured ? "rgba(255,107,61,0.12)" : "#1C1C1E",
-              border: tier.featured ? "0.5px solid rgba(255,107,61,0.55)" : "0.5px solid rgba(84,84,88,0.45)",
+              background: tier.featured ? "rgba(194,90,50,0.10)" : "var(--bg-card)",
+              border: `1px solid ${tier.featured ? "rgba(194,90,50,0.40)" : "var(--line)"}`,
             }}
           >
             {tier.featured && (
-              <p className="text-[13px] font-bold uppercase tracking-wider mb-3" style={{ color: "#FF6B3D" }}>
+              <p className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: "#C25A32" }}>
                 Meest gekozen
               </p>
             )}
             <div className="flex items-baseline justify-between mb-1">
-              <p className="text-[20px] font-bold text-white">{tier.name}</p>
-              <p className="text-[28px] font-bold text-white">
+              <p className="text-[19px] font-bold" style={{ color: "var(--text)" }}>{tier.name}</p>
+              <p className="text-[28px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.5px" }}>
                 {tier.price}
-                <span className="text-[15px] font-normal" style={{ color: "rgba(235,235,245,0.50)" }}>{tier.per}</span>
+                <span className="text-[14px] font-normal" style={{ color: "var(--text-2)" }}>{tier.per}</span>
               </p>
             </div>
-            <p className="text-[13px] mb-4" style={{ color: "rgba(235,235,245,0.50)" }}>{tier.note}</p>
+            <p className="text-[13px] mb-4" style={{ color: "var(--text-2)" }}>{tier.note}</p>
             <div className="space-y-2 mb-5">
               {tier.features.map((f) => (
                 <div key={f} className="flex items-center gap-3">
-                  <Check className="h-4 w-4 shrink-0" style={{ color: "#FF6B3D" }} strokeWidth={2.5} />
-                  <span className="text-[15px] text-white">{f}</span>
+                  <Check className="h-4 w-4 shrink-0" style={{ color: "#C25A32" }} strokeWidth={2.5} />
+                  <span className="text-[14px]" style={{ color: "var(--text)" }}>{f}</span>
                 </div>
               ))}
             </div>
             <button
-              className="w-full rounded-[14px] py-3.5 text-[17px] font-semibold text-white"
+              className="w-full rounded-[14px] py-3.5 text-[16px] font-semibold text-white btn-press"
               style={{
                 background: tier.featured
-                  ? "linear-gradient(135deg, #FF8C60, #FF6B3D)"
-                  : "rgba(120,120,128,0.24)",
+                  ? "linear-gradient(135deg, #ee9670, #c25a32)"
+                  : "var(--bg-elevated)",
+                border: tier.featured ? "none" : "1px solid var(--line)",
               }}
             >
               {tier.key === "free" ? "Gratis starten" : `${tier.name} kiezen`}
@@ -89,9 +95,9 @@ export default function Pricing() {
         ))}
       </div>
 
-      <div className="rounded-2xl px-4 py-4 text-center" style={{ background: "#1C1C1E" }}>
-        <p className="text-[13px] leading-5" style={{ color: "rgba(235,235,245,0.45)" }}>
-          Nora is geen noodhulp en geen medische zorg. Opzegbaar op elk moment.
+      <div className="rounded-2xl px-4 py-4 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}>
+        <p className="text-[12px] leading-5" style={{ color: "var(--text-3)" }}>
+          Luna is geen therapeut of medische zorg. Opzegbaar wanneer je wil.
         </p>
       </div>
     </div>

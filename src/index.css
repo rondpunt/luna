@@ -6,47 +6,51 @@
 
 @layer base {
   :root {
-    /* iOS 18 exact system colors — dark */
-    --ios-bg:           #000000;
-    --ios-bg2:          #1C1C1E;
-    --ios-bg3:          #2C2C2E;
-    --ios-bg4:          #3A3A3C;
-    --ios-label:        #FFFFFF;
-    --ios-label2:       rgba(235,235,245,0.60);
-    --ios-label3:       rgba(235,235,245,0.30);
-    --ios-label4:       rgba(235,235,245,0.18);
-    --ios-sep:          rgba(84,84,88,0.65);
-    --ios-sep-opaque:   #38383A;
-    --ios-fill:         rgba(120,120,128,0.36);
-    --ios-fill2:        rgba(120,120,128,0.32);
-    --ios-fill3:        rgba(118,118,128,0.24);
-    --ios-fill4:        rgba(116,116,128,0.18);
-    --ios-accent:       #C25A32;
-    --ios-accent-light: #EE9670;
-    --ios-green:        #30D158;
-    --ios-red:          #FF453A;
-    --ios-blue:         #0A84FF;
+    /* ── Premium dark palette ── */
+    --bg:           #0A0A0B;
+    --bg-card:      #111114;
+    --bg-elevated:  #18181C;
+    --bg-hover:     #1E1E24;
+    --bg-input:     #16161A;
 
-    /* shadcn tokens */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 11%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 11%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 14 70% 47%;
+    --line:         rgba(255,255,255,0.07);
+    --line-subtle:  rgba(255,255,255,0.04);
+
+    --text:         #F0F0F2;
+    --text-2:       rgba(240,240,242,0.55);
+    --text-3:       rgba(240,240,242,0.28);
+    --text-4:       rgba(240,240,242,0.14);
+
+    --accent:       #C25A32;
+    --accent-soft:  rgba(194,90,50,0.15);
+    --accent-glow:  rgba(194,90,50,0.35);
+    --accent-light: #EE9670;
+
+    --green:        #34C77B;
+    --red:          #F04747;
+    --blue:         #4A9EFF;
+    --amber:        #F5A623;
+
+    /* shadcn compat */
+    --background: 240 5% 4%;
+    --foreground: 240 5% 95%;
+    --card: 240 5% 7%;
+    --card-foreground: 240 5% 95%;
+    --popover: 240 5% 7%;
+    --popover-foreground: 240 5% 95%;
+    --primary: 18 62% 48%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 17%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 17%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 14 70% 47%;
+    --secondary: 240 5% 11%;
+    --secondary-foreground: 240 5% 95%;
+    --muted: 240 5% 11%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 18 62% 48%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 3 100% 62%;
+    --destructive: 0 70% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 22%;
-    --input: 0 0% 17%;
-    --ring: 14 70% 47%;
+    --border: 240 5% 14%;
+    --input: 240 5% 10%;
+    --ring: 18 62% 48%;
     --radius: 0.75rem;
   }
 }
@@ -58,78 +62,131 @@
     box-sizing: border-box;
   }
 
+  html {
+    color-scheme: dark;
+    height: 100%;
+  }
+
   body {
-    background: var(--ios-bg);
-    color: var(--ios-label);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior: none;
     min-height: 100dvh;
-    font-size: 17px;
-    line-height: 1.47;
+    font-size: 16px;
+    line-height: 1.5;
   }
 
-  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
-  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-  h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.2px; }
-
-  input, textarea, button { font-family: inherit; }
-  input { font-size: 17px; }
-  textarea { font-size: 17px; }
+  input, textarea, button, select { font-family: inherit; }
 
   ::-webkit-scrollbar { width: 0; height: 0; }
-  ::placeholder { color: var(--ios-label3); }
+  ::placeholder { color: var(--text-3); }
 }
 
-/* iOS grouped list style */
-.ios-list {
-  background: var(--ios-bg2);
-  border-radius: 12px;
+/* ── Premium card ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.card-elevated {
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+/* ── List rows ── */
+.list-group {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
   overflow: hidden;
 }
-.ios-list-row {
+.list-row {
   display: flex;
   align-items: center;
-  padding: 11px 16px;
-  min-height: 44px;
+  padding: 13px 16px;
+  min-height: 48px;
+  transition: background 0.15s;
 }
-.ios-list-row + .ios-list-row {
-  border-top: 0.5px solid var(--ios-sep);
-}
+.list-row:active { background: var(--bg-hover); }
+.list-row + .list-row { border-top: 1px solid var(--line-subtle); }
 
-/* Typing animation */
+/* ── Typing dots ── */
 .typing-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--ios-label3);
-  animation: typingPulse 1.4s ease-in-out infinite;
+  background: var(--text-3);
+  animation: typingBounce 1.2s ease-in-out infinite;
 }
-@keyframes typingPulse {
-  0%, 60%, 100% { transform: scale(1); opacity: 0.4; }
-  30% { transform: scale(1.3); opacity: 1; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
 }
 
-/* Safe area */
+/* ── Safe area ── */
 .pb-safe { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.pt-safe { padding-top: max(0px, env(safe-area-inset-top)); }
 
-/* Fade-up entrance for message bubbles */
+/* ── Message entrance ── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-up {
-  animation: fadeUp 0.28s ease-out both;
+.msg-enter { animation: fadeUp 0.24s ease-out both; }
+
+/* ── Shimmer for loading ── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
 }
 
-/* Connecting pulse for status dot */
-@keyframes statusPulse {
+/* ── Pulse for presence dot ── */
+@keyframes presencePulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50% { opacity: 0.35; }
 }
-.status-pulse {
-  animation: statusPulse 1.4s ease-in-out infinite;
+.presence-pulse { animation: presencePulse 1.6s ease-in-out infinite; }
+
+/* ── Button press ── */
+.btn-press { transition: transform 0.1s, opacity 0.1s; }
+.btn-press:active { transform: scale(0.96); opacity: 0.85; }
+
+/* ── Accent gradient ── */
+.accent-gradient {
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
 }
+
+/* ── Orb breathing ── */
+@keyframes orbBreath {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 20px 6px rgba(194,90,50,0.20); }
+  50% { transform: scale(1.04); box-shadow: 0 0 36px 12px rgba(194,90,50,0.35); }
+}
+.orb-breathe { animation: orbBreath 3.8s ease-in-out infinite; }
+
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 24px 8px rgba(194,90,50,0.30); }
+  50% { transform: scale(1.07); box-shadow: 0 0 44px 16px rgba(194,90,50,0.50); }
+}
+.orb-pulse { animation: orbPulse 1s ease-in-out infinite; }
+
+@keyframes orbDim {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 12px 4px rgba(194,90,50,0.10); }
+  50% { transform: scale(1.015); box-shadow: 0 0 18px 6px rgba(194,90,50,0.16); }
+}
+.orb-dim { animation: orbDim 6s ease-in-out infinite; }
+
+@keyframes orbConnect {
+  0%, 100% { transform: scale(0.96); opacity: 0.7; }
+  50% { transform: scale(1.03); opacity: 1; }
+}
+.orb-connect { animation: orbConnect 1.2s ease-in-out infinite; }
