@@ -11,28 +11,22 @@ const BLOCKS = [
 
 export default function Voorwaarden() {
   return (
-    <div className="min-h-dvh px-4 pt-0 pb-10" style={{ background: "#000" }}>
-      <div
-        className="sticky top-0 z-10 flex items-center gap-3 py-3 mb-6"
-        style={{
-          background: "rgba(0,0,0,0.88)",
-          backdropFilter: "saturate(180%) blur(20px)",
-          borderBottom: "0.5px solid rgba(84,84,88,0.65)",
-        }}
-      >
-        <Link to="/profile" className="flex items-center gap-1 text-[17px] font-medium" style={{ color: "#C25A32" }}>
-          <ChevronLeft className="h-[22px] w-[22px]" strokeWidth={2.5} />
-          Profiel
+    <div className="min-h-screen px-4 py-6 space-y-6" style={{ background: "#000", paddingTop: "env(safe-area-inset-top, 44px)" }}>
+      <div className="flex items-center gap-2">
+        <Link to="/profile" className="flex items-center gap-1" style={{ color: "#FF6B3D" }}>
+          <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
+          <span className="text-[17px] font-medium">Profiel</span>
         </Link>
-        <span className="flex-1 text-center text-[17px] font-semibold" style={{ color: "#fff" }}>Voorwaarden</span>
-        <div className="w-16" />
       </div>
 
-      <div className="ios-list">
-        {BLOCKS.map(({ 0: title, 1: body }) => (
-          <div key={title} className="ios-list-row flex-col items-start gap-1 py-4">
-            <p className="text-[15px] font-semibold" style={{ color: "#fff" }}>{title}</p>
-            <p className="text-[13px] leading-5" style={{ color: "rgba(235,235,245,0.55)" }}>{body}</p>
+      <h1 className="text-[34px] font-bold text-white">Voorwaarden</h1>
+      <p className="text-[17px] leading-[1.5]" style={{ color: "rgba(235,235,245,0.55)" }}>Wat Nora wel en niet is — in gewone taal.</p>
+
+      <div className="overflow-hidden rounded-2xl" style={{ background: "#1C1C1E" }}>
+        {BLOCKS.map(([title, body], i) => (
+          <div key={title} className="px-4 py-4" style={{ borderTop: i > 0 ? "0.5px solid rgba(84,84,88,0.45)" : "none" }}>
+            <p className="text-[15px] font-semibold text-white mb-1">{title}</p>
+            <p className="text-[15px] leading-[1.5]" style={{ color: "rgba(235,235,245,0.55)" }}>{body}</p>
           </div>
         ))}
       </div>
