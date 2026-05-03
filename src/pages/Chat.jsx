@@ -1,10 +1,19 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Send, Smile, ChevronLeft, FolderPlus } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import EmojiPicker from "@/components/nora/EmojiPicker";
 import LunaOrb from "@/components/luna/LunaOrb";
+import ChatErrorBanner from "@/components/chat/ChatErrorBanner";
 import { useLunaPresence, PRESENCE } from "@/hooks/useLunaPresence";
+import {
+  saveUserMessage,
+  saveAssistantMessage,
+  loadMessages,
+  ensureConversation,
+  touchConversation,
+  invokeNoraChatWithRetry,
+} from "@/lib/chatPersistence";
 
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -14,64 +23,65 @@ function getQueryParams() {
 }
 
 export default function Chat() {
-  const navigate = useNavigate();
   const { convId: initConvId, folderId: initFolderId } = getQueryParams();
 
-  const [conversationId, setConversationId] = useState(null); // agent conversation id
-  const [dbConvId, setDbConvId] = useState(initConvId || null); // DB conversation id
+  /* ── state ── */
+  const [dbConvId, setDbConvId] = useState(initConvId || null);
+  const [agentConvId, setAgentConvId] = useState(null);
   const [folderId] = useState(initFolderId || null);
   const [folder, setFolder] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]); // [{id?, role, content, _pending?, _failed?}]
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [showEmoji, setShowEmoji] = useState(false);
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
-  const shownAssistantCount = useRef(0);
-
   const presence = useLunaPresence();
 
-  // Load folder context
+  /* ── load folder ── */
   useEffect(() => {
     if (!folderId) return;
-    base44.entities.ChatFolder.filter({ id: folderId }).then((res) => {
-      if (res?.[0]) setFolder(res[0]);
-    }).catch(() => {});
+    base44.entities.ChatFolder.filter({ id: folderId })
+      .then((res) => res?.[0] && setFolder(res[0]))
+      .catch(() => {});
   }, [folderId]);
 
-  // Load or create agent conversation
+  /* ── boot: load thread from DB or create new agent conversation ── */
   useEffect(() => {
     let active = true;
     presence.initPresence();
 
-    const init = async () => {
+    (async () => {
       try {
-        // If we have a DB conversation with an agent conversation ID, resume it
+        // 1. If we have a DB conversation, restore message history (source of truth)
         if (dbConvId) {
-          const convs = await base44.entities.Conversation.filter({ id: dbConvId }).catch(() => []);
+          const [convs, persistedMsgs] = await Promise.all([
+            base44.entities.Conversation.filter({ id: dbConvId }).catch(() => []),
+            loadMessages(dbConvId),
+          ]);
           const dbConv = convs?.[0];
+
+          if (active && persistedMsgs.length > 0) {
+            setMessages(
+              persistedMsgs.map((m) => ({ id: m.id, role: m.role, content: m.content }))
+            );
+            setStarted(true);
+          }
+
+          // Reuse existing agent conversation when known
           if (dbConv?.agentConversationId) {
-            // Resume existing agent conversation — load messages
-            const agentConv = await base44.agents.getConversation(dbConv.agentConversationId);
-            if (active && agentConv) {
-              const existingMsgs = (agentConv.messages || []).filter((m) => m.role !== "system");
-              if (existingMsgs.length > 0) {
-                setMessages(existingMsgs.map((m) => ({ role: m.role, content: m.content })));
-                shownAssistantCount.current = existingMsgs.filter((m) => m.role === "assistant").length;
-                setStarted(true);
-              }
-              setConversationId(dbConv.agentConversationId);
-              setLoading(false);
-              setTimeout(() => presence.onLunaReply(), rand(600, 1000));
-              return;
-            }
+            if (active) setAgentConvId(dbConv.agentConversationId);
+            if (active) setLoading(false);
+            return;
           }
         }
 
-        // Create a fresh agent conversation
+        // 2. Create a fresh agent conversation
         const folderCtx = folderId
           ? await base44.entities.ChatFolder.filter({ id: folderId }).then((r) => r?.[0]).catch(() => null)
           : null;
@@ -80,160 +90,161 @@ export default function Chat() {
           ? `\n\n[Mapcontext voor dit gesprek — "${folderCtx.name}"]: ${folderCtx.context}`
           : "";
 
-        const conv = await base44.agents.createConversation({
-          agent_name: "nora_agent",
-          metadata: {
-            title: folderCtx ? `Gesprek in ${folderCtx.name}` : "Gesprek met Luna",
-            system_suffix: contextNote,
-          },
-        });
+        const conv = await base44.agents
+          .createConversation({
+            agent_name: "nora_agent",
+            metadata: {
+              title: folderCtx ? `Gesprek in ${folderCtx.name}` : "Gesprek met Luna",
+              system_suffix: contextNote,
+            },
+          })
+          .catch(() => null);
 
         if (!active) return;
-        setConversationId(conv.id);
-
-        // Save/update agent conversation ID to DB conversation
-        if (dbConvId) {
-          await base44.entities.Conversation.update(dbConvId, { agentConversationId: conv.id }).catch(() => {});
+        if (conv?.id) {
+          setAgentConvId(conv.id);
+          if (dbConvId) {
+            base44.entities.Conversation.update(dbConvId, { agentConversationId: conv.id }).catch(() => {});
+          }
         }
-      } catch {
-        /* silent fallback */
       } finally {
         if (active) {
           setLoading(false);
           setTimeout(() => presence.onLunaReply(), rand(600, 1000));
         }
       }
-    };
+    })();
 
-    init();
     return () => { active = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Subscribe to agent replies
-  useEffect(() => {
-    if (!conversationId) return;
-    const unsub = base44.agents.subscribeToConversation(conversationId, (data) => {
-      const assistantMsgs = (data.messages || []).filter((m) => m.role === "assistant");
-      if (assistantMsgs.length > shownAssistantCount.current) {
-        const latest = assistantMsgs[assistantMsgs.length - 1];
-        shownAssistantCount.current = assistantMsgs.length;
-        setTimeout(() => deliverReply(latest.content), rand(150, 400));
-      }
-    });
-    return unsub;
-  }, [conversationId]); // eslint-disable-line
-
-  // Scroll
+  /* ── scroll ── */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
-  const deliverReply = (replyText) => {
-    if (!replyText?.trim()) return;
-    setSending(false);
-    presence.onLunaReply();
+  /* ── core: send a message + get assistant reply ──
+     Flow:
+       1. Optimistic user bubble
+       2. Persist user message → Message entity (after we have a DB convId)
+       3. Call noraChat with retry → get reply
+       4. Persist assistant message → Message entity
+       5. Append assistant bubble (only after success)
+       6. On failure: mark error, allow retry of step 3-5 (no duplicate user message)
+  */
+  const runAssistantTurn = useCallback(
+    async ({ convDbId, threadForLLM }) => {
+      const reply = await invokeNoraChatWithRetry({
+        messages: threadForLLM,
+        style: "gentle",
+        memoryContext: folder?.context || "",
+      });
 
-    const words = replyText.split(" ");
-    if (words.length > 40 && Math.random() > 0.4) {
-      const cut = Math.floor(words.length * rand(38, 55) / 100);
-      const p1 = words.slice(0, cut).join(" ");
-      const p2 = words.slice(cut).join(" ");
-      setMessages((prev) => [...prev, { role: "assistant", content: p1 }]);
-      setTimeout(() => {
-        presence.onUserMessage(0);
-        setTimeout(() => {
-          setMessages((prev) => [...prev, { role: "assistant", content: p2 }]);
-          presence.onLunaReply();
-        }, rand(700, 1100));
-      }, rand(900, 1400));
-    } else {
-      setMessages((prev) => [...prev, { role: "assistant", content: replyText }]);
-    }
+      // Persist assistant message BEFORE rendering — guarantees no ghost bubbles
+      const saved = await saveAssistantMessage({ conversationId: convDbId, content: reply }).catch(
+        () => null
+      );
 
-    // Auto-update conversation metadata after 3 messages
-    if (dbConvId && messages.length >= 3 && messages.length % 5 === 0) {
-      autoUpdateConvTitle();
-    }
-  };
+      const assistantBubble = {
+        id: saved?.id,
+        role: "assistant",
+        content: reply,
+      };
 
-  const autoUpdateConvTitle = async () => {
-    try {
-      const recentUser = messages.filter((m) => m.role === "user").slice(-3).map((m) => m.content).join(" | ");
-      if (!recentUser || !dbConvId) return;
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Geef een korte Nederlandstalige titel (max 6 woorden) voor dit gesprek op basis van: "${recentUser}". Geef enkel de titel, geen aanhalingstekens.`,
-      }).catch(() => null);
-      if (res?.result) {
-        await base44.entities.Conversation.update(dbConvId, {
-          title: res.result,
-          last_message_at: new Date().toISOString(),
-          message_count: messages.length,
-        }).catch(() => {});
-      }
-    } catch { /* silent */ }
-  };
-
-  const sendMessage = useCallback(async (text) => {
-    const txt = (text || input).trim();
-    if (!txt || sending) return;
-
-    setInput("");
-    setShowEmoji(false);
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
-
-    const userMsg = { role: "user", content: txt };
-    setMessages((prev) => [...prev, userMsg]);
-    setSending(true);
-    if (!started) setStarted(true);
-    presence.onUserMessage(txt.length);
-
-    // Create DB conversation on first message if none exists
-    let currentDbConvId = dbConvId;
-    if (!currentDbConvId) {
-      try {
-        const user = await base44.auth.me();
-        const newConv = await base44.entities.Conversation.create({
-          userId: user.id,
-          title: txt.slice(0, 50),
-          folderId: folderId || undefined,
-          folderName: folder?.name || undefined,
-          agentConversationId: conversationId || undefined,
-          last_message_at: new Date().toISOString(),
-          message_count: 1,
-        });
-        currentDbConvId = newConv.id;
-        setDbConvId(newConv.id);
-      } catch { /* silent */ }
-    } else {
-      // Update last_message_at
-      base44.entities.Conversation.update(currentDbConvId, {
-        last_message_at: new Date().toISOString(),
-        message_count: messages.length + 1,
-      }).catch(() => {});
-    }
-
-    try {
-      if (conversationId) {
-        await base44.agents.addMessage({ id: conversationId }, userMsg);
-      } else {
-        // Fallback
-        const res = await base44.functions.invoke("noraChat", {
-          messages: [...messages, userMsg],
-          style: "gentle",
-          memoryContext: folder?.context || "",
-        });
-        const reply = typeof res?.data?.reply === "string"
-          ? res.data.reply
-          : res?.data?.reply?.content ?? "Ik ben er voor je. Vertel me meer.";
-        setTimeout(() => deliverReply(reply), rand(350, 700));
-      }
-    } catch {
-      setSending(false);
+      setMessages((prev) => [...prev, assistantBubble]);
       presence.onLunaReply();
-      setMessages((prev) => [...prev, { role: "assistant", content: "Er liep iets fout. Probeer het opnieuw." }]);
-    }
-  }, [input, sending, conversationId, messages, presence, dbConvId, folderId, folder, started]);
+      return reply;
+    },
+    [folder, presence]
+  );
 
+  const sendMessage = useCallback(
+    async (text) => {
+      const txt = (text || input).trim();
+      if (!txt || sending) return;
+
+      setInput("");
+      setShowEmoji(false);
+      setErrorMsg(null);
+      if (textareaRef.current) textareaRef.current.style.height = "auto";
+
+      const userBubble = { role: "user", content: txt };
+      setMessages((prev) => [...prev, userBubble]);
+      setSending(true);
+      if (!started) setStarted(true);
+      presence.onUserMessage(txt.length);
+
+      try {
+        // 1. Ensure DB conversation exists
+        const me = await base44.auth.me();
+        const convDbId = await ensureConversation({
+          existingId: dbConvId,
+          userId: me.id,
+          title: dbConvId ? undefined : txt,
+          folderId,
+          folderName: folder?.name,
+          agentConversationId: agentConvId,
+        });
+        if (!dbConvId) setDbConvId(convDbId);
+
+        // 2. Persist user message
+        const savedUser = await saveUserMessage({ conversationId: convDbId, content: txt });
+        // attach id back to UI message
+        setMessages((prev) =>
+          prev.map((m, i) =>
+            i === prev.length - 1 && m.role === "user" && !m.id ? { ...m, id: savedUser.id } : m
+          )
+        );
+
+        // 3. Build LLM thread (use current state + new user message)
+        const threadForLLM = [...messages, userBubble].map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+
+        // 4. Run assistant turn (with retry inside)
+        await runAssistantTurn({ convDbId, threadForLLM });
+
+        // 5. Touch conversation metadata
+        touchConversation({ id: convDbId, message_count: messages.length + 2 });
+      } catch (err) {
+        // Assistant turn failed — keep user bubble, show error banner
+        setErrorMsg("Luna kon niet antwoorden. Controleer je verbinding en probeer opnieuw.");
+        presence.onLunaReply();
+      } finally {
+        setSending(false);
+      }
+    },
+    [input, sending, started, presence, messages, dbConvId, agentConvId, folderId, folder, runAssistantTurn]
+  );
+
+  /* ── retry: re-run assistant turn for the last user message only ── */
+  const handleRetry = useCallback(async () => {
+    if (retrying || sending) return;
+    if (!dbConvId) return;
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    if (!lastUser) return;
+
+    setRetrying(true);
+    setErrorMsg(null);
+    setSending(true);
+    presence.onUserMessage(lastUser.content.length);
+
+    try {
+      const threadForLLM = messages.map((m) => ({ role: m.role, content: m.content }));
+      await runAssistantTurn({ convDbId: dbConvId, threadForLLM });
+      touchConversation({ id: dbConvId, message_count: messages.length + 1 });
+    } catch {
+      setErrorMsg("Het lukte nog niet. Probeer het zo nog eens.");
+      presence.onLunaReply();
+    } finally {
+      setSending(false);
+      setRetrying(false);
+    }
+  }, [retrying, sending, dbConvId, messages, presence, runAssistantTurn]);
+
+  /* ── ui helpers ── */
   const handleKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -241,20 +252,23 @@ export default function Chat() {
     }
   };
 
-  const dotColor = {
-    [PRESENCE.ONLINE]:       "#34C77B",
-    [PRESENCE.READING]:      "#4A9EFF",
-    [PRESENCE.TYPING]:       "#F5A623",
-    [PRESENCE.CONNECTING]:   "rgba(240,240,242,0.50)",
-    [PRESENCE.QUIETLY_HERE]: "rgba(240,240,242,0.40)",
-    [PRESENCE.AWAY]:         "rgba(240,240,242,0.30)",
-  }[presence.state] || "rgba(240,240,242,0.30)";
+  const dotColor =
+    {
+      [PRESENCE.ONLINE]:       "#34C77B",
+      [PRESENCE.READING]:      "#4A9EFF",
+      [PRESENCE.TYPING]:       "#F5A623",
+      [PRESENCE.CONNECTING]:   "rgba(240,240,242,0.50)",
+      [PRESENCE.QUIETLY_HERE]: "rgba(240,240,242,0.40)",
+      [PRESENCE.AWAY]:         "rgba(240,240,242,0.30)",
+    }[presence.state] || "rgba(240,240,242,0.30)";
 
   const backLink = folderId ? `/chat/folder/${folderId}` : "/";
   const folderColor = folder?.color || "#C25A32";
 
   const welcomeMessage = folder
-    ? `Goed dat je er bent. Je zit in de map "${folder.name}". ${folder.context ? "Ik heb jouw context al gelezen." : "Wat wil je vandaag delen?"}`
+    ? `Goed dat je er bent. Je zit in de map "${folder.name}". ${
+        folder.context ? "Ik heb jouw context al gelezen." : "Wat wil je vandaag delen?"
+      }`
     : "Goed dat je er bent. Wat zit je dwars vandaag?";
 
   const starters = folder?.name?.toLowerCase().includes("angst")
@@ -349,7 +363,9 @@ export default function Chat() {
           <Bubble message={{ role: "assistant", content: welcomeMessage }} />
         )}
 
-        {messages.map((m, i) => <Bubble key={i} message={m} />)}
+        {messages.map((m, i) => (
+          <Bubble key={m.id || `${m.role}-${i}`} message={m} />
+        ))}
 
         {sending && (
           <div className="flex items-end gap-2.5 msg-enter">
@@ -398,6 +414,8 @@ export default function Chat() {
           paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
         }}
       >
+        <ChatErrorBanner message={errorMsg} onRetry={handleRetry} retrying={retrying} />
+
         <div className="flex items-end gap-2">
           <button
             onClick={() => setShowEmoji((v) => !v)}
