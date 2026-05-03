@@ -123,11 +123,11 @@ export default function Insights() {
               Recente signalen
             </h2>
             {signals.length === 0 ? (
-              <div className="card px-4 py-5 text-center">
+              <div className="card px-5 py-6 text-center">
                 <p className="text-[14px]" style={{ color: "var(--text-2)" }}>
                   Nog geen check-ins om te tonen.
                 </p>
-                <p className="text-[12px] mt-1" style={{ color: "var(--text-3)" }}>
+                <p className="text-[12px] mt-1.5" style={{ color: "var(--text-3)" }}>
                   Voeg een check-in toe vanop Start.
                 </p>
               </div>
@@ -187,11 +187,11 @@ function SummaryCard({ loading, avg, count, trendLabel }) {
 function TrendsChart({ days, hasEnough }) {
   if (!hasEnough) {
     return (
-      <div className="card px-4 py-5 text-center">
+      <div className="card px-5 py-6 text-center">
         <p className="text-[14px]" style={{ color: "var(--text-2)" }}>
           Nog te weinig data voor een trend.
         </p>
-        <p className="text-[12px] mt-1" style={{ color: "var(--text-3)" }}>
+        <p className="text-[12px] mt-1.5" style={{ color: "var(--text-3)" }}>
           Vanaf 3 check-ins toon ik een lijn.
         </p>
       </div>
@@ -211,10 +211,10 @@ function TrendsChart({ days, hasEnough }) {
             />
             <YAxis hide domain={[0, 10]} />
             <Tooltip
-              cursor={{ stroke: "rgba(255,255,255,0.10)", strokeWidth: 1 }}
+              cursor={{ stroke: "rgba(255,255,255,0.08)", strokeWidth: 1 }}
               contentStyle={{
                 background: "var(--bg-elevated)",
-                border: "1px solid var(--line)",
+                border: "1px solid var(--line-subtle)",
                 borderRadius: 12,
                 color: "var(--text)",
                 fontSize: 12,

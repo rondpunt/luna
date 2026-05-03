@@ -80,8 +80,8 @@ export default function Journal() {
         {isLoading ? (
           <div className="list-group">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="list-row gap-0">
-                <div className="flex-1 space-y-2 py-0.5">
+              <div key={i} className="list-row" style={{ minHeight: 64 }}>
+                <div className="flex-1 space-y-2.5">
                   <div className="h-3 w-1/2 rounded shimmer" />
                   <div className="h-2.5 w-1/3 rounded shimmer" />
                 </div>

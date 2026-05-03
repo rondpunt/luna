@@ -90,14 +90,14 @@ export default function Profile() {
 
       {/* Over Luna */}
       <Section label="Over Luna">
-        <div className="list-row gap-3.5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(74,158,255,0.12)" }}>
-            <Info className="h-[17px] w-[17px]" style={{ color: "#4A9EFF" }} strokeWidth={1.8} />
+        <div className="list-row gap-3" style={{ alignItems: "flex-start", paddingTop: 14, paddingBottom: 14 }}>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(74,158,255,0.10)" }}>
+            <Info className="h-[18px] w-[18px]" style={{ color: "#4A9EFF" }} strokeWidth={1.8} />
           </div>
-          <div className="flex-1 py-0.5">
-            <p className="text-[14px] font-medium" style={{ color: "var(--text)" }}>Wat is Luna?</p>
-            <p className="text-[12px] mt-0.5 leading-5" style={{ color: "var(--text-2)" }}>
-              Luna is een AI-gezel voor rustige, ondersteunende gesprekken. Geen therapeut, geen dokter — wel altijd aanwezig.
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-medium leading-tight" style={{ color: "var(--text)" }}>Wat is Luna?</p>
+            <p className="text-[12.5px] mt-1 leading-[1.5]" style={{ color: "var(--text-2)" }}>
+              Een rustige AI-gezel voor ondersteunende gesprekken. Geen therapeut, wel altijd beschikbaar.
             </p>
           </div>
         </div>
@@ -110,10 +110,16 @@ export default function Profile() {
       <button
         onClick={handleLogout}
         disabled={loggingOut}
-        className="w-full list-group py-4 flex items-center justify-center gap-2 text-[15px] font-semibold btn-press"
-        style={{ color: "#F04747" }}
+        className="w-full flex items-center justify-center gap-2 text-[14.5px] font-semibold btn-press"
+        style={{
+          height: 52,
+          background: "var(--bg-card)",
+          border: "1px solid var(--line-subtle)",
+          borderRadius: 18,
+          color: "#F04747",
+        }}
       >
-        <LogOut className="h-4 w-4" />
+        <LogOut className="h-[16px] w-[16px]" strokeWidth={2} />
         {loggingOut ? "Bezig…" : "Uitloggen"}
       </button>
 

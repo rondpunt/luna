@@ -33,8 +33,8 @@ const STEPS = [
 
 const GOALS = [
   "Stress", "Angst", "Slaap", "Relaties", "Focus",
-  "ADHD", "Autisme", "Burn-out", "Depressie", "Eenzaamheid",
-  "Zelfbeeld", "Borderline", "Verlies", "Iets anders",
+  "Werk", "Eenzaamheid", "Zelfbeeld", "Verlies", "Rust",
+  "Energie", "Verbinding", "Iets anders",
 ];
 
 const TONES = [
@@ -99,13 +99,13 @@ export default function Onboarding() {
 
       {/* Content */}
       <div className="flex-1 max-w-sm mx-auto w-full">
-        <p className="text-[11px] font-bold uppercase tracking-[0.12em] mb-3" style={{ color: "rgba(194,90,50,0.60)" }}>
+        <p className="text-[12px] font-semibold mb-3" style={{ color: "rgba(194,90,50,0.70)", letterSpacing: "-0.1px" }}>
           {current.eyebrow}
         </p>
-        <h1 className="text-[28px] font-bold leading-tight mb-3" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
+        <h1 className="text-[26px] font-bold leading-[1.15] mb-3" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
           {current.title}
         </h1>
-        <p className="text-[16px] leading-[1.6] mb-8" style={{ color: "var(--text-2)" }}>
+        <p className="text-[15px] leading-[1.55] mb-8" style={{ color: "var(--text-2)" }}>
           {current.body}
         </p>
 
@@ -127,10 +127,10 @@ export default function Onboarding() {
               <button
                 key={g}
                 onClick={() => toggleGoal(g)}
-                className="rounded-full px-4 py-2.5 text-[14px] font-medium transition-all btn-press"
+                className="chip btn-press"
                 style={{
-                  background: goals.includes(g) ? "rgba(194,90,50,0.20)" : "var(--bg-card)",
-                  border: `1px solid ${goals.includes(g) ? "#C25A32" : "var(--line)"}`,
+                  background: goals.includes(g) ? "rgba(194,90,50,0.14)" : "var(--bg-card)",
+                  border: `1px solid ${goals.includes(g) ? "rgba(194,90,50,0.45)" : "var(--line-subtle)"}`,
                   color: goals.includes(g) ? "#C25A32" : "var(--text-2)",
                 }}
               >
@@ -141,26 +141,26 @@ export default function Onboarding() {
         )}
 
         {step === 3 && (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {TONES.map(({ key, label, desc }) => {
               const active = tone === key;
               return (
                 <button
                   key={key}
                   onClick={() => setTone(key)}
-                  className="flex w-full items-center justify-between rounded-2xl px-4 py-4 text-left transition-all btn-press"
+                  className="flex w-full items-center justify-between rounded-[18px] px-4 py-4 text-left transition-all btn-press"
                   style={{
-                    background: active ? "rgba(194,90,50,0.15)" : "var(--bg-card)",
-                    border: `1px solid ${active ? "#C25A32" : "var(--line)"}`,
+                    background: active ? "rgba(194,90,50,0.10)" : "var(--bg-card)",
+                    border: `1px solid ${active ? "rgba(194,90,50,0.40)" : "var(--line-subtle)"}`,
                   }}
                 >
-                  <div>
-                    <p className="text-[15px] font-semibold" style={{ color: active ? "#C25A32" : "var(--text)" }}>{label}</p>
-                    <p className="text-[13px] mt-0.5" style={{ color: "var(--text-2)" }}>{desc}</p>
+                  <div className="min-w-0">
+                    <p className="text-[15px] font-semibold leading-tight" style={{ color: active ? "#C25A32" : "var(--text)" }}>{label}</p>
+                    <p className="text-[12.5px] mt-1" style={{ color: "var(--text-3)" }}>{desc}</p>
                   </div>
                   {active && (
                     <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ background: "#C25A32" }}>
-                      <Check className="h-3.5 w-3.5 text-white" />
+                      <Check className="h-[14px] w-[14px] text-white" strokeWidth={2.5} />
                     </div>
                   )}
                 </button>
@@ -171,8 +171,8 @@ export default function Onboarding() {
 
         {step === 4 && (
           <label
-            className="flex cursor-pointer items-start gap-3.5 rounded-2xl px-4 py-4 btn-press"
-            style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}
+            className="flex cursor-pointer items-start gap-3 rounded-[18px] px-4 py-4 btn-press"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--line-subtle)" }}
           >
             <input
               type="checkbox"
@@ -180,7 +180,7 @@ export default function Onboarding() {
               onChange={(e) => setConsent(e.target.checked)}
               className="mt-0.5 h-4 w-4 accent-[#C25A32] shrink-0"
             />
-            <span className="text-[15px] leading-[1.5]" style={{ color: "var(--text)" }}>
+            <span className="text-[14.5px] leading-[1.5]" style={{ color: "var(--text)" }}>
               Ik ga akkoord met het privacybeleid en begrijp dat Luna een AI-gezel is, geen therapeut.
             </span>
           </label>
@@ -192,20 +192,20 @@ export default function Onboarding() {
         {step > 0 && (
           <button
             onClick={() => setStep(step - 1)}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl btn-press"
-            style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}
+            className="flex h-12 w-12 items-center justify-center rounded-[16px] btn-press"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--line-subtle)" }}
           >
-            <ArrowLeft className="h-4 w-4" style={{ color: "var(--text-2)" }} />
+            <ArrowLeft className="h-[16px] w-[16px]" style={{ color: "var(--text-2)" }} />
           </button>
         )}
         <button
           onClick={next}
           disabled={!canNext()}
-          className="flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-[16px] font-semibold text-white transition-all btn-press disabled:opacity-35 accent-gradient"
-          style={{ boxShadow: canNext() ? "0 6px 24px rgba(194,90,50,0.30)" : "none" }}
+          className="flex flex-1 items-center justify-center gap-2 rounded-[16px] h-12 text-[15px] font-semibold text-white transition-all btn-press disabled:opacity-35"
+          style={{ background: "#C25A32" }}
         >
           {step === STEPS.length - 1 ? "Luna openen" : "Volgende"}
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-[16px] w-[16px]" />
         </button>
       </div>
     </div>
