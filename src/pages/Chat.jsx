@@ -22,6 +22,16 @@ function getQueryParams() {
   return { convId: p.get("conv"), folderId: p.get("folder") };
 }
 
+/** Sync ?conv=<id> in URL zonder navigatie — zodat refresh thread bewaart. */
+function syncConvIdToUrl(convId, folderId) {
+  if (!convId) return;
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("conv") === convId) return;
+  url.searchParams.set("conv", convId);
+  if (folderId) url.searchParams.set("folder", folderId);
+  window.history.replaceState({}, "", url.toString());
+}
+
 export default function Chat() {
   const { convId: initConvId, folderId: initFolderId } = getQueryParams();
 
@@ -30,7 +40,7 @@ export default function Chat() {
   const [agentConvId, setAgentConvId] = useState(null);
   const [folderId] = useState(initFolderId || null);
   const [folder, setFolder] = useState(null);
-  const [messages, setMessages] = useState([]); // [{id?, role, content, _pending?, _failed?}]
+  const [messages, setMessages] = useState([]); // [{id?, role, content, _failed?}]
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [retrying, setRetrying] = useState(false);
@@ -39,9 +49,20 @@ export default function Chat() {
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // refs voorkomen race-conditions bij snel dubbel-klikken / state-async
+  const sendingRef = useRef(false);
+  const dbConvIdRef = useRef(initConvId || null);
+  const agentConvIdRef = useRef(null);
+  const messagesRef = useRef([]);
+
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
   const presence = useLunaPresence();
+
+  /* keep refs in sync */
+  useEffect(() => { dbConvIdRef.current = dbConvId; }, [dbConvId]);
+  useEffect(() => { agentConvIdRef.current = agentConvId; }, [agentConvId]);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   /* ── load folder ── */
   useEffect(() => {
@@ -58,22 +79,20 @@ export default function Chat() {
 
     (async () => {
       try {
-        // 1. If we have a DB conversation, restore message history (source of truth)
-        if (dbConvId) {
+        // 1. Restore from DB (source of truth) als ?conv= in URL
+        if (dbConvIdRef.current) {
           const [convs, persistedMsgs] = await Promise.all([
-            base44.entities.Conversation.filter({ id: dbConvId }).catch(() => []),
-            loadMessages(dbConvId),
+            base44.entities.Conversation.filter({ id: dbConvIdRef.current }).catch(() => []),
+            loadMessages(dbConvIdRef.current),
           ]);
           const dbConv = convs?.[0];
 
           if (active && persistedMsgs.length > 0) {
-            setMessages(
-              persistedMsgs.map((m) => ({ id: m.id, role: m.role, content: m.content }))
-            );
+            setMessages(persistedMsgs.map((m) => ({ id: m.id, role: m.role, content: m.content })));
             setStarted(true);
           }
 
-          // Reuse existing agent conversation when known
+          // Hergebruik bestaande agent conversation
           if (dbConv?.agentConversationId) {
             if (active) setAgentConvId(dbConv.agentConversationId);
             if (active) setLoading(false);
@@ -81,7 +100,7 @@ export default function Chat() {
           }
         }
 
-        // 2. Create a fresh agent conversation
+        // 2. Nieuwe agent conversation
         const folderCtx = folderId
           ? await base44.entities.ChatFolder.filter({ id: folderId }).then((r) => r?.[0]).catch(() => null)
           : null;
@@ -103,8 +122,10 @@ export default function Chat() {
         if (!active) return;
         if (conv?.id) {
           setAgentConvId(conv.id);
-          if (dbConvId) {
-            base44.entities.Conversation.update(dbConvId, { agentConversationId: conv.id }).catch(() => {});
+          if (dbConvIdRef.current) {
+            base44.entities.Conversation
+              .update(dbConvIdRef.current, { agentConversationId: conv.id })
+              .catch(() => {});
           }
         }
       } finally {
@@ -124,15 +145,7 @@ export default function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
-  /* ── core: send a message + get assistant reply ──
-     Flow:
-       1. Optimistic user bubble
-       2. Persist user message → Message entity (after we have a DB convId)
-       3. Call noraChat with retry → get reply
-       4. Persist assistant message → Message entity
-       5. Append assistant bubble (only after success)
-       6. On failure: mark error, allow retry of step 3-5 (no duplicate user message)
-  */
+  /* ── core: assistant turn (LLM call + persist + render) ── */
   const runAssistantTurn = useCallback(
     async ({ convDbId, threadForLLM }) => {
       const reply = await invokeNoraChatWithRetry({
@@ -141,108 +154,140 @@ export default function Chat() {
         memoryContext: folder?.context || "",
       });
 
-      // Persist assistant message BEFORE rendering — guarantees no ghost bubbles
-      const saved = await saveAssistantMessage({ conversationId: convDbId, content: reply }).catch(
-        () => null
-      );
+      // Persist BEFORE rendering — geen ghost bubbles, geen lege assistant
+      const saved = await saveAssistantMessage({ conversationId: convDbId, content: reply });
 
-      const assistantBubble = {
-        id: saved?.id,
-        role: "assistant",
-        content: reply,
-      };
-
-      setMessages((prev) => [...prev, assistantBubble]);
+      setMessages((prev) => [...prev, { id: saved.id, role: "assistant", content: reply }]);
       presence.onLunaReply();
-      return reply;
+      return saved;
     },
     [folder, presence]
   );
 
+  /* ── core: send ── */
   const sendMessage = useCallback(
     async (text) => {
       const txt = (text || input).trim();
-      if (!txt || sending) return;
+
+      // Hard guard tegen dubbele submits (state is async, ref niet)
+      if (!txt || sendingRef.current) return;
+      sendingRef.current = true;
+      setSending(true);
+      setErrorMsg(null);
 
       setInput("");
       setShowEmoji(false);
-      setErrorMsg(null);
       if (textareaRef.current) textareaRef.current.style.height = "auto";
 
-      const userBubble = { role: "user", content: txt };
+      // Optimistic user bubble
+      const userBubble = { role: "user", content: txt, _localKey: `u-${Date.now()}` };
       setMessages((prev) => [...prev, userBubble]);
-      setSending(true);
       if (!started) setStarted(true);
       presence.onUserMessage(txt.length);
 
+      let convDbId = dbConvIdRef.current;
+      let userSavedId = null;
+
       try {
-        // 1. Ensure DB conversation exists
-        const me = await base44.auth.me();
-        const convDbId = await ensureConversation({
-          existingId: dbConvId,
-          userId: me.id,
-          title: dbConvId ? undefined : txt,
-          folderId,
-          folderName: folder?.name,
-          agentConversationId: agentConvId,
-        });
-        if (!dbConvId) setDbConvId(convDbId);
+        // 1. Ensure DB conversation
+        if (!convDbId) {
+          const me = await base44.auth.me();
+          convDbId = await ensureConversation({
+            existingId: null,
+            userId: me.id,
+            title: txt,
+            folderId,
+            folderName: folder?.name,
+            agentConversationId: agentConvIdRef.current,
+          });
+          setDbConvId(convDbId);
+          dbConvIdRef.current = convDbId;
+          syncConvIdToUrl(convDbId, folderId);
+        }
 
         // 2. Persist user message
         const savedUser = await saveUserMessage({ conversationId: convDbId, content: txt });
-        // attach id back to UI message
+        userSavedId = savedUser.id;
         setMessages((prev) =>
-          prev.map((m, i) =>
-            i === prev.length - 1 && m.role === "user" && !m.id ? { ...m, id: savedUser.id } : m
+          prev.map((m) =>
+            m._localKey === userBubble._localKey ? { id: savedUser.id, role: "user", content: txt } : m
           )
         );
+      } catch (err) {
+        // User-message persist faalde → markeer bubble als failed, geen LLM call
+        setMessages((prev) =>
+          prev.map((m) =>
+            m._localKey === userBubble._localKey ? { ...m, _failed: true } : m
+          )
+        );
+        setErrorMsg("Bericht kon niet worden opgeslagen. Probeer opnieuw.");
+        setSending(false);
+        sendingRef.current = false;
+        presence.onLunaReply();
+        return;
+      }
 
-        // 3. Build LLM thread (use current state + new user message)
-        const threadForLLM = [...messages, userBubble].map((m) => ({
-          role: m.role,
-          content: m.content,
-        }));
+      // 3. Run assistant turn (zelf retry binnen invokeNoraChatWithRetry)
+      try {
+        const threadForLLM = [...messagesRef.current, { role: "user", content: txt }]
+          .filter((m) => !m._failed)
+          .map((m) => ({ role: m.role, content: m.content }));
 
-        // 4. Run assistant turn (with retry inside)
         await runAssistantTurn({ convDbId, threadForLLM });
 
-        // 5. Touch conversation metadata
-        touchConversation({ id: convDbId, message_count: messages.length + 2 });
-      } catch (err) {
-        // Assistant turn failed — keep user bubble, show error banner
-        setErrorMsg("Luna kon niet antwoorden. Controleer je verbinding en probeer opnieuw.");
+        // 4. Touch metadata met écht aantal messages uit DB
+        const real = await loadMessages(convDbId).catch(() => null);
+        touchConversation({
+          id: convDbId,
+          message_count: real?.length ?? messagesRef.current.length,
+        });
+      } catch {
+        setErrorMsg("Luna kon niet antwoorden. Probeer opnieuw.");
         presence.onLunaReply();
       } finally {
         setSending(false);
+        sendingRef.current = false;
       }
     },
-    [input, sending, started, presence, messages, dbConvId, agentConvId, folderId, folder, runAssistantTurn]
+    [input, started, presence, folderId, folder, runAssistantTurn]
   );
 
-  /* ── retry: re-run assistant turn for the last user message only ── */
+  /* ── retry: alleen de assistant-turn opnieuw, geen dubbele user message ── */
   const handleRetry = useCallback(async () => {
-    if (retrying || sending) return;
-    if (!dbConvId) return;
-    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    if (sendingRef.current) return;
+    const convDbId = dbConvIdRef.current;
+    if (!convDbId) return;
+
+    const lastUser = [...messagesRef.current].reverse().find((m) => m.role === "user");
     if (!lastUser) return;
 
+    sendingRef.current = true;
     setRetrying(true);
-    setErrorMsg(null);
     setSending(true);
+    setErrorMsg(null);
     presence.onUserMessage(lastUser.content.length);
 
     try {
-      const threadForLLM = messages.map((m) => ({ role: m.role, content: m.content }));
-      await runAssistantTurn({ convDbId: dbConvId, threadForLLM });
-      touchConversation({ id: dbConvId, message_count: messages.length + 1 });
+      const threadForLLM = messagesRef.current
+        .filter((m) => !m._failed)
+        .map((m) => ({ role: m.role, content: m.content }));
+
+      await runAssistantTurn({ convDbId, threadForLLM });
+
+      const real = await loadMessages(convDbId).catch(() => null);
+      touchConversation({
+        id: convDbId,
+        message_count: real?.length ?? messagesRef.current.length,
+      });
     } catch {
       setErrorMsg("Het lukte nog niet. Probeer het zo nog eens.");
       presence.onLunaReply();
     } finally {
       setSending(false);
+      sendingRef.current = false;
       setRetrying(false);
     }
-  }, [retrying, sending, dbConvId, messages, presence, runAssistantTurn]);
+  }, [presence, runAssistantTurn]);
 
   /* ── ui helpers ── */
   const handleKey = (e) => {
@@ -364,10 +409,10 @@ export default function Chat() {
         )}
 
         {messages.map((m, i) => (
-          <Bubble key={m.id || `${m.role}-${i}`} message={m} />
+          <Bubble key={m.id || m._localKey || `${m.role}-${i}`} message={m} />
         ))}
 
-        {sending && (
+        {sending && !retrying && (
           <div className="flex items-end gap-2.5 msg-enter">
             <OrbAvatar />
             <div className="flex items-center gap-1.5 rounded-[18px] rounded-bl-[5px] px-4 py-3.5" style={{ background: "var(--bg-elevated)", border: "1px solid var(--line)" }}>
@@ -477,14 +522,24 @@ function OrbAvatar() {
 
 function Bubble({ message }) {
   const isUser = message.role === "user";
+  const failed = message._failed;
+
   if (isUser) {
     return (
       <div className="flex justify-end msg-enter">
         <div
           className="max-w-[78%] rounded-[18px] rounded-br-[5px] px-4 py-3 text-[16px] text-white leading-[1.5] break-words"
-          style={{ background: "#C25A32" }}
+          style={{
+            background: failed ? "rgba(240,71,71,0.55)" : "#C25A32",
+            opacity: failed ? 0.85 : 1,
+          }}
         >
           {message.content}
+          {failed && (
+            <span className="block text-[11px] mt-1" style={{ color: "rgba(255,255,255,0.85)" }}>
+              Niet verzonden
+            </span>
+          )}
         </div>
       </div>
     );
