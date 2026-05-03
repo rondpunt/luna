@@ -88,31 +88,47 @@
 /* ── Premium card ── */
 .card {
   background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 18px;
 }
 .card-elevated {
   background: var(--bg-elevated);
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 18px;
 }
 
 /* ── List rows ── */
 .list-group {
   background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 18px;
   overflow: hidden;
 }
 .list-row {
   display: flex;
   align-items: center;
-  padding: 13px 16px;
-  min-height: 48px;
+  padding: 14px 16px;
+  min-height: 56px;
   transition: background 0.15s;
 }
 .list-row:active { background: var(--bg-hover); }
 .list-row + .list-row { border-top: 1px solid var(--line-subtle); }
+
+/* ── Chip ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line-subtle);
+  color: var(--text-2);
+  transition: all 0.15s;
+}
 
 /* ── Typing dots ── */
 .typing-dot {

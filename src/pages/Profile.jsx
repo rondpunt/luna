@@ -23,47 +23,54 @@ export default function Profile() {
     <div className="px-4 pt-6 pb-8 space-y-6">
 
       {/* Avatar */}
-      <div className="flex flex-col items-center gap-3 py-4">
+      <div className="flex flex-col items-center gap-2.5 py-2">
         <div
-          className="h-[76px] w-[76px] rounded-[24px] flex items-center justify-center text-[26px] font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #ee9670, #c25a32)", boxShadow: "0 8px 32px rgba(194,90,50,0.30)" }}
+          className="h-[64px] w-[64px] rounded-[20px] flex items-center justify-center text-[22px] font-semibold text-white"
+          style={{
+            background: "#C25A32",
+            boxShadow: "0 6px 20px rgba(194,90,50,0.22)",
+          }}
         >
           {initials}
         </div>
         <div className="text-center space-y-0.5">
-          <p className="text-[20px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.3px" }}>{name}</p>
-          <p className="text-[14px]" style={{ color: "var(--text-2)" }}>{email}</p>
+          <p
+            className="text-[18px] font-bold leading-tight"
+            style={{ color: "var(--text)", letterSpacing: "-0.2px" }}
+          >
+            {name}
+          </p>
+          <p className="text-[13px]" style={{ color: "var(--text-3)" }}>{email}</p>
         </div>
 
         {/* Luna AI badge */}
-        <div
-          className="flex items-center gap-2 rounded-full px-3.5 py-2 mt-1"
-          style={{ background: "rgba(194,90,50,0.10)", border: "1px solid rgba(194,90,50,0.25)" }}
-        >
-          <div className="h-2 w-2 rounded-full" style={{ background: "#34C77B" }} />
-          <p className="text-[13px] font-medium" style={{ color: "var(--text-2)" }}>
-            Luna AI · je persoonlijke gezel
-          </p>
+        <div className="chip mt-1.5" style={{ background: "rgba(194,90,50,0.08)", borderColor: "rgba(194,90,50,0.22)" }}>
+          <div className="h-1.5 w-1.5 rounded-full" style={{ background: "#34C77B" }} />
+          <span style={{ color: "var(--text-2)" }}>Luna AI · je persoonlijke gezel</span>
         </div>
       </div>
 
       {/* Upgrade banner */}
       <Link to="/pricing" className="block btn-press">
         <div
-          className="rounded-2xl px-4 py-4 flex items-center gap-4"
+          className="px-5 py-4 flex items-center gap-4"
           style={{
-            background: "linear-gradient(135deg, rgba(194,90,50,0.18) 0%, rgba(194,90,50,0.08) 100%)",
-            border: "1px solid rgba(194,90,50,0.35)",
+            background: "rgba(194,90,50,0.08)",
+            border: "1px solid rgba(194,90,50,0.22)",
+            borderRadius: 18,
           }}
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(194,90,50,0.22)" }}>
-            <Gem className="h-5 w-5" style={{ color: "#C25A32" }} strokeWidth={1.8} />
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+            style={{ background: "rgba(194,90,50,0.16)" }}
+          >
+            <Gem className="h-[18px] w-[18px]" style={{ color: "#C25A32" }} strokeWidth={1.8} />
           </div>
-          <div className="flex-1">
-            <p className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>Luna Plus</p>
-            <p className="text-[13px] mt-0.5" style={{ color: "var(--text-2)" }}>Onbeperkt · Geheugen · €9,99/mnd</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-semibold leading-tight" style={{ color: "var(--text)" }}>Luna Plus</p>
+            <p className="text-[12.5px] mt-1" style={{ color: "var(--text-2)" }}>Onbeperkt · Geheugen · €9,99/mnd</p>
           </div>
-          <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />
+          <ChevronRight className="h-[18px] w-[18px] shrink-0" style={{ color: "var(--text-3)" }} strokeWidth={1.8} />
         </div>
       </Link>
 
@@ -122,7 +129,7 @@ export default function Profile() {
 function Section({ label, children }) {
   return (
     <div>
-      <p className="text-[12px] font-semibold uppercase tracking-widest mb-2.5 px-1" style={{ color: "var(--text-3)" }}>
+      <p className="text-[13px] font-semibold mb-2.5 px-1" style={{ color: "var(--text-2)", letterSpacing: "-0.1px" }}>
         {label}
       </p>
       <div className="list-group">{children}</div>
@@ -133,16 +140,16 @@ function Section({ label, children }) {
 function Row({ icon: Icon, label, sub, to, value, onClick }) {
   const color = "#C25A32";
   const inner = (
-    <div className="list-row gap-3.5 w-full">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: `${color}18` }}>
-        <Icon className="h-[17px] w-[17px]" style={{ color }} strokeWidth={1.8} />
+    <div className="list-row gap-3 w-full">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: `${color}14` }}>
+        <Icon className="h-[18px] w-[18px]" style={{ color }} strokeWidth={1.8} />
       </div>
-      <div className="flex-1 py-0.5">
-        <p className="text-[15px] font-medium" style={{ color: "var(--text)" }}>{label}</p>
-        {sub && <p className="text-[12px] mt-0.5" style={{ color: "var(--text-2)" }}>{sub}</p>}
+      <div className="flex-1 min-w-0">
+        <p className="text-[15px] font-medium leading-tight" style={{ color: "var(--text)" }}>{label}</p>
+        {sub && <p className="text-[12px] mt-1" style={{ color: "var(--text-3)" }}>{sub}</p>}
       </div>
-      {value && <span className="text-[14px]" style={{ color: "var(--text-2)" }}>{value}</span>}
-      {(to || onClick) && <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />}
+      {value && <span className="text-[13px]" style={{ color: "var(--text-2)" }}>{value}</span>}
+      {(to || onClick) && <ChevronRight className="h-[18px] w-[18px] shrink-0" style={{ color: "var(--text-4)" }} strokeWidth={1.8} />}
     </div>
   );
   if (to) return <Link to={to} className="btn-press">{inner}</Link>;

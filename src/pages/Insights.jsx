@@ -85,9 +85,9 @@ export default function Insights() {
     <div className="px-4 pt-6 pb-6 space-y-6">
 
       {/* 1. Page title */}
-      <div className="px-1">
+      <div className="px-1 pt-1">
         <h1
-          className="text-[28px] font-bold leading-tight"
+          className="text-[26px] font-bold leading-[1.15]"
           style={{ color: "var(--text)", letterSpacing: "-0.4px" }}
         >
           Inzichten
@@ -149,7 +149,7 @@ export default function Insights() {
 function SummaryCard({ loading, avg, count, trendLabel }) {
   if (loading) {
     return (
-      <div className="card px-4 py-4 space-y-2">
+      <div className="card px-5 py-5 space-y-2">
         <div className="h-4 w-2/3 rounded shimmer" />
         <div className="h-3 w-1/3 rounded shimmer" />
       </div>
@@ -158,11 +158,11 @@ function SummaryCard({ loading, avg, count, trendLabel }) {
 
   if (!avg) {
     return (
-      <div className="card px-4 py-4">
+      <div className="card px-5 py-5">
         <p className="text-[15px] leading-[1.5]" style={{ color: "var(--text)" }}>
           Nog niet genoeg check-ins om iets te zeggen.
         </p>
-        <p className="text-[13px] mt-1" style={{ color: "var(--text-3)" }}>
+        <p className="text-[13px] mt-1.5" style={{ color: "var(--text-3)" }}>
           Een paar dagen invullen geeft al een eerste beeld.
         </p>
       </div>
@@ -170,12 +170,12 @@ function SummaryCard({ loading, avg, count, trendLabel }) {
   }
 
   return (
-    <div className="card px-4 py-4">
-      <p className="text-[15px] leading-[1.5]" style={{ color: "var(--text)" }}>
+    <div className="card px-5 py-5">
+      <p className="text-[16px] leading-[1.45]" style={{ color: "var(--text)", letterSpacing: "-0.1px" }}>
         Gemiddeld <span style={{ color: "#C25A32", fontWeight: 600 }}>{avg}/10</span> over {count} check-in{count === 1 ? "" : "s"}.
       </p>
       {trendLabel && (
-        <p className="text-[13px] mt-1" style={{ color: "var(--text-3)" }}>
+        <p className="text-[13px] mt-1.5" style={{ color: "var(--text-3)" }}>
           Het gaat {trendLabel}.
         </p>
       )}
@@ -198,10 +198,10 @@ function TrendsChart({ days, hasEnough }) {
     );
   }
   return (
-    <div className="card px-3 pt-4 pb-2 overflow-hidden">
-      <div style={{ height: 140, width: "100%" }}>
+    <div className="card px-4 pt-5 pb-3 overflow-hidden">
+      <div style={{ height: 144, width: "100%" }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={days} margin={{ top: 6, right: 8, left: 8, bottom: 0 }}>
+          <LineChart data={days} margin={{ top: 8, right: 12, left: 12, bottom: 4 }}>
             <XAxis
               dataKey="day"
               axisLine={false}
@@ -254,10 +254,10 @@ function SignalRow({ signal }) {
   return (
     <div className="list-row gap-3">
       <div className="flex-1 min-w-0">
-        <p className="text-[14px] font-medium" style={{ color: "var(--text)" }}>
+        <p className="text-[15px] font-medium leading-tight" style={{ color: "var(--text)" }}>
           {tone.label}
         </p>
-        <p className="text-[12px] mt-0.5" style={{ color: "var(--text-3)" }}>
+        <p className="text-[12px] mt-1" style={{ color: "var(--text-3)" }}>
           {dateLabel}
         </p>
       </div>

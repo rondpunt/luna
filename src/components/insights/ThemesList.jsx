@@ -54,7 +54,7 @@ export default function ThemesList({ conversations = [], entries = [] }) {
   return (
     <div className="list-group">
       {themes.map(({ label, pct, color }) => (
-        <div key={label} className="list-row gap-4">
+        <div key={label} className="list-row gap-4" style={{ minHeight: 56 }}>
           <span
             className="text-[14px] font-medium shrink-0 truncate"
             style={{ color: "var(--text)", maxWidth: "40%" }}
@@ -62,13 +62,16 @@ export default function ThemesList({ conversations = [], entries = [] }) {
             {label}
           </span>
           <div
-            className="flex-1 h-1.5 rounded-full overflow-hidden"
-            style={{ background: "rgba(255,255,255,0.07)" }}
+            className="flex-1 h-2 rounded-full overflow-hidden"
+            style={{ background: "rgba(255,255,255,0.06)" }}
           >
-            <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: color }} />
+            <div
+              className="h-2 rounded-full"
+              style={{ width: `${pct}%`, background: color, transition: "width 0.4s ease" }}
+            />
           </div>
           <span
-            className="text-[12px] font-medium w-9 text-right shrink-0 tabular-nums"
+            className="text-[12px] font-medium w-10 text-right shrink-0 tabular-nums"
             style={{ color: "var(--text-3)" }}
           >
             {pct}%

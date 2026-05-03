@@ -16,7 +16,7 @@ export default function HomeEmpty() {
       </p>
       <button
         onClick={() => navigate("/chat")}
-        className="rounded-xl px-4 py-2.5 text-[14px] font-semibold text-white btn-press"
+        className="rounded-xl px-5 h-10 text-[14px] font-semibold text-white btn-press"
         style={{ background: "#C25A32" }}
       >
         Praat met Luna

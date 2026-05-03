@@ -25,18 +25,18 @@ export default function JournalRow({ entry }) {
   return (
     <button
       onClick={handleTap}
-      className="list-row gap-0 w-full text-left btn-press"
+      className="list-row w-full text-left btn-press"
       style={{ minHeight: 64 }}
     >
-      <div className="flex-1 min-w-0 py-0.5">
-        <p className="text-[15px] font-medium truncate" style={{ color: "var(--text)" }}>
+      <div className="flex-1 min-w-0 pr-3">
+        <p className="text-[15px] font-medium truncate leading-tight" style={{ color: "var(--text)" }}>
           {title}
         </p>
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-[12px]" style={{ color: "var(--text-3)" }}>{dateLabel}</span>
+        <div className="flex items-center gap-2 mt-1.5 min-w-0">
+          <span className="text-[12px] shrink-0" style={{ color: "var(--text-3)" }}>{dateLabel}</span>
           {preview && preview !== title && (
             <>
-              <span style={{ color: "var(--text-4)" }}>·</span>
+              <span className="shrink-0" style={{ color: "var(--text-4)" }}>·</span>
               <span className="text-[12px] truncate" style={{ color: "var(--text-2)" }}>
                 {preview}
               </span>

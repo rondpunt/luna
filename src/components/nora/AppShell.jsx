@@ -22,10 +22,10 @@ export default function AppShell() {
       <header
         className="sticky top-0 z-40 flex items-center justify-center"
         style={{
-          background: "rgba(10,10,11,0.90)",
+          background: "rgba(10,10,11,0.88)",
           backdropFilter: "blur(24px) saturate(180%)",
           WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          borderBottom: "1px solid var(--line-subtle)",
           paddingTop: "env(safe-area-inset-top, 0px)",
           height: "calc(52px + env(safe-area-inset-top, 0px))",
         }}
@@ -33,13 +33,16 @@ export default function AppShell() {
         <div className="flex items-center gap-2">
           {/* Orb */}
           <div
-            className="h-6 w-6 rounded-full"
+            className="h-[22px] w-[22px] rounded-full"
             style={{
               background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 55%, #7a2d14 100%)",
-              boxShadow: "0 0 12px 3px rgba(194,90,50,0.30)",
+              boxShadow: "0 0 10px 2px rgba(194,90,50,0.24)",
             }}
           />
-          <span className="text-[17px] font-semibold tracking-tight" style={{ color: "var(--text)", letterSpacing: "-0.3px" }}>
+          <span
+            className="text-[16px] font-semibold"
+            style={{ color: "var(--text)", letterSpacing: "-0.2px" }}
+          >
             Luna
           </span>
         </div>
@@ -53,35 +56,35 @@ export default function AppShell() {
       <nav
         className="fixed inset-x-0 bottom-0 z-50"
         style={{
-          background: "rgba(10,10,11,0.94)",
+          background: "rgba(10,10,11,0.92)",
           backdropFilter: "blur(24px) saturate(180%)",
           WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          borderTop: "1px solid rgba(255,255,255,0.07)",
+          borderTop: "1px solid var(--line-subtle)",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        <div className="flex justify-around px-2 pt-2 pb-2 max-w-lg mx-auto">
+        <div className="flex justify-around px-2 pt-1.5 pb-1.5 max-w-lg mx-auto">
           {NAV.map(({ to, label, icon: Icon }) => {
             const active = pathname === to;
             return (
               <Link
                 key={to}
                 to={to}
-                className="flex flex-col items-center gap-[3px] py-1 px-3 min-w-[52px] rounded-xl transition-all active:opacity-60"
+                className="flex flex-col items-center gap-1 py-1 px-3 min-w-[56px] transition-all active:opacity-60"
               >
                 <div
-                  className="flex h-8 w-8 items-center justify-center rounded-xl transition-all"
-                  style={{ background: active ? "rgba(194,90,50,0.18)" : "transparent" }}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg transition-all"
+                  style={{ background: active ? "rgba(194,90,50,0.14)" : "transparent" }}
                 >
                   <Icon
-                    className="h-[20px] w-[20px] transition-all"
-                    style={{ color: active ? "#C25A32" : "rgba(240,240,242,0.38)" }}
-                    strokeWidth={active ? 2.2 : 1.7}
+                    className="h-[19px] w-[19px] transition-all"
+                    style={{ color: active ? "#C25A32" : "rgba(240,240,242,0.42)" }}
+                    strokeWidth={active ? 2.1 : 1.6}
                   />
                 </div>
                 <span
-                  className="text-[10px] font-medium"
-                  style={{ color: active ? "#C25A32" : "rgba(240,240,242,0.35)" }}
+                  className="text-[10.5px] font-medium leading-none"
+                  style={{ color: active ? "#C25A32" : "rgba(240,240,242,0.42)" }}
                 >
                   {label}
                 </span>

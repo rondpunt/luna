@@ -377,7 +377,7 @@ export default function Chat() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-2">
+      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-1.5">
         <div className="flex justify-center pb-2">
           <span
             className="text-[12px] px-3 py-1 rounded-full"
@@ -431,8 +431,12 @@ export default function Chat() {
               <button
                 key={s}
                 onClick={() => sendMessage(s)}
-                className="w-full text-left rounded-[16px] px-4 py-3.5 text-[15px] transition-all btn-press"
-                style={{ background: "var(--bg-card)", border: "1px solid var(--line)", color: "var(--text-2)" }}
+                className="w-full text-left rounded-[14px] px-4 h-12 text-[14.5px] transition-all btn-press flex items-center"
+                style={{
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--line-subtle)",
+                  color: "var(--text)",
+                }}
               >
                 {s}
               </button>
@@ -464,15 +468,15 @@ export default function Chat() {
         <div className="flex items-end gap-2">
           <button
             onClick={() => setShowEmoji((v) => !v)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full btn-press"
-            style={{ background: "var(--bg-elevated)", border: "1px solid var(--line)" }}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full btn-press"
+            style={{ background: "var(--bg-elevated)", border: "1px solid var(--line-subtle)" }}
           >
             <Smile className="h-[18px] w-[18px]" style={{ color: showEmoji ? "#C25A32" : "var(--text-2)" }} />
           </button>
 
           <div
             className="flex-1 flex items-end rounded-[22px] px-4 py-2.5"
-            style={{ background: "var(--bg-input)", border: "1px solid var(--line)", minHeight: "42px" }}
+            style={{ background: "var(--bg-input)", border: "1px solid var(--line-subtle)", minHeight: "44px" }}
           >
             <textarea
               ref={textareaRef}
@@ -485,7 +489,7 @@ export default function Chat() {
               onKeyDown={handleKey}
               placeholder="Bericht"
               rows={1}
-              className="flex-1 resize-none bg-transparent text-[16px] text-white outline-none leading-[1.4]"
+              className="flex-1 resize-none bg-transparent text-[15.5px] text-white outline-none leading-[1.4]"
               style={{ minHeight: "22px", maxHeight: "120px" }}
             />
           </div>
@@ -493,13 +497,13 @@ export default function Chat() {
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || sending}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full btn-press transition-all"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full btn-press transition-all"
             style={{
               background: input.trim() && !sending ? (folder?.color || "#C25A32") : "var(--bg-elevated)",
-              border: "1px solid var(--line)",
+              border: "1px solid var(--line-subtle)",
             }}
           >
-            <Send className="h-4 w-4" style={{ color: input.trim() && !sending ? "#fff" : "var(--text-3)" }} />
+            <Send className="h-[16px] w-[16px]" style={{ color: input.trim() && !sending ? "#fff" : "var(--text-3)" }} />
           </button>
         </div>
       </div>
@@ -528,7 +532,7 @@ function Bubble({ message }) {
     return (
       <div className="flex justify-end msg-enter">
         <div
-          className="max-w-[78%] rounded-[18px] rounded-br-[5px] px-4 py-3 text-[16px] text-white leading-[1.5] break-words"
+          className="max-w-[78%] rounded-[20px] rounded-br-[6px] px-[14px] py-[10px] text-[15.5px] text-white leading-[1.45] break-words"
           style={{
             background: failed ? "rgba(240,71,71,0.55)" : "#C25A32",
             opacity: failed ? 0.85 : 1,
@@ -548,8 +552,8 @@ function Bubble({ message }) {
     <div className="flex items-end gap-2.5 msg-enter">
       <OrbAvatar />
       <div
-        className="max-w-[78%] rounded-[18px] rounded-bl-[5px] px-4 py-3 text-[16px] leading-[1.5] break-words"
-        style={{ background: "var(--bg-elevated)", border: "1px solid var(--line)", color: "var(--text)" }}
+        className="max-w-[78%] rounded-[20px] rounded-bl-[6px] px-[14px] py-[10px] text-[15.5px] leading-[1.5] break-words"
+        style={{ background: "var(--bg-elevated)", border: "1px solid var(--line-subtle)", color: "var(--text)" }}
       >
         {message.content}
       </div>

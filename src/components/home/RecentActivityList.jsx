@@ -52,22 +52,22 @@ export default function RecentActivityList({ conversations = [], entries = [] })
         const Icon = it.kind === "conversation" ? MessageCircle : BookHeart;
         const accent = it.kind === "conversation" ? "#C25A32" : "#4A9EFF";
         return (
-          <Link key={it.key} to={it.to} className="list-row gap-3.5">
+          <Link key={it.key} to={it.to} className="list-row gap-3">
             <div
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-              style={{ background: `${accent}18` }}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+              style={{ background: `${accent}14` }}
             >
-              <Icon className="h-[17px] w-[17px]" style={{ color: accent }} strokeWidth={1.8} />
+              <Icon className="h-[18px] w-[18px]" style={{ color: accent }} strokeWidth={1.8} />
             </div>
-            <div className="flex-1 min-w-0 py-0.5">
-              <p className="text-[14.5px] font-medium truncate" style={{ color: "var(--text)" }}>
+            <div className="flex-1 min-w-0">
+              <p className="text-[15px] font-medium truncate leading-tight" style={{ color: "var(--text)" }}>
                 {it.title}
               </p>
-              <p className="text-[12px] mt-0.5 truncate" style={{ color: "var(--text-3)" }}>
+              <p className="text-[12px] mt-1 truncate" style={{ color: "var(--text-3)" }}>
                 {formatWhen(it.when)} · {it.sub}
               </p>
             </div>
-            <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />
+            <ChevronRight className="h-[18px] w-[18px] shrink-0" style={{ color: "var(--text-4)" }} strokeWidth={1.8} />
           </Link>
         );
       })}

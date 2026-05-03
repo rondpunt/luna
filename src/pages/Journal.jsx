@@ -36,27 +36,35 @@ export default function Journal() {
     <div className="px-4 pt-6 pb-6 space-y-6">
 
       {/* Page title — zelfde patroon als Home/Profile */}
-      <div className="px-1">
-        <h1 className="text-[28px] font-bold leading-tight" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
+      <div className="px-1 pt-1">
+        <h1 className="text-[26px] font-bold leading-[1.15]" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
           Dagboek
         </h1>
       </div>
 
       {/* Primary action card */}
-      <div className="card px-4 py-4 flex items-center gap-4">
+      <div
+        className="px-5 py-5 flex items-center gap-4"
+        style={{
+          background: "var(--bg-card)",
+          border: "1px solid var(--line)",
+          borderRadius: 20,
+          boxShadow: "0 1px 0 rgba(255,255,255,0.02) inset, 0 8px 24px rgba(0,0,0,0.18)",
+        }}
+      >
         <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-          style={{ background: "rgba(194,90,50,0.15)" }}
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+          style={{ background: "rgba(194,90,50,0.14)" }}
         >
-          <Pencil className="h-5 w-5" style={{ color: "#C25A32" }} strokeWidth={1.8} />
+          <Pencil className="h-[22px] w-[22px]" style={{ color: "#C25A32" }} strokeWidth={1.8} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>Nieuwe notitie</p>
-          <p className="text-[13px] mt-0.5" style={{ color: "var(--text-2)" }}>Even iets neerschrijven</p>
+          <p className="text-[16px] font-semibold leading-tight" style={{ color: "var(--text)", letterSpacing: "-0.2px" }}>Nieuwe notitie</p>
+          <p className="text-[13px] mt-1" style={{ color: "var(--text-2)" }}>Even iets neerschrijven</p>
         </div>
         <button
           onClick={openWriter}
-          className="rounded-xl px-4 py-2.5 text-[14px] font-semibold text-white btn-press shrink-0"
+          className="rounded-xl px-4 h-10 text-[14px] font-semibold text-white btn-press shrink-0"
           style={{ background: "#C25A32" }}
         >
           Schrijven

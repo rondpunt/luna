@@ -59,9 +59,9 @@ export default function Home() {
     <div className="px-4 pt-6 pb-6 space-y-6">
 
       {/* 1. Topgedeelte — korte, neutrale opener */}
-      <div className="px-1">
+      <div className="px-1 pt-1">
         <h1
-          className="text-[28px] font-bold leading-tight"
+          className="text-[26px] font-bold leading-[1.15]"
           style={{ color: "var(--text)", letterSpacing: "-0.4px" }}
         >
           {greeting}{firstName ? `, ${firstName}` : ""}
