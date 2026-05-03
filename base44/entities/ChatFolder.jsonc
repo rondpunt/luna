@@ -7,18 +7,20 @@
     },
     "name": {
       "type": "string",
-      "description": "Naam van de map, bv. 'Angst', 'Werk', 'Familie'"
+      "description": "Naam van de map"
     },
     "emoji": {
-      "type": "string",
-      "description": "Emoji voor de map"
+      "type": "string"
     },
     "color": {
-      "type": "string",
-      "description": "Hex kleur voor de map"
+      "type": "string"
     },
     "description": {
       "type": "string"
+    },
+    "context": {
+      "type": "string",
+      "description": "Persoonlijke context die Luna meekrijgt bij elk gesprek in deze map"
     },
     "pinned": {
       "type": "boolean",

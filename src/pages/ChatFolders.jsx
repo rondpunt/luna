@@ -2,21 +2,28 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Plus, FolderOpen, MessageCircle, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, Plus, FolderOpen, MessageCircle, ChevronRight, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
+import FolderFormSheet from "@/components/chat/FolderFormSheet";
 
-const FOLDER_COLORS = ["#C25A32", "#4A9EFF", "#34C77B", "#F5A623", "#A855F7", "#F04747"];
-const FOLDER_EMOJIS = ["💬", "😔", "😤", "🧠", "❤️", "🌙", "⚡", "🎯", "🌊", "🔥"];
+const TEMPLATES = [
+  { name: "Angst & piekeren",   emoji: "🌊", color: "#4A9EFF", description: "Voor als het hoofd niet stopt", context: "Ik heb last van angst en piekeren. Soms is het moeilijk om mijn gedachten te stoppen, vooral 's avonds of bij onzekerheid." },
+  { name: "Werk & burn-out",    emoji: "🔥", color: "#F04747", description: "Alles rond werk en stress",      context: "Ik worstel met werkstress en ben op zoek naar hoe ik grenzen kan stellen zonder me schuldig te voelen." },
+  { name: "Relaties",           emoji: "❤️", color: "#F04747", description: "Familie, vrienden, liefde",      context: "Ik wil praten over hoe ik omga met mensen die me na staan en hoe ik mezelf daarin niet verlies." },
+  { name: "ADHD-dump",          emoji: "⚡", color: "#F5A623", description: "Alles wat in mijn hoofd zit",    context: "Ik heb ADHD (of denk dat ik dat heb). Mijn gedachten springen veel. Ik heb ruimte nodig om te dumpen zonder oordeel." },
+  { name: "Slaap",              emoji: "🌙", color: "#A855F7", description: "Slaapproblemen en vermoeidheid", context: "Ik slaap slecht en voel me overdag uitgeput. Ik wil begrijpen wat me wakker houdt." },
+  { name: "Zelfbeeld",          emoji: "🪞", color: "#34C77B", description: "Wie ben ik eigenlijk?",          context: "Ik heb vragen rond mijn zelfbeeld en zelfwaardering. Ik ben streng voor mezelf en wil dat veranderen." },
+  { name: "Vrije ruimte",       emoji: "💬", color: "#C25A32", description: "Geen thema, gewoon praten",      context: "" },
+];
 
 export default function ChatFolders() {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const [showNew, setShowNew] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newEmoji, setNewEmoji] = useState("💬");
-  const [newColor, setNewColor] = useState("#C25A32");
-  const [activeFolder, setActiveFolder] = useState(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [editFolder, setEditFolder] = useState(null); // null = new, folder obj = edit
+  const [showForm, setShowForm] = useState(false);
+  const [formDefaults, setFormDefaults] = useState(null);
 
   const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
   const { data: folders = [] } = useQuery({
@@ -25,42 +32,62 @@ export default function ChatFolders() {
   });
   const { data: conversations = [] } = useQuery({
     queryKey: ["conversations"],
-    queryFn: () => base44.entities.Conversation.list("-last_message_at", 50),
+    queryFn: () => base44.entities.Conversation.list("-last_message_at", 100),
   });
 
   const createFolder = useMutation({
-    mutationFn: async () => {
-      if (!newName.trim() || !user) return;
-      await base44.entities.ChatFolder.create({
-        userId: user.id,
-        name: newName.trim(),
-        emoji: newEmoji,
-        color: newColor,
-      });
-    },
-    onSuccess: () => {
+    mutationFn: (data) => base44.entities.ChatFolder.create({ userId: user.id, ...data }),
+    onSuccess: (folder) => {
       qc.invalidateQueries({ queryKey: ["folders"] });
-      setNewName("");
-      setShowNew(false);
+      setShowForm(false);
+      setShowTemplates(false);
+      navigate(`/chat/folder/${folder.id}`);
     },
   });
 
-  const myFolders = folders.filter((f) => f.userId === user?.id && !f.archived);
-  const unorganized = conversations.filter((c) => c.userId === user?.id && !c.folderId && !c.archived);
-  const folderConvos = (folderId) => conversations.filter((c) => c.folderId === folderId);
+  const myFolders = folders
+    .filter((f) => f.userId === user?.id && !f.archived)
+    .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+  const unorganized = conversations.filter(
+    (c) => c.userId === user?.id && !c.folderId && !c.archived
+  );
+
+  const folderConvoCount = (folderId) =>
+    conversations.filter((c) => c.folderId === folderId).length;
+
+  const openNewBlank = () => {
+    setFormDefaults(null);
+    setShowTemplates(false);
+    setShowForm(true);
+  };
+
+  const openFromTemplate = (tpl) => {
+    setFormDefaults(tpl);
+    setShowTemplates(false);
+    setShowForm(true);
+  };
 
   return (
-    <div className="min-h-screen px-4 py-6" style={{ background: "var(--bg)", paddingTop: "env(safe-area-inset-top, 24px)" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      {/* Sticky header */}
+      <div
+        className="sticky top-0 z-20 flex items-center justify-between px-4 py-4"
+        style={{
+          background: "rgba(10,10,11,0.94)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+        }}
+      >
         <Link to="/chat" className="flex items-center gap-1 btn-press" style={{ color: "#C25A32" }}>
           <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
           <span className="text-[16px] font-medium">Chat</span>
         </Link>
-        <h1 className="text-[18px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.3px" }}>Gespreksmappen</h1>
+        <h1 className="text-[17px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.3px" }}>Gespreksmappen</h1>
         <button
-          onClick={() => setShowNew(true)}
+          onClick={() => setShowTemplates((v) => !v)}
           className="flex items-center gap-1.5 rounded-full px-3 py-1.5 btn-press"
           style={{ background: "rgba(194,90,50,0.15)", border: "1px solid rgba(194,90,50,0.35)" }}
         >
@@ -69,168 +96,156 @@ export default function ChatFolders() {
         </button>
       </div>
 
-      {/* New folder form */}
-      {showNew && (
-        <div
-          className="rounded-2xl p-4 mb-5 space-y-4"
-          style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}
-        >
-          <div className="flex items-center justify-between">
-            <p className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>Nieuwe map</p>
-            <button onClick={() => setShowNew(false)}><X className="h-4 w-4" style={{ color: "var(--text-3)" }} /></button>
-          </div>
+      <div className="px-4 pb-8 space-y-6 pt-5">
 
-          {/* Emoji */}
-          <div className="flex gap-2 flex-wrap">
-            {FOLDER_EMOJIS.map((e) => (
-              <button
-                key={e}
-                onClick={() => setNewEmoji(e)}
-                className="text-[22px] h-10 w-10 rounded-xl flex items-center justify-center transition-all"
-                style={{ background: newEmoji === e ? "rgba(194,90,50,0.20)" : "var(--bg-elevated)", border: `1px solid ${newEmoji === e ? "#C25A32" : "var(--line)"}` }}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
-
-          {/* Color */}
-          <div className="flex gap-2">
-            {FOLDER_COLORS.map((c) => (
-              <button
-                key={c}
-                onClick={() => setNewColor(c)}
-                className="h-7 w-7 rounded-full transition-all"
-                style={{ background: c, outline: newColor === c ? `3px solid ${c}` : "none", outlineOffset: "2px" }}
-              />
-            ))}
-          </div>
-
-          {/* Name input */}
-          <input
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && createFolder.mutate()}
-            placeholder="Naam van de map…"
-            autoFocus
-            className="w-full rounded-xl px-4 py-3 text-[15px] outline-none"
-            style={{ background: "var(--bg-input)", border: "1px solid var(--line)", color: "var(--text)" }}
-          />
-
-          <button
-            onClick={() => createFolder.mutate()}
-            disabled={!newName.trim()}
-            className="w-full rounded-xl py-3 text-[15px] font-semibold text-white transition-all btn-press disabled:opacity-40 accent-gradient"
+        {/* Templates picker */}
+        {showTemplates && (
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ border: "1px solid var(--line)", background: "var(--bg-card)" }}
           >
-            Map aanmaken
-          </button>
-        </div>
-      )}
-
-      {/* Folders */}
-      {myFolders.length > 0 && (
-        <div className="space-y-2 mb-6">
-          <p className="text-[12px] font-semibold uppercase tracking-widest px-1 mb-3" style={{ color: "var(--text-3)" }}>
-            Jouw mappen
-          </p>
-          {myFolders.map((folder) => {
-            const convs = folderConvos(folder.id);
-            const isOpen = activeFolder === folder.id;
-            return (
-              <div key={folder.id}>
+            <div className="px-4 pt-4 pb-3 flex items-center justify-between">
+              <p className="text-[14px] font-semibold" style={{ color: "var(--text)" }}>Kies een startpunt</p>
+              <button onClick={() => setShowTemplates(false)}>
+                <span className="text-[13px]" style={{ color: "var(--text-3)" }}>Sluiten</span>
+              </button>
+            </div>
+            <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+              {TEMPLATES.map((tpl) => (
                 <button
-                  onClick={() => setActiveFolder(isOpen ? null : folder.id)}
-                  className="w-full list-group flex items-center gap-3.5 px-4 py-3.5 btn-press"
+                  key={tpl.name}
+                  onClick={() => openFromTemplate(tpl)}
+                  className="w-full flex items-center gap-3.5 px-4 py-3.5 text-left btn-press transition-colors"
+                  style={{ background: "transparent" }}
                 >
                   <div
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[20px]"
+                    style={{ background: `${tpl.color}18` }}
+                  >
+                    {tpl.emoji}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[14px] font-semibold" style={{ color: "var(--text)" }}>{tpl.name}</p>
+                    <p className="text-[12px] mt-0.5" style={{ color: "var(--text-2)" }}>{tpl.description}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />
+                </button>
+              ))}
+              <button
+                onClick={openNewBlank}
+                className="w-full flex items-center gap-3.5 px-4 py-3.5 text-left btn-press"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(255,255,255,0.06)" }}>
+                  <Plus className="h-5 w-5" style={{ color: "var(--text-3)" }} />
+                </div>
+                <p className="text-[14px] font-medium" style={{ color: "var(--text-2)" }}>Lege map aanmaken</p>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* My folders */}
+        {myFolders.length > 0 && (
+          <div>
+            <p className="text-[12px] font-semibold uppercase tracking-widest px-1 mb-3" style={{ color: "var(--text-3)" }}>
+              Jouw mappen
+            </p>
+            <div className="space-y-2">
+              {myFolders.map((folder) => (
+                <Link
+                  key={folder.id}
+                  to={`/chat/folder/${folder.id}`}
+                  className="flex items-center gap-3.5 rounded-2xl px-4 py-3.5 btn-press"
+                  style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}
+                >
+                  <div
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[22px]"
                     style={{ background: `${folder.color || "#C25A32"}18` }}
                   >
                     {folder.emoji || "📁"}
                   </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-[15px] font-medium" style={{ color: "var(--text)" }}>{folder.name}</p>
-                    <p className="text-[13px] mt-0.5" style={{ color: "var(--text-2)" }}>
-                      {convs.length} {convs.length === 1 ? "gesprek" : "gesprekken"}
-                    </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[15px] font-semibold truncate" style={{ color: "var(--text)" }}>{folder.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {folder.context && (
+                        <span className="flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" style={{ color: folder.color || "#C25A32" }} />
+                          <span className="text-[12px]" style={{ color: "var(--text-3)" }}>Context</span>
+                        </span>
+                      )}
+                      <span className="text-[12px]" style={{ color: "var(--text-2)" }}>
+                        {folderConvoCount(folder.id)} gesprekken
+                      </span>
+                    </div>
                   </div>
-                  <ChevronRight
-                    className="h-4 w-4 shrink-0 transition-transform"
-                    style={{ color: "var(--text-3)", transform: isOpen ? "rotate(90deg)" : "none" }}
-                  />
-                </button>
+                  <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
-                {isOpen && convs.length > 0 && (
-                  <div className="mt-1 space-y-1 pl-3">
-                    {convs.map((conv) => (
-                      <Link
-                        key={conv.id}
-                        to="/chat"
-                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 btn-press"
-                        style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}
-                      >
-                        <MessageCircle className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} strokeWidth={1.7} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[14px] font-medium truncate" style={{ color: "var(--text)" }}>{conv.title}</p>
-                          {conv.last_message_at && (
-                            <p className="text-[12px] mt-0.5" style={{ color: "var(--text-3)" }}>
-                              {format(new Date(conv.last_message_at), "d MMM", { locale: nl })}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
+        {/* Unorganized conversations */}
+        {unorganized.length > 0 && (
+          <div>
+            <p className="text-[12px] font-semibold uppercase tracking-widest px-1 mb-3" style={{ color: "var(--text-3)" }}>
+              Recente gesprekken
+            </p>
+            <div className="list-group">
+              {unorganized.slice(0, 15).map((conv) => (
+                <Link
+                  key={conv.id}
+                  to={`/chat?conv=${conv.id}`}
+                  className="list-row gap-3.5"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(194,90,50,0.12)" }}>
+                    <MessageCircle className="h-4 w-4" style={{ color: "#C25A32" }} strokeWidth={1.7} />
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Unorganized */}
-      {unorganized.length > 0 && (
-        <div className="space-y-1">
-          <p className="text-[12px] font-semibold uppercase tracking-widest px-1 mb-3" style={{ color: "var(--text-3)" }}>
-            Recente gesprekken
-          </p>
-          <div className="list-group">
-            {unorganized.slice(0, 10).map((conv) => (
-              <Link key={conv.id} to="/chat" className="list-row gap-3.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(194,90,50,0.12)" }}>
-                  <MessageCircle className="h-4 w-4" style={{ color: "#C25A32" }} strokeWidth={1.7} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[15px] font-medium truncate" style={{ color: "var(--text)" }}>{conv.title}</p>
-                  {conv.last_message_at && (
-                    <p className="text-[13px] mt-0.5" style={{ color: "var(--text-2)" }}>
-                      {format(new Date(conv.last_message_at), "d MMM", { locale: nl })}
-                    </p>
-                  )}
-                </div>
-                <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />
-              </Link>
-            ))}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[15px] font-medium truncate" style={{ color: "var(--text)" }}>{conv.title}</p>
+                    {conv.last_message_at && (
+                      <p className="text-[12px] mt-0.5" style={{ color: "var(--text-2)" }}>
+                        {format(new Date(conv.last_message_at), "d MMM · HH:mm", { locale: nl })}
+                      </p>
+                    )}
+                  </div>
+                  <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {myFolders.length === 0 && unorganized.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}>
-            <FolderOpen className="h-8 w-8" style={{ color: "var(--text-3)" }} strokeWidth={1.5} />
+        {/* Empty state */}
+        {myFolders.length === 0 && unorganized.length === 0 && !showTemplates && (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl" style={{ background: "var(--bg-card)", border: "1px solid var(--line)" }}>
+              <FolderOpen className="h-8 w-8" style={{ color: "var(--text-3)" }} strokeWidth={1.5} />
+            </div>
+            <div className="text-center">
+              <p className="text-[17px] font-semibold mb-1" style={{ color: "var(--text)" }}>Begin met een map</p>
+              <p className="text-[14px] px-8 leading-[1.6]" style={{ color: "var(--text-3)" }}>
+                Organiseer je gesprekken per thema. Luna onthoudt de context van elke map.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowTemplates(true)}
+              className="mt-2 rounded-2xl px-6 py-3.5 text-[15px] font-semibold text-white accent-gradient btn-press"
+            >
+              Eerste map aanmaken
+            </button>
           </div>
-          <p className="text-[16px] font-medium" style={{ color: "var(--text-2)" }}>Nog geen mappen</p>
-          <p className="text-[14px] text-center px-8" style={{ color: "var(--text-3)" }}>
-            Maak een map aan om gesprekken per thema bij te houden.
-          </p>
-          <button
-            onClick={() => setShowNew(true)}
-            className="mt-2 rounded-2xl px-6 py-3 text-[15px] font-semibold text-white accent-gradient btn-press"
-          >
-            Eerste map aanmaken
-          </button>
-        </div>
+        )}
+      </div>
+
+      {/* Form sheet */}
+      {showForm && (
+        <FolderFormSheet
+          defaults={formDefaults}
+          onSave={(data) => createFolder.mutate(data)}
+          onClose={() => setShowForm(false)}
+          saving={createFolder.isPending}
+        />
       )}
     </div>
   );

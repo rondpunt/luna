@@ -23,6 +23,7 @@ import Contact from "./pages/Contact";
 import PrivacyCenter from "./pages/PrivacyCenter";
 import AdminDashboard from "./pages/AdminDashboard";
 import ChatFolders from "./pages/ChatFolders";
+import FolderDetail from "./pages/FolderDetail";
 
 const AuthenticatedApp = () => {
   const { authError } = useAuth();
@@ -65,6 +66,7 @@ const AuthenticatedApp = () => {
       <Route path="/privacy-center" element={<PrivacyCenter />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/chat/folders" element={<ChatFolders />} />
+      <Route path="/chat/folder/:id" element={<FolderDetail />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

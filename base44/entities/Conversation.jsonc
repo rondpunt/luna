@@ -38,6 +38,10 @@
     "message_count": {
       "type": "number",
       "default": 0
+    },
+    "agentConversationId": {
+      "type": "string",
+      "description": "ID van de agent conversation voor continu\u00efteit"
     }
   },
   "required": [
