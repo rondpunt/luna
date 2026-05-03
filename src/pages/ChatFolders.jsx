@@ -2,10 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Plus, FolderOpen, MessageCircle, ChevronRight, Sparkles } from "lucide-react";
-import { format } from "date-fns";
-import { nl } from "date-fns/locale";
+import { ChevronLeft, Plus, FolderOpen, ChevronRight, Sparkles, Settings2 } from "lucide-react";
 import FolderFormSheet from "@/components/chat/FolderFormSheet";
+import ConversationList from "@/components/chat/ConversationList";
+import ConversationSearch from "@/components/chat/ConversationSearch";
+import EmptyConversations from "@/components/chat/EmptyConversations";
+import ChatSettingsSheet from "@/components/chat/ChatSettingsSheet";
+import { useChatSettings } from "@/hooks/useChatSettings";
 
 const TEMPLATES = [
   { name: "Angst & piekeren",   emoji: "🌊", color: "#4A9EFF", description: "Voor als het hoofd niet stopt", context: "Ik heb last van angst en piekeren. Soms is het moeilijk om mijn gedachten te stoppen, vooral 's avonds of bij onzekerheid." },
@@ -21,9 +24,12 @@ export default function ChatFolders() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [showTemplates, setShowTemplates] = useState(false);
-  const [editFolder, setEditFolder] = useState(null); // null = new, folder obj = edit
   const [showForm, setShowForm] = useState(false);
   const [formDefaults, setFormDefaults] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const { settings } = useChatSettings();
 
   const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
   const { data: folders = [] } = useQuery({
@@ -32,7 +38,7 @@ export default function ChatFolders() {
   });
   const { data: conversations = [] } = useQuery({
     queryKey: ["conversations"],
-    queryFn: () => base44.entities.Conversation.list("-last_message_at", 100),
+    queryFn: () => base44.entities.Conversation.list("-last_message_at", 200),
   });
 
   const createFolder = useMutation({
@@ -49,19 +55,19 @@ export default function ChatFolders() {
     .filter((f) => f.userId === user?.id && !f.archived)
     .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
-  const unorganized = conversations.filter(
-    (c) => c.userId === user?.id && !c.folderId && !c.archived
+  const visibleConvos = conversations.filter(
+    (c) => c.userId === user?.id && (settings.showArchive ? true : !c.archived)
   );
+  const unorganized = visibleConvos.filter((c) => !c.folderId);
 
   const folderConvoCount = (folderId) =>
-    conversations.filter((c) => c.folderId === folderId).length;
+    conversations.filter((c) => c.folderId === folderId && !c.archived).length;
 
   const openNewBlank = () => {
     setFormDefaults(null);
     setShowTemplates(false);
     setShowForm(true);
   };
-
   const openFromTemplate = (tpl) => {
     setFormDefaults(tpl);
     setShowTemplates(false);
@@ -71,7 +77,7 @@ export default function ChatFolders() {
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
 
-      {/* Sticky header */}
+      {/* Header */}
       <div
         className="sticky top-0 z-20 flex items-center justify-between px-4 py-4"
         style={{
@@ -85,18 +91,33 @@ export default function ChatFolders() {
           <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
           <span className="text-[16px] font-medium">Chat</span>
         </Link>
-        <h1 className="text-[17px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.3px" }}>Gespreksmappen</h1>
-        <button
-          onClick={() => setShowTemplates((v) => !v)}
-          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 btn-press"
-          style={{ background: "rgba(194,90,50,0.15)", border: "1px solid rgba(194,90,50,0.35)" }}
-        >
-          <Plus className="h-4 w-4" style={{ color: "#C25A32" }} />
-          <span className="text-[13px] font-semibold" style={{ color: "#C25A32" }}>Nieuw</span>
-        </button>
+        <h1 className="text-[17px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.3px" }}>Mappen</h1>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="h-9 w-9 flex items-center justify-center rounded-full btn-press"
+            style={{ background: "rgba(255,255,255,0.06)" }}
+            aria-label="Instellingen"
+          >
+            <Settings2 className="h-[16px] w-[16px]" style={{ color: "var(--text-2)" }} />
+          </button>
+          <button
+            onClick={() => setShowTemplates((v) => !v)}
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 btn-press"
+            style={{ background: "rgba(194,90,50,0.15)", border: "1px solid rgba(194,90,50,0.35)" }}
+          >
+            <Plus className="h-4 w-4" style={{ color: "#C25A32" }} />
+            <span className="text-[13px] font-semibold" style={{ color: "#C25A32" }}>Nieuw</span>
+          </button>
+        </div>
       </div>
 
       <div className="px-4 pb-8 space-y-6 pt-5">
+
+        {/* Search (optional) */}
+        {settings.showSearch && (
+          <ConversationSearch value={search} onChange={setSearch} />
+        )}
 
         {/* Templates picker */}
         {showTemplates && (
@@ -116,7 +137,6 @@ export default function ChatFolders() {
                   key={tpl.name}
                   onClick={() => openFromTemplate(tpl)}
                   className="w-full flex items-center gap-3.5 px-4 py-3.5 text-left btn-press transition-colors"
-                  style={{ background: "transparent" }}
                 >
                   <div
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[20px]"
@@ -173,9 +193,11 @@ export default function ChatFolders() {
                           <span className="text-[12px]" style={{ color: "var(--text-3)" }}>Context</span>
                         </span>
                       )}
-                      <span className="text-[12px]" style={{ color: "var(--text-2)" }}>
-                        {folderConvoCount(folder.id)} gesprekken
-                      </span>
+                      {settings.showCounts && (
+                        <span className="text-[12px]" style={{ color: "var(--text-2)" }}>
+                          {folderConvoCount(folder.id)} gesprekken
+                        </span>
+                      )}
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />
@@ -185,34 +207,18 @@ export default function ChatFolders() {
           </div>
         )}
 
-        {/* Unorganized conversations */}
+        {/* Recent conversations (across folders, not in folder) */}
         {unorganized.length > 0 && (
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-widest px-1 mb-3" style={{ color: "var(--text-3)" }}>
               Recente gesprekken
             </p>
-            <div className="list-group">
-              {unorganized.slice(0, 15).map((conv) => (
-                <Link
-                  key={conv.id}
-                  to={`/chat?conv=${conv.id}`}
-                  className="list-row gap-3.5"
-                >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "rgba(194,90,50,0.12)" }}>
-                    <MessageCircle className="h-4 w-4" style={{ color: "#C25A32" }} strokeWidth={1.7} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[15px] font-medium truncate" style={{ color: "var(--text)" }}>{conv.title}</p>
-                    {conv.last_message_at && (
-                      <p className="text-[12px] mt-0.5" style={{ color: "var(--text-2)" }}>
-                        {format(new Date(conv.last_message_at), "d MMM · HH:mm", { locale: nl })}
-                      </p>
-                    )}
-                  </div>
-                  <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />
-                </Link>
-              ))}
-            </div>
+            <ConversationList
+              conversations={unorganized}
+              folders={folders}
+              settings={settings}
+              searchQuery={search}
+            />
           </div>
         )}
 
@@ -238,7 +244,6 @@ export default function ChatFolders() {
         )}
       </div>
 
-      {/* Form sheet */}
       {showForm && (
         <FolderFormSheet
           defaults={formDefaults}
@@ -247,6 +252,8 @@ export default function ChatFolders() {
           saving={createFolder.isPending}
         />
       )}
+
+      {showSettings && <ChatSettingsSheet onClose={() => setShowSettings(false)} />}
     </div>
   );
 }

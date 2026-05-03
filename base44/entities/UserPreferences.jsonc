@@ -43,6 +43,40 @@
     "crisisDisclaimerAccepted": {
       "type": "boolean",
       "default": false
+    },
+    "chatSettings": {
+      "type": "object",
+      "description": "Chat overzicht voorkeuren",
+      "properties": {
+        "showSearch": {
+          "type": "boolean",
+          "default": false
+        },
+        "showPin": {
+          "type": "boolean",
+          "default": false
+        },
+        "showArchive": {
+          "type": "boolean",
+          "default": false
+        },
+        "showQuickMove": {
+          "type": "boolean",
+          "default": false
+        },
+        "showCounts": {
+          "type": "boolean",
+          "default": false
+        },
+        "compactList": {
+          "type": "boolean",
+          "default": false
+        },
+        "showDateGroups": {
+          "type": "boolean",
+          "default": true
+        }
+      }
     }
   },
   "required": [

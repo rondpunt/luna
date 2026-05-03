@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Gem, Shield, FileText, Mail, LogOut, Bell, FolderHeart, Info } from "lucide-react";
+import { ChevronRight, Gem, Shield, FileText, Mail, LogOut, Bell, FolderHeart, Info, Settings2 } from "lucide-react";
+import ChatSettingsSheet from "@/components/chat/ChatSettingsSheet";
 
 export default function Profile() {
   const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showChatSettings, setShowChatSettings] = useState(false);
 
   const name = user?.full_name || "Jij";
   const email = user?.email || "";
@@ -70,6 +72,12 @@ export default function Profile() {
         <Row icon={Bell}       label="Meldingen"    sub="Dagelijkse herinnering" to="/profile" />
         <Row icon={Gem}        label="Abonnement"   sub="Gratis plan"            to="/pricing" />
         <Row icon={FolderHeart}label="Gespreksmappen" sub="Organiseer je chats"  to="/chat/folders" />
+        <Row
+          icon={Settings2}
+          label="Chat-instellingen"
+          sub="Zoeken, pin, archief, datums…"
+          onClick={() => setShowChatSettings(true)}
+        />
         <Row icon={Shield}     label="Privacycentrum"                             to="/privacy-center" />
       </Section>
 
@@ -105,6 +113,8 @@ export default function Profile() {
       <p className="text-center text-[12px]" style={{ color: "var(--text-4)" }}>
         Luna v1.0 · Gemaakt met zorg in België
       </p>
+
+      {showChatSettings && <ChatSettingsSheet onClose={() => setShowChatSettings(false)} />}
     </div>
   );
 }
@@ -120,7 +130,7 @@ function Section({ label, children }) {
   );
 }
 
-function Row({ icon: Icon, label, sub, to, value }) {
+function Row({ icon: Icon, label, sub, to, value, onClick }) {
   const color = "#C25A32";
   const inner = (
     <div className="list-row gap-3.5 w-full">
@@ -132,9 +142,10 @@ function Row({ icon: Icon, label, sub, to, value }) {
         {sub && <p className="text-[12px] mt-0.5" style={{ color: "var(--text-2)" }}>{sub}</p>}
       </div>
       {value && <span className="text-[14px]" style={{ color: "var(--text-2)" }}>{value}</span>}
-      {to && <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />}
+      {(to || onClick) && <ChevronRight className="h-4 w-4 shrink-0" style={{ color: "var(--text-3)" }} />}
     </div>
   );
   if (to) return <Link to={to} className="btn-press">{inner}</Link>;
+  if (onClick) return <button onClick={onClick} className="btn-press w-full text-left">{inner}</button>;
   return inner;
 }
