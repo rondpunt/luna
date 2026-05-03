@@ -13,6 +13,7 @@ import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import Voice from "./pages/Voice";
 import Journal from "./pages/Journal";
+import JournalEntry from "./pages/JournalEntry";
 import Insights from "./pages/Insights";
 import Profile from "./pages/Profile";
 import Onboarding from "./pages/Onboarding";
@@ -67,6 +68,7 @@ const AuthenticatedApp = () => {
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/chat/folders" element={<ChatFolders />} />
       <Route path="/chat/folder/:id" element={<FolderDetail />} />
+      <Route path="/journal/:id" element={<JournalEntry />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
