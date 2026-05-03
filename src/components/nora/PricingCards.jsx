@@ -2,23 +2,23 @@ import SectionCard from "./SectionCard";
 
 const tiers = [
   {
-    name: "Free",
-    price: "$0",
-    note: "For getting started gently",
-    features: ["Limited daily chats", "Basic journaling", "Daily check-ins", "Basic insights"],
+    name: "Gratis",
+    price: "€0",
+    note: "Om rustig te beginnen",
+    features: ["Beperkte dagelijkse chats", "Basis dagboek", "Dagelijkse check-ins", "Basis inzichten"],
   },
   {
     name: "Plus",
-    price: "$12/mo",
-    note: "For everyday support and memory",
+    price: "€9,99/mnd",
+    note: "Voor dagelijkse steun en geheugen",
     featured: true,
-    features: ["Unlimited chat", "Memory", "Voice mode", "Full journal tools", "Weekly insights"],
+    features: ["Onbeperkt chatten", "Geheugen", "Stemmodus", "Volledig dagboek", "Wekelijkse inzichten"],
   },
   {
     name: "Pro",
-    price: "$24/mo",
-    note: "For deeper reflection over time",
-    features: ["Advanced insights", "Long-term memory", "Custom routines", "Priority features", "Coach integrations placeholder"],
+    price: "€19,99/mnd",
+    note: "Voor diepgaande reflectie over tijd",
+    features: ["Geavanceerde inzichten", "Langetermijngeheugen", "Eigen routines", "Prioriteitsfeatures", "Gespreksmappen"],
   },
 ];
 
@@ -34,7 +34,7 @@ export default function PricingCards() {
             {tier.features.map((feature) => <li key={feature}>• {feature}</li>)}
           </ul>
           <button className="mt-5 w-full rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground">
-            {tier.name === "Free" ? "Start free" : `Choose ${tier.name}`}
+            {tier.name === "Gratis" ? "Gratis starten" : `Kies ${tier.name}`}
           </button>
         </SectionCard>
       ))}
