@@ -3,30 +3,43 @@ import { useQuery } from "@tanstack/react-query";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { format, subDays, parseISO } from "date-fns";
 import { nl } from "date-fns/locale";
+import ThemesList from "@/components/insights/ThemesList";
+import InsightsEmpty from "@/components/insights/InsightsEmpty";
 
 /**
- * Insights — mobiel scanbaar wellbeing-overzicht.
- * Patronen:
- *  - Luna AppShell topbar/bottom-nav (intact via route)
- *  - Luna page padding + card + list-group/list-row
- *  - react-native-gifted-charts referentie:
- *      • single compact line chart, spotpunten op data, rust rondom
- *      • geen grid, minimale ticks, geen y-axis labels
- *      • rustige fallback bij onvoldoende data
+ * Insights — rustig mobiel inzichten-scherm binnen de Luna design layer.
+ * Bron: alleen echte Base44 entities (CheckIn, Conversation, JournalEntry).
+ * Patronen hergebruikt:
+ *   - AppShell topbar + bottom-nav (intact via route)
+ *   - Page padding `px-4 pt-6 pb-6 space-y-6` (zelfde als Journal/Profile/Home)
+ *   - card surface, list-group/list-row pattern
+ *   - section heading 15px semibold (zoals Journal)
+ *   - tokens: --bg-card, --line, --text, --text-2, --text-3, accent #C25A32
  */
 
-const THEMES = [
-  { label: "Werkdruk", pct: 80, color: "#C25A32" },
-  { label: "Slaap",    pct: 60, color: "#4A9EFF" },
-  { label: "Relaties", pct: 45, color: "#34C77B" },
-  { label: "Focus",    pct: 40, color: "#F5A623" },
-];
-
 export default function Insights() {
-  const { data: checkIns = [], isLoading } = useQuery({
+  const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
+
+  const { data: checkIns = [], isLoading: loadingCheckIns } = useQuery({
     queryKey: ["checkins-insights"],
     queryFn: () => base44.entities.CheckIn.list("-date", 30),
   });
+
+  const { data: conversations = [], isLoading: loadingConvs } = useQuery({
+    queryKey: ["conversations-insights"],
+    queryFn: () => base44.entities.Conversation.list("-last_message_at", 200),
+  });
+
+  const { data: journalEntries = [], isLoading: loadingJournal } = useQuery({
+    queryKey: ["journal-insights"],
+    queryFn: () => base44.entities.JournalEntry.list("-created_date", 100),
+  });
+
+  const isLoading = loadingCheckIns || loadingConvs || loadingJournal;
+
+  // Filter op user
+  const myConversations = conversations.filter((c) => c.userId === user?.id);
+  const myJournal = journalEntries.filter((e) => e.userId === user?.id);
 
   // 7-day series
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -35,18 +48,17 @@ export default function Insights() {
     return {
       day: format(d, "EEEEE", { locale: nl }),
       value: found?.score ?? null,
-      fullDate: d,
     };
   });
 
   const valid = checkIns.filter((c) => c.score != null);
-  const hasEnough = valid.length >= 3;
+  const hasEnoughTrend = valid.length >= 3;
 
   const avg = valid.length
     ? (valid.reduce((a, c) => a + c.score, 0) / valid.length).toFixed(1)
     : null;
 
-  // Trend: last 3 vs prev 3
+  // Trend: laatste 3 vs vorige 3
   const last3 = valid.slice(0, 3);
   const prev3 = valid.slice(3, 6);
   const trendVal =
@@ -60,76 +72,75 @@ export default function Insights() {
     : trendVal < -0.3 ? "iets zwaarder dan vorige week"
     : "stabiel deze week";
 
-  // Recent signals: 3-5 recente check-ins met datum
   const signals = valid.slice(0, 5);
+
+  // Globale empty state: helemaal niets om te tonen
+  const completelyEmpty =
+    !isLoading &&
+    valid.length === 0 &&
+    myConversations.length === 0 &&
+    myJournal.length === 0;
 
   return (
     <div className="px-4 pt-6 pb-6 space-y-6">
 
-      {/* 1. Page title (AppShell levert topbar) */}
+      {/* 1. Page title */}
       <div className="px-1">
-        <h1 className="text-[28px] font-bold leading-tight" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
+        <h1
+          className="text-[28px] font-bold leading-tight"
+          style={{ color: "var(--text)", letterSpacing: "-0.4px" }}
+        >
           Inzichten
         </h1>
       </div>
 
-      {/* 2. Samenvattingskaart — max 2 regels + 1 ondersteunende statusregel */}
-      <SummaryCard
-        loading={isLoading}
-        avg={avg}
-        count={valid.length}
-        trendLabel={trendLabel}
-      />
+      {completelyEmpty ? (
+        <InsightsEmpty />
+      ) : (
+        <>
+          {/* 2. Samenvattingskaart */}
+          <SummaryCard loading={isLoading} avg={avg} count={valid.length} trendLabel={trendLabel} />
 
-      {/* 3. Trends — exact 1 chart */}
-      <section>
-        <h2 className="text-[15px] font-semibold mb-3 px-1" style={{ color: "var(--text)" }}>
-          Trends
-        </h2>
-        <TrendsChart days={days} hasEnough={hasEnough} />
-      </section>
+          {/* 3. Trends */}
+          <section>
+            <h2 className="text-[15px] font-semibold mb-3 px-1" style={{ color: "var(--text)" }}>
+              Trends
+            </h2>
+            <TrendsChart days={days} hasEnough={hasEnoughTrend} />
+          </section>
 
-      {/* 4. Terugkerende thema's — rustige bars in list-group */}
-      <section>
-        <h2 className="text-[15px] font-semibold mb-3 px-1" style={{ color: "var(--text)" }}>
-          Terugkerende thema's
-        </h2>
-        <div className="list-group">
-          {THEMES.map(({ label, pct, color }) => (
-            <div key={label} className="list-row gap-4">
-              <span className="w-20 text-[14px] font-medium shrink-0" style={{ color: "var(--text)" }}>
-                {label}
-              </span>
-              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
-                <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: color }} />
+          {/* 4. Terugkerende thema's */}
+          <section>
+            <h2 className="text-[15px] font-semibold mb-3 px-1" style={{ color: "var(--text)" }}>
+              Terugkerende thema's
+            </h2>
+            <ThemesList conversations={myConversations} entries={myJournal} />
+          </section>
+
+          {/* 5. Recente signalen */}
+          <section>
+            <h2 className="text-[15px] font-semibold mb-3 px-1" style={{ color: "var(--text)" }}>
+              Recente signalen
+            </h2>
+            {signals.length === 0 ? (
+              <div className="card px-4 py-5 text-center">
+                <p className="text-[14px]" style={{ color: "var(--text-2)" }}>
+                  Nog geen check-ins om te tonen.
+                </p>
+                <p className="text-[12px] mt-1" style={{ color: "var(--text-3)" }}>
+                  Voeg een check-in toe vanop Start.
+                </p>
               </div>
-              <span className="text-[12px] font-medium w-9 text-right shrink-0" style={{ color: "var(--text-3)" }}>
-                {pct}%
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. Recente signalen — list-row, niet tappable (geen detail-route) */}
-      <section>
-        <h2 className="text-[15px] font-semibold mb-3 px-1" style={{ color: "var(--text)" }}>
-          Recente signalen
-        </h2>
-        {signals.length === 0 ? (
-          <div className="card px-4 py-5 text-center">
-            <p className="text-[14px]" style={{ color: "var(--text-2)" }}>
-              Nog geen check-ins. Voeg er één toe vanop Start.
-            </p>
-          </div>
-        ) : (
-          <div className="list-group">
-            {signals.map((s) => (
-              <SignalRow key={s.id || s.date} signal={s} />
-            ))}
-          </div>
-        )}
-      </section>
+            ) : (
+              <div className="list-group">
+                {signals.map((s) => (
+                  <SignalRow key={s.id || s.date} signal={s} />
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
     </div>
   );
 }
@@ -172,7 +183,7 @@ function SummaryCard({ loading, avg, count, trendLabel }) {
   );
 }
 
-/* ── Trends chart (gifted-charts stijl: rust, één lijn, spotpunten) ── */
+/* ── Trends chart (rustig, single line, geen grid) ── */
 function TrendsChart({ days, hasEnough }) {
   if (!hasEnough) {
     return (
@@ -236,9 +247,9 @@ function SignalRow({ signal }) {
   const score = signal.score;
 
   const tone =
-    score >= 7 ? { label: "Goede dag",     color: "#34C77B" }
-    : score >= 5 ? { label: "Vlakke dag",  color: "#F5A623" }
-    : { label: "Zware dag",                color: "#F04747" };
+    score >= 7 ? { label: "Goede dag",    color: "#34C77B" }
+    : score >= 5 ? { label: "Vlakke dag", color: "#F5A623" }
+    : { label: "Zware dag",               color: "#F04747" };
 
   return (
     <div className="list-row gap-3">
