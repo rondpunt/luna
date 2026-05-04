@@ -1,59 +1,30 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Clock, Lock, Sparkles, Sunrise, Wind, Moon, MessageCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { Orb } from "@/components/luna/Orb";
 
-/* ──────────────────────────────────────────
-   Premium 5-step onboarding
-   - Swipe gestures (touch)
-   - Engagement hooks: moods + moments
-   - Saves to UserPreferences at finish
-   ────────────────────────────────────────── */
+const TOTAL_STEPS = 4;
 
 const MOODS = [
-  { key: "heavy",      emoji: "😔", label: "Zwaar"        },
-  { key: "tense",      emoji: "😰", label: "Gespannen"    },
-  { key: "numb",       emoji: "😶", label: "Verdoofd"     },
-  { key: "frustrated", emoji: "😤", label: "Gefrustreerd" },
-  { key: "okay",       emoji: "🙂", label: "Oké"          },
+  "Zwaar","Moe","Gespannen","Onrustig","Verdoofd","Boos",
+  "Verdrietig","Leeg","Bang","Eenzaam","Oké","Rustig",
+  "Hoopvol","Wakker","Licht","Dankbaar",
 ];
 
 const MOMENTS = [
-  { key: "morning",     emoji: "🌅", label: "'s Ochtends starten"           },
-  { key: "overwhelmed", emoji: "🌀", label: "Als ik me overweldigd voel"   },
-  { key: "evening",     emoji: "🌙", label: "'s Avonds reflecteren"         },
-  { key: "anytime",     emoji: "💭", label: "Zomaar, als ik wil praten"     },
+  { key: "morning",     icon: Sunrise,       label: "'s Ochtends starten" },
+  { key: "overwhelmed", icon: Wind,           label: "Als ik me overweldigd voel" },
+  { key: "evening",     icon: Moon,           label: "'s Avonds reflecteren" },
+  { key: "anytime",     icon: MessageCircle,  label: "Zomaar, als ik wil praten" },
 ];
-
-const TOTAL_STEPS = 6;
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [userName, setUserName] = useState("");
   const [moods, setMoods] = useState([]);
   const [moments, setMoments] = useState([]);
   const [saving, setSaving] = useState(false);
-
-  /* swipe */
-  const touchStartX = useRef(null);
-  const touchStartY = useRef(null);
-
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-  };
-  const handleTouchEnd = (e) => {
-    if (touchStartX.current == null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
-    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
-      if (dx < 0 && step < TOTAL_STEPS - 1) setStep(step + 1);
-      if (dx > 0 && step > 0) setStep(step - 1);
-    }
-    touchStartX.current = null;
-    touchStartY.current = null;
-  };
 
   const toggle = (arr, setArr, key) =>
     setArr(arr.includes(key) ? arr.filter((x) => x !== key) : [...arr, key]);
@@ -63,468 +34,315 @@ export default function Onboarding() {
     try {
       const user = await base44.auth.me();
       if (user) {
-        // Update naam als opgegeven en Google gaf alleen initiaal
-        if (userName.trim().length > 1) {
-          const raw = user.full_name || "";
-          if (raw.length <= 1) {
-            await base44.auth.updateProfile({ full_name: userName.trim() }).catch(() => {});
-          }
-        }
         await base44.entities.UserPreferences.create({
           userId: user.id,
           primary_moods: moods,
           preferred_moments: moments,
         }).catch(() => {});
       }
-    } catch { /* silent */ }
+    } catch {}
     navigate("/chat");
   };
 
   return (
     <div
-      className="min-h-screen flex flex-col relative overflow-hidden"
+      className="min-h-dvh flex flex-col"
       style={{
-        background: "var(--bg)",
-        paddingTop: "calc(20px + env(safe-area-inset-top, 0px))",
-        paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))",
+        background: "#0B0B14",
+        paddingTop: "calc(32px + env(safe-area-inset-top, 0px))",
+        paddingBottom: "calc(32px + env(safe-area-inset-bottom, 0px))",
       }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
-      {/* Soft accent backdrop */}
+      {/* Header: back + progress */}
       <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-[60vh]"
-        style={{
-          background:
-            "radial-gradient(80% 60% at 50% 0%, rgba(194,90,50,0.12) 0%, transparent 70%)",
-        }}
-      />
-
-      {/* Back button */}
-      <div className="px-5 relative z-10 h-10 flex items-center">
-        {step > 0 && (
+        className="flex items-center px-6 mb-2"
+        style={{ height: 44 }}
+      >
+        {step > 0 ? (
           <button
             onClick={() => setStep(step - 1)}
-            className="flex h-10 w-10 -ml-2 items-center justify-center rounded-full btn-press"
-            style={{ color: "var(--text-2)" }}
+            aria-label="Terug"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 4, marginLeft: -4, color: "var(--text-muted)" }}
           >
-            <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={2} />
+            <ArrowLeft size={22} strokeWidth={1.5} />
           </button>
-        )}
+        ) : <div style={{ width: 30 }} />}
+
+        <div className="flex items-center gap-1.5 mx-auto">
+          {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: 32,
+                height: 3,
+                borderRadius: 2,
+                background: i <= step ? "#E8834A" : "rgba(255,255,255,0.10)",
+                transition: "background 0.3s ease",
+              }}
+            />
+          ))}
+        </div>
+
+        <div style={{ width: 30 }} />
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col px-5 relative z-10">
-        <div className="max-w-sm mx-auto w-full flex-1 flex flex-col fade-in" key={step}>
-          {step === 0 && <StepWelcome onNext={() => setStep(1)} />}
-          {step === 1 && (
-            <StepName
-              value={userName}
-              onChange={setUserName}
-              onNext={() => setStep(2)}
-            />
-          )}
-          {step === 2 && <StepValue   onNext={() => setStep(3)} />}
-          {step === 3 && (
-            <StepMoods
-              selected={moods}
-              onToggle={(k) => toggle(moods, setMoods, k)}
-              onNext={() => setStep(3)}
-            />
-          )}
-          {step === 4 && (
-            <StepMoments
-              selected={moments}
-              onToggle={(k) => toggle(moments, setMoments, k)}
-              onNext={() => setStep(4)}
-            />
-          )}
-          {step === 5 && (
-            <StepFinish
-              saving={saving}
-              onStart={finish}
-              onLater={() => navigate("/")}
-            />
-          )}
-        </div>
+      <div className="flex-1 flex flex-col px-6 fade-in" key={step}>
+        {step === 0 && (
+          <StepWhy onNext={() => setStep(1)} />
+        )}
+        {step === 1 && (
+          <StepMoods
+            selected={moods}
+            onToggle={(k) => toggle(moods, setMoods, k)}
+            onNext={() => setStep(2)}
+          />
+        )}
+        {step === 2 && (
+          <StepMoments
+            selected={moments}
+            onToggle={(k) => toggle(moments, setMoments, k)}
+            onNext={() => setStep(3)}
+          />
+        )}
+        {step === 3 && (
+          <StepFinish saving={saving} onStart={finish} onLater={() => navigate("/")} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Step 1 — Waarom Luna ── */
+const FEATURES = [
+  { icon: Clock,    title: "Altijd beschikbaar",   sub: "Geen afspraken, geen wachttijden" },
+  { icon: Lock,     title: "Volledig privé",        sub: "Versleuteld. Alleen jij en Luna." },
+  { icon: Sparkles, title: "Leert jou kennen",      sub: "Onthoudt wat voor jou belangrijk is" },
+];
+
+function StepWhy({ onNext }) {
+  return (
+    <div className="flex flex-col flex-1">
+      <div style={{ paddingTop: 8, paddingBottom: 32 }}>
+        <p className="eyebrow" style={{ marginBottom: 8 }}>WAAROM LUNA</p>
+        <h1
+          className="font-display"
+          style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05, maxWidth: 320 }}
+        >
+          Een rustige plek, voor jou alleen.
+        </h1>
       </div>
 
-      {/* Progress dots */}
-      <div className="flex justify-center gap-2 mt-6 relative z-10">
-        {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setStep(i)}
-            aria-label={`Stap ${i + 1}`}
-            className="rounded-full transition-all duration-300"
-            style={{
-              width: i === step ? 22 : 6,
-              height: 6,
-              background: i === step
-                ? "#C25A32"
-                : i < step
-                ? "rgba(194,90,50,0.45)"
-                : "rgba(255,255,255,0.10)",
-            }}
-          />
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1 }}>
+        {FEATURES.map(({ icon: Icon, title, sub }) => (
+          <div
+            key={title}
+            className="surface"
+            style={{ padding: "18px 20px", display: "flex", gap: 14, alignItems: "center" }}
+          >
+            <div
+              style={{
+                width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                background: "rgba(232,131,74,0.08)",
+                border: "1px solid rgba(232,131,74,0.22)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <Icon size={16} style={{ color: "#E8834A" }} strokeWidth={1.5} />
+            </div>
+            <div>
+              <p style={{ fontSize: 15, fontWeight: 500, color: "var(--text)", marginBottom: 2 }}>{title}</p>
+              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>{sub}</p>
+            </div>
+          </div>
         ))}
       </div>
-    </div>
-  );
-}
 
-/* ──────────────────────────────────────────
-   STEP 1 — Welkom
-   ────────────────────────────────────────── */
-
-function StepWelcome({ onNext }) {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center">
-      <div className="mb-10">
-        <BigOrb intensity="normal" />
-      </div>
-      <h1
-        className="text-[34px] font-bold leading-[1.1] mb-4 max-w-[320px]"
-        style={{ color: "var(--text)", letterSpacing: "-0.7px" }}
-      >
-        Hallo, ik ben Luna.
-      </h1>
-      <p
-        className="text-[16px] leading-[1.55] mb-10 max-w-[300px]"
-        style={{ color: "var(--text-2)" }}
-      >
-        Jouw persoonlijke ruimte om te voelen, te denken en te groeien.
-      </p>
-      <PrimaryButton onClick={onNext}>Begin</PrimaryButton>
-    </div>
-  );
-}
-
-
-/* ──────────────────────────────────────────
-   STEP 2 — Hoe mogen we je noemen?
-   ────────────────────────────────────────── */
-
-function StepName({ value, onChange, onNext }) {
-  const canContinue = value.trim().length >= 1;
-  return (
-    <div className="flex-1 flex flex-col">
-      <div className="pt-4 pb-8">
-        <p className="text-[11.5px] font-semibold uppercase mb-3" style={{ color: "#C25A32", letterSpacing: "1.2px" }}>
-          Even voorstellen
-        </p>
-        <h1 className="text-[26px] font-bold leading-[1.18]" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
-          Hoe mogen we je noemen?
-        </h1>
-        <p className="text-[14px] mt-2.5 leading-[1.5]" style={{ color: "var(--text-3)" }}>
-          Alleen je voornaam is genoeg.
-        </p>
-      </div>
-
-      <div className="flex-1">
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && canContinue && onNext()}
-          placeholder="Voornaam"
-          autoFocus
-          maxLength={40}
-          className="w-full px-4 h-[52px] rounded-[16px] text-[16px] font-medium outline-none"
-          style={{
-            background: "var(--bg-elevated)",
-            border: "1px solid var(--line)",
-            color: "var(--text)",
-            caretColor: "#C25A32",
-          }}
-        />
-      </div>
-
-      <div className="pt-8">
-        <PrimaryButton onClick={onNext} disabled={!canContinue}>
-          {canContinue ? `Hallo, ${value.trim().split(" ")[0]}` : "Verder"}
-        </PrimaryButton>
-        <button
-          onClick={onNext}
-          className="w-full mt-3 text-[13.5px] text-center"
-          style={{ color: "var(--text-3)" }}
-        >
-          Overslaan
+      <div style={{ paddingTop: 32 }}>
+        <button onClick={onNext} className="btn btn-primary press" style={{ fontSize: 15 }}>
+          Klinkt goed
         </button>
       </div>
     </div>
   );
 }
 
-/* ──────────────────────────────────────────
-   STEP 3 — Waardepropositie
-   ────────────────────────────────────────── */
-
-const VALUE_PROPS = [
-  { emoji: "🤍", title: "Altijd beschikbaar", desc: "Geen afspraken, geen wachttijden" },
-  { emoji: "🔒", title: "Volledig privé",     desc: "End-to-end, alleen jij en Luna" },
-  { emoji: "🧠", title: "Leert jou kennen",   desc: "Onthoudt wat voor jou belangrijk is" },
-];
-
-function StepValue({ onNext }) {
-  return (
-    <div className="flex-1 flex flex-col">
-      <div className="pt-4 pb-7">
-        <p className="text-[11.5px] font-semibold uppercase mb-3" style={{ color: "#C25A32", letterSpacing: "1.2px" }}>
-          Waarom Luna
-        </p>
-        <h1 className="text-[26px] font-bold leading-[1.18]" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
-          Een rustige plek, voor jou alleen.
-        </h1>
-      </div>
-
-      <div className="space-y-3 flex-1">
-        {VALUE_PROPS.map((v, i) => (
-          <div
-            key={v.title}
-            className="flex items-start gap-4 px-4 py-4 rounded-[18px]"
-            style={{
-              background: "var(--bg-card)",
-              border: "1px solid var(--line-subtle)",
-              animation: "fadeUp 0.5s ease-out both",
-              animationDelay: `${i * 0.1}s`,
-            }}
-          >
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-[22px]"
-              style={{ background: "rgba(194,90,50,0.10)" }}
-            >
-              {v.emoji}
-            </div>
-            <div className="min-w-0 pt-0.5">
-              <p className="text-[15.5px] font-semibold leading-tight" style={{ color: "var(--text)", letterSpacing: "-0.2px" }}>
-                {v.title}
-              </p>
-              <p className="text-[13px] mt-1 leading-[1.5]" style={{ color: "var(--text-2)" }}>
-                {v.desc}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="pt-8">
-        <PrimaryButton onClick={onNext}>Klinkt goed</PrimaryButton>
-      </div>
-    </div>
-  );
-}
-
-/* ──────────────────────────────────────────
-   STEP 3 — Hoe voel jij je meestal?
-   ────────────────────────────────────────── */
-
+/* ── Step 2 — Hoe voel je je? ── */
 function StepMoods({ selected, onToggle, onNext }) {
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="pt-4 pb-6">
-        <p className="text-[11.5px] font-semibold uppercase mb-3" style={{ color: "#C25A32", letterSpacing: "1.2px" }}>
-          Even afstemmen
-        </p>
-        <h1 className="text-[26px] font-bold leading-[1.18]" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
-          Hoe voel jij je meestal?
+    <div className="flex flex-col flex-1">
+      <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+        <p className="eyebrow" style={{ marginBottom: 8 }}>EVEN AANKOMEN</p>
+        <h1
+          className="font-display"
+          style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}
+        >
+          Hoe voel je je nu?
         </h1>
-        <p className="text-[14px] mt-2.5 leading-[1.5]" style={{ color: "var(--text-3)" }}>
-          Kies wat past. Meerdere mag.
+        <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 8 }}>
+          Tik wat past. Meerdere mag.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 flex-1">
-        {MOODS.map((m, i) => {
-          const active = selected.includes(m.key);
-          const isLast = i === MOODS.length - 1;
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 8,
+          flex: 1,
+          paddingTop: 24,
+          alignContent: "start",
+        }}
+      >
+        {MOODS.map((m) => {
+          const active = selected.includes(m);
           return (
             <button
-              key={m.key}
-              onClick={() => onToggle(m.key)}
-              className={`flex flex-col items-center justify-center gap-2 py-5 rounded-[18px] btn-press transition-all ${
-                isLast ? "col-span-2" : ""
-              }`}
+              key={m}
+              onClick={() => onToggle(m)}
+              className="press"
               style={{
-                background: active ? "rgba(194,90,50,0.12)" : "var(--bg-card)",
-                border: `1px solid ${active ? "rgba(194,90,50,0.45)" : "var(--line-subtle)"}`,
-                minHeight: 96,
+                padding: "14px 12px",
+                background: active ? "rgba(232,131,74,0.06)" : "var(--surface)",
+                border: active ? "1.5px solid #E8834A" : "1px solid var(--border)",
+                borderRadius: 14,
+                fontSize: 14,
+                fontWeight: 500,
+                color: active ? "#F2EDE3" : "var(--text)",
+                cursor: "pointer",
+                textAlign: "center",
+                transition: "all 0.15s ease",
               }}
             >
-              <span className="text-[28px] leading-none">{m.emoji}</span>
-              <span
-                className="text-[14px] font-semibold"
-                style={{ color: active ? "#C25A32" : "var(--text)" }}
-              >
-                {m.label}
-              </span>
+              {m}
             </button>
           );
         })}
       </div>
 
-      <div className="pt-7">
-        <PrimaryButton onClick={onNext} disabled={selected.length === 0}>
+      <div style={{ paddingTop: 24 }}>
+        <button
+          onClick={onNext}
+          disabled={selected.length === 0}
+          className="btn btn-primary press"
+          style={{ fontSize: 15 }}
+        >
           Dit klopt
-        </PrimaryButton>
+        </button>
       </div>
     </div>
   );
 }
 
-/* ──────────────────────────────────────────
-   STEP 4 — Wanneer wil jij Luna gebruiken?
-   ────────────────────────────────────────── */
-
+/* ── Step 3 — Wanneer? ── */
 function StepMoments({ selected, onToggle, onNext }) {
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="pt-4 pb-6">
-        <p className="text-[11.5px] font-semibold uppercase mb-3" style={{ color: "#C25A32", letterSpacing: "1.2px" }}>
-          Jouw ritme
-        </p>
-        <h1 className="text-[26px] font-bold leading-[1.18]" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
-          Wanneer wil jij Luna gebruiken?
+    <div className="flex flex-col flex-1">
+      <div style={{ paddingTop: 8, paddingBottom: 24 }}>
+        <p className="eyebrow" style={{ marginBottom: 8 }}>JOUW RITME</p>
+        <h1
+          className="font-display"
+          style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}
+        >
+          Wanneer wil je Luna gebruiken?
         </h1>
-        <p className="text-[14px] mt-2.5 leading-[1.5]" style={{ color: "var(--text-3)" }}>
-          Meerdere mag. Ze is er telkens jij wil.
+        <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 8 }}>
+          Geen verplichting. Ze is er als jij dat wil.
         </p>
       </div>
 
-      <div className="space-y-2.5 flex-1">
-        {MOMENTS.map((m) => {
-          const active = selected.includes(m.key);
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+        {MOMENTS.map(({ key, icon: Icon, label }) => {
+          const active = selected.includes(key);
           return (
             <button
-              key={m.key}
-              onClick={() => onToggle(m.key)}
-              className="flex w-full items-center gap-4 px-4 py-4 rounded-[18px] text-left btn-press transition-all"
+              key={key}
+              onClick={() => onToggle(key)}
+              className="press"
               style={{
-                background: active ? "rgba(194,90,50,0.10)" : "var(--bg-card)",
-                border: `1px solid ${active ? "rgba(194,90,50,0.40)" : "var(--line-subtle)"}`,
+                height: 64,
+                display: "flex",
+                alignItems: "center",
+                padding: "14px 18px",
+                gap: 14,
+                background: active ? "rgba(232,131,74,0.06)" : "var(--surface)",
+                border: active ? "1.5px solid #E8834A" : "1px solid var(--border)",
+                borderRadius: 16,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
               }}
             >
               <div
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-[22px]"
-                style={{ background: active ? "rgba(194,90,50,0.16)" : "rgba(255,255,255,0.04)" }}
+                style={{
+                  width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+                  background: "rgba(232,131,74,0.08)",
+                  border: "1px solid rgba(232,131,74,0.22)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
               >
-                {m.emoji}
+                <Icon size={15} style={{ color: "#E8834A" }} strokeWidth={1.5} />
               </div>
-              <span
-                className="flex-1 text-[15px] font-medium"
-                style={{ color: active ? "#C25A32" : "var(--text)" }}
-              >
-                {m.label}
-              </span>
-              {active && (
-                <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ background: "#C25A32" }}>
-                  <Check className="h-[13px] w-[13px] text-white" strokeWidth={2.8} />
-                </div>
-              )}
+              <span style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>{label}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="pt-7">
-        <PrimaryButton onClick={onNext} disabled={selected.length === 0}>
+      <div style={{ paddingTop: 24 }}>
+        <button onClick={onNext} className="btn btn-primary press" style={{ fontSize: 15 }}>
           Zo doe ik het
-        </PrimaryButton>
+        </button>
       </div>
     </div>
   );
 }
 
-/* ──────────────────────────────────────────
-   STEP 5 — Klaar
-   ────────────────────────────────────────── */
-
+/* ── Step 4 — Luna is er ── */
 function StepFinish({ saving, onStart, onLater }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center text-center">
-      <div className="mb-10">
-        <BigOrb intensity="strong" />
+    <div className="flex flex-col flex-1 items-center">
+      <div style={{ marginTop: 80, marginBottom: 40, display: "flex", justifyContent: "center" }}>
+        <Orb size="lg" />
       </div>
+
       <h1
-        className="text-[32px] font-bold leading-[1.1] mb-4 max-w-[320px]"
-        style={{ color: "var(--text)", letterSpacing: "-0.6px" }}
+        className="font-display text-center"
+        style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}
       >
         Luna is er voor jou.
       </h1>
+
       <p
-        className="text-[16px] leading-[1.55] mb-10 max-w-[300px]"
-        style={{ color: "var(--text-2)" }}
+        style={{
+          fontSize: 16, color: "var(--text-muted)", marginTop: 12,
+          textAlign: "center", maxWidth: 280, lineHeight: 1.55,
+        }}
       >
         Vandaag, morgen, altijd. Geen oordeel. Alleen jij.
       </p>
-      <PrimaryButton onClick={onStart} disabled={saving}>
-        {saving ? "Even…" : "Start gesprek"}
-      </PrimaryButton>
-      <button
-        onClick={onLater}
-        className="mt-5 text-[13.5px] font-medium btn-press"
-        style={{ color: "var(--text-3)" }}
-      >
-        Bekijk eerst de app
-      </button>
-    </div>
-  );
-}
 
-/* ──────────────────────────────────────────
-   Shared bits
-   ────────────────────────────────────────── */
+      <div className="w-full" style={{ marginTop: "auto", paddingTop: 40 }}>
+        <button
+          onClick={onStart}
+          disabled={saving}
+          className="btn btn-primary press"
+          style={{ fontSize: 15 }}
+        >
+          Start gesprek
+        </button>
 
-function PrimaryButton({ children, onClick, disabled }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="w-full h-[54px] rounded-[16px] text-[16px] font-semibold text-white btn-press transition-all disabled:opacity-35"
-      style={{
-        background: "#C25A32",
-        boxShadow: !disabled
-          ? "0 1px 0 rgba(255,255,255,0.10) inset, 0 8px 24px rgba(194,90,50,0.32)"
-          : "none",
-        letterSpacing: "-0.1px",
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function BigOrb({ intensity }) {
-  const strong = intensity === "strong";
-  return (
-    <div className="relative h-[160px] w-[160px] flex items-center justify-center">
-      <div
-        aria-hidden
-        className="absolute inset-[-40px] rounded-full"
-        style={{
-          background: strong
-            ? "radial-gradient(circle, rgba(194,90,50,0.28) 0%, transparent 70%)"
-            : "radial-gradient(circle, rgba(194,90,50,0.18) 0%, transparent 70%)",
-          animation: "orbBreath 3.8s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="absolute inset-[-18px] rounded-full"
-        style={{
-          border: `1px solid rgba(194,90,50,${strong ? 0.28 : 0.16})`,
-          animation: "orbBreath 4.2s ease-in-out infinite reverse",
-        }}
-      />
-      <div
-        className="h-[120px] w-[120px] rounded-full orb-breathe"
-        style={{
-          background: "radial-gradient(circle at 35% 32%, #ee9670 0%, #c25a32 50%, #7a2d14 100%)",
-          boxShadow: strong
-            ? "0 0 60px 18px rgba(194,90,50,0.45)"
-            : "0 0 40px 10px rgba(194,90,50,0.30)",
-        }}
-      />
+        <div style={{ marginTop: 16, textAlign: "center" }}>
+          <button
+            onClick={onLater}
+            style={{
+              fontSize: 14, color: "var(--text-muted)",
+              background: "none", border: "none", cursor: "pointer",
+            }}
+          >
+            Bekijk eerst de app
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
