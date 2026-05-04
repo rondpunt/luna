@@ -1,100 +1,134 @@
-import { Link } from "react-router-dom";
-import { Check, ChevronLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Check } from "lucide-react";
+import { Orb } from "@/components/luna/Orb";
 
-const TIERS = [
-  {
-    key: "free",
-    name: "Gratis",
-    price: "€0",
-    per: "",
-    note: "Om rustig te starten",
-    features: ["5 gesprekken per dag", "Basis dagboek", "Dagelijkse check-in"],
-    featured: false,
-  },
-  {
-    key: "plus",
-    name: "Luna Plus",
-    price: "€9,99",
-    per: "/mnd",
-    note: "Voor dagelijkse steun",
-    features: ["Onbeperkt babbelen", "Geheugen over gesprekken", "Volledig dagboek", "Gespreksmappen", "Wekelijkse inzichten"],
-    featured: true,
-  },
-  {
-    key: "pro",
-    name: "Luna Pro",
-    price: "€19,99",
-    per: "/mnd",
-    note: "Diepere reflectie",
-    features: ["Alles van Plus", "Langetermijngeheugen", "Patroonanalyse", "Gepersonaliseerde routines"],
-    featured: false,
-  },
+const FREE_FEATURES = [
+  "10 berichten per dag",
+  "Dagelijkse check-ins",
+  "Luna's aanwezigheid",
+];
+
+const PRO_FEATURES = [
+  "Onbeperkt berichten",
+  "Volledige gespreksgeschiedenis",
+  "Voortgangsgrafiek (alle data)",
+  "Geheugen over gesprekken heen",
+  "Prioriteit bij nieuwe functies",
 ];
 
 export default function Pricing() {
+  const navigate = useNavigate();
+
   return (
     <div
-      className="min-h-screen px-4 py-6 space-y-5"
-      style={{ background: "var(--bg)", paddingTop: "env(safe-area-inset-top, 44px)" }}
+      className="min-h-dvh px-6 fade-in"
+      style={{
+        paddingTop: "calc(48px + env(safe-area-inset-top, 0px))",
+        paddingBottom: 48,
+        background: "#0B0B14",
+        maxWidth: 480,
+        margin: "0 auto",
+      }}
     >
-      <div className="flex items-center gap-2 mb-2">
-        <Link to="/profile" className="flex items-center gap-1 btn-press" style={{ color: "#C25A32" }}>
-          <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
-          <span className="text-[16px] font-medium">Profiel</span>
-        </Link>
+      {/* Ambient */}
+      <div className="fixed inset-0 -z-10" style={{ background: "#0B0B14" }}>
+        <div className="absolute inset-0" style={{
+          background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(232,131,74,0.08), transparent 60%)",
+          opacity: 0.6,
+        }} />
       </div>
 
-      <div>
-        <h1 className="text-[28px] font-bold leading-[1.15]" style={{ color: "var(--text)", letterSpacing: "-0.5px" }}>Abonnementen</h1>
-        <p className="text-[15px] mt-1.5" style={{ color: "var(--text-2)" }}>Kies wat bij jou past.</p>
-      </div>
-
-      <div className="space-y-3">
-        {TIERS.map((tier) => (
-          <div
-            key={tier.key}
-            className="px-5 py-5"
-            style={{
-              background: tier.featured ? "var(--accent-soft)" : "var(--bg-card)",
-              border: `1px solid ${tier.featured ? "var(--accent-line)" : "var(--line-subtle)"}`,
-              borderRadius: 22,
-            }}
-          >
-            {tier.featured && (
-              <p className="text-[11.5px] font-bold mb-3" style={{ color: "#C25A32", letterSpacing: "0.5px" }}>
-                MEEST GEKOZEN
-              </p>
-            )}
-            <div className="flex items-baseline justify-between mb-1">
-              <p className="text-[18px] font-bold leading-tight" style={{ color: "var(--text)", letterSpacing: "-0.2px" }}>{tier.name}</p>
-              <p className="text-[26px] font-bold tabular-nums" style={{ color: "var(--text)", letterSpacing: "-0.5px" }}>
-                {tier.price}
-                <span className="text-[13px] font-normal ml-0.5" style={{ color: "var(--text-3)" }}>{tier.per}</span>
-              </p>
-            </div>
-            <p className="text-[12.5px] mb-4" style={{ color: "var(--text-2)" }}>{tier.note}</p>
-            <div className="space-y-2 mb-5">
-              {tier.features.map((f) => (
-                <div key={f} className="flex items-center gap-2.5">
-                  <Check className="h-[14px] w-[14px] shrink-0" style={{ color: "#C25A32" }} strokeWidth={2.6} />
-                  <span className="text-[13.5px]" style={{ color: "var(--text)" }}>{f}</span>
-                </div>
-              ))}
-            </div>
-            <button
-              className={tier.featured ? "btn btn-primary w-full" : "btn btn-secondary w-full"}
-            >
-              {tier.key === "free" ? "Gratis starten" : `${tier.name} kiezen`}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div className="card px-5 py-4 text-center">
-        <p className="text-[12px] leading-[1.5]" style={{ color: "var(--text-3)" }}>
-          Luna is geen therapeut of medische zorg. Opzegbaar wanneer je wil.
+      {/* Header */}
+      <div className="text-center" style={{ marginBottom: 48 }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 32 }}>
+          <Orb size="md" />
+        </div>
+        <h1 className="font-display" style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em" }}>
+          Luna Plus.
+        </h1>
+        <p style={{ fontSize: 16, color: "var(--text-muted)", marginTop: 8 }}>
+          Voor wie hier vaker wil zijn.
         </p>
       </div>
+
+      {/* Free card */}
+      <div className="surface" style={{ padding: 24, marginBottom: 16 }}>
+        <p className="eyebrow-muted" style={{ marginBottom: 12 }}>GRATIS</p>
+        <p className="font-display" style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em" }}>
+          €0
+        </p>
+        <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4, marginBottom: 20 }}>
+          Altijd gratis. Geen creditcard.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+          {FREE_FEATURES.map((f) => (
+            <div key={f} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Check size={16} style={{ color: "var(--text-muted)", flexShrink: 0 }} strokeWidth={1.5} />
+              <span style={{ fontSize: 14, color: "var(--text-muted)" }}>{f}</span>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => navigate("/")}
+          className="btn btn-ghost press"
+          style={{ fontSize: 14 }}
+        >
+          Blijf gratis
+        </button>
+      </div>
+
+      {/* Pro card */}
+      <div
+        style={{
+          background: "rgba(232,131,74,0.05)",
+          border: "1px solid rgba(232,131,74,0.25)",
+          borderRadius: 24,
+          padding: 24,
+          marginBottom: 32,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <p className="eyebrow" style={{ marginBottom: 0 }}>LUNA PLUS</p>
+          <span style={{
+            fontSize: 11, fontWeight: 500, color: "#E8834A",
+            background: "rgba(232,131,74,0.10)",
+            border: "1px solid rgba(232,131,74,0.25)",
+            padding: "3px 10px", borderRadius: 999,
+          }}>
+            Aanbevolen
+          </span>
+        </div>
+        <p className="font-display" style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em" }}>
+          €9,99
+        </p>
+        <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4, marginBottom: 20 }}>
+          Per maand. Maandelijks opzegbaar.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+          {PRO_FEATURES.map((f) => (
+            <div key={f} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Check size={16} style={{ color: "#E8834A", flexShrink: 0 }} strokeWidth={2} />
+              <span style={{ fontSize: 14, color: "var(--text)" }}>{f}</span>
+            </div>
+          ))}
+        </div>
+        <button
+          className="btn btn-primary press"
+          style={{ fontSize: 15 }}
+          onClick={() => alert("Stripe checkout — binnenkort beschikbaar.")}
+        >
+          Upgrade naar Luna Plus
+        </button>
+        <p style={{ fontSize: 12, color: "var(--text-faint)", textAlign: "center", marginTop: 8 }}>
+          Veilig betalen via Stripe. Geen verrassingen.
+        </p>
+      </div>
+
+      {/* Bottom note */}
+      <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center" }}>
+        Luna is geen vervanging voor professionele hulp.<br />
+        Bij crisis: bel 1813 of 106.
+      </p>
     </div>
   );
 }
