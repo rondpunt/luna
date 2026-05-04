@@ -9,17 +9,20 @@ const NAV = [
   { to: "/profiel",   label: "Profiel",   icon: User },
 ];
 
-const NO_CRISIS = ["/", "/onboarding", "/chat"];
+// Crisis button overal, behalve splash (/landing) en onboarding
+const NO_CRISIS = ["/landing", "/onboarding"];
+// Geen bottom nav in chat (chat heeft eigen input bar)
+const NO_NAV = ["/chat"];
 
 export default function AppShell() {
   const { pathname } = useLocation();
   const isChat = pathname === "/chat";
-  const showCrisis = !NO_CRISIS.includes(pathname);
+  const showCrisis = !NO_CRISIS.some((p) => pathname.startsWith(p));
 
   return (
     <div className="flex flex-col min-h-dvh relative" style={{ background: "var(--bg)" }}>
 
-      {/* Ambient background layer */}
+      {/* Ambient background — eenmalig, achter alles */}
       <div className="fixed inset-0 -z-10" style={{ background: "#0B0B14" }}>
         <div
           className="absolute inset-0"
@@ -37,13 +40,14 @@ export default function AppShell() {
         />
       </div>
 
-      {/* Crisis button — top right, not on splash/onboarding/chat */}
-      {showCrisis && <CrisisButton />}
+      {/* Crisis button — top right */}
+      {showCrisis && !isChat && <CrisisButton />}
 
       {/* Main content */}
       <main
-        className="flex-1 mx-auto w-full max-w-[480px] overflow-y-auto"
+        className="flex-1 mx-auto w-full max-w-[480px]"
         style={{
+          overflowY: isChat ? "hidden" : "auto",
           paddingBottom: isChat ? 0 : "120px",
           paddingTop: "env(safe-area-inset-top, 0px)",
         }}
@@ -51,11 +55,13 @@ export default function AppShell() {
         <Outlet />
       </main>
 
-      {/* Floating glass bottom nav — not on chat */}
+      {/* Floating glass nav — niet in chat */}
       {!isChat && (
         <nav
-          className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between"
+          aria-label="Hoofdnavigatie"
+          className="fixed z-50 left-1/2 -translate-x-1/2"
           style={{
+            bottom: 20,
             width: 280,
             height: 64,
             borderRadius: 32,
@@ -63,18 +69,25 @@ export default function AppShell() {
             backdropFilter: "blur(24px) saturate(140%)",
             WebkitBackdropFilter: "blur(24px) saturate(140%)",
             border: "1px solid rgba(255,255,255,0.08)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             padding: "0 8px",
           }}
         >
           {NAV.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to;
+            const active = pathname === to || (to === "/" && pathname === "/home");
             return (
               <Link
                 key={to}
                 to={to}
                 aria-label={label}
-                className="press flex items-center justify-center"
-                style={{ width: 56, height: 56 }}
+                className="press"
+                style={{
+                  width: 56, height: 56,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  textDecoration: "none",
+                }}
               >
                 <div
                   style={{
