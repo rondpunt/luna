@@ -25,11 +25,12 @@ const MOMENTS = [
   { key: "anytime",     emoji: "💭", label: "Zomaar, als ik wil praten"     },
 ];
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [userName, setUserName] = useState("");
   const [moods, setMoods] = useState([]);
   const [moments, setMoments] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -62,6 +63,13 @@ export default function Onboarding() {
     try {
       const user = await base44.auth.me();
       if (user) {
+        // Update naam als opgegeven en Google gaf alleen initiaal
+        if (userName.trim().length > 1) {
+          const raw = user.full_name || "";
+          if (raw.length <= 1) {
+            await base44.auth.updateProfile({ full_name: userName.trim() }).catch(() => {});
+          }
+        }
         await base44.entities.UserPreferences.create({
           userId: user.id,
           primary_moods: moods,
@@ -110,22 +118,29 @@ export default function Onboarding() {
       <div className="flex-1 flex flex-col px-5 relative z-10">
         <div className="max-w-sm mx-auto w-full flex-1 flex flex-col fade-in" key={step}>
           {step === 0 && <StepWelcome onNext={() => setStep(1)} />}
-          {step === 1 && <StepValue   onNext={() => setStep(2)} />}
-          {step === 2 && (
+          {step === 1 && (
+            <StepName
+              value={userName}
+              onChange={setUserName}
+              onNext={() => setStep(2)}
+            />
+          )}
+          {step === 2 && <StepValue   onNext={() => setStep(3)} />}
+          {step === 3 && (
             <StepMoods
               selected={moods}
               onToggle={(k) => toggle(moods, setMoods, k)}
               onNext={() => setStep(3)}
             />
           )}
-          {step === 3 && (
+          {step === 4 && (
             <StepMoments
               selected={moments}
               onToggle={(k) => toggle(moments, setMoments, k)}
               onNext={() => setStep(4)}
             />
           )}
-          {step === 4 && (
+          {step === 5 && (
             <StepFinish
               saving={saving}
               onStart={finish}
@@ -186,8 +201,64 @@ function StepWelcome({ onNext }) {
   );
 }
 
+
 /* ──────────────────────────────────────────
-   STEP 2 — Waardepropositie
+   STEP 2 — Hoe mogen we je noemen?
+   ────────────────────────────────────────── */
+
+function StepName({ value, onChange, onNext }) {
+  const canContinue = value.trim().length >= 1;
+  return (
+    <div className="flex-1 flex flex-col">
+      <div className="pt-4 pb-8">
+        <p className="text-[11.5px] font-semibold uppercase mb-3" style={{ color: "#C25A32", letterSpacing: "1.2px" }}>
+          Even voorstellen
+        </p>
+        <h1 className="text-[26px] font-bold leading-[1.18]" style={{ color: "var(--text)", letterSpacing: "-0.4px" }}>
+          Hoe mogen we je noemen?
+        </h1>
+        <p className="text-[14px] mt-2.5 leading-[1.5]" style={{ color: "var(--text-3)" }}>
+          Alleen je voornaam is genoeg.
+        </p>
+      </div>
+
+      <div className="flex-1">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && canContinue && onNext()}
+          placeholder="Voornaam"
+          autoFocus
+          maxLength={40}
+          className="w-full px-4 h-[52px] rounded-[16px] text-[16px] font-medium outline-none"
+          style={{
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--line)",
+            color: "var(--text)",
+            caretColor: "#C25A32",
+          }}
+        />
+      </div>
+
+      <div className="pt-8">
+        <PrimaryButton onClick={onNext} disabled={!canContinue}>
+          {canContinue ? `Hallo, ${value.trim().split(" ")[0]}` : "Verder"}
+        </PrimaryButton>
+        <button
+          onClick={onNext}
+          className="w-full mt-3 text-[13.5px] text-center"
+          style={{ color: "var(--text-3)" }}
+        >
+          Overslaan
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────
+   STEP 3 — Waardepropositie
    ────────────────────────────────────────── */
 
 const VALUE_PROPS = [
