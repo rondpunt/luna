@@ -19,7 +19,15 @@ const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 function getQueryParams() {
   const p = new URLSearchParams(window.location.search);
-  return { convId: p.get("conv"), folderId: p.get("folder") };
+  return { convId: p.get("conv"), folderId: p.get("folder"), prompt: p.get("prompt") };
+}
+
+/** Verwijder ?prompt= uit URL zonder navigatie (zodat refresh niet hertriggert). */
+function clearPromptFromUrl() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("prompt")) return;
+  url.searchParams.delete("prompt");
+  window.history.replaceState({}, "", url.toString());
 }
 
 /** Sync ?conv=<id> in URL zonder navigatie — zodat refresh thread bewaart. */
@@ -33,7 +41,7 @@ function syncConvIdToUrl(convId, folderId) {
 }
 
 export default function Chat() {
-  const { convId: initConvId, folderId: initFolderId } = getQueryParams();
+  const { convId: initConvId, folderId: initFolderId, prompt: initPrompt } = getQueryParams();
 
   /* ── state ── */
   const [dbConvId, setDbConvId] = useState(initConvId || null);
@@ -58,6 +66,7 @@ export default function Chat() {
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
   const presence = useLunaPresence();
+  const promptHandledRef = useRef(false);
 
   /* keep refs in sync */
   useEffect(() => { dbConvIdRef.current = dbConvId; }, [dbConvId]);
@@ -144,6 +153,26 @@ export default function Chat() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
+
+  /* ── ?prompt= support: pre-fill + auto-send na 800ms ── */
+  useEffect(() => {
+    if (loading) return;
+    if (promptHandledRef.current) return;
+    if (!initPrompt) return;
+    // Alleen automatisch sturen als gesprek leeg is (geen bestaand verloop overschrijven)
+    if (messagesRef.current.length > 0) {
+      promptHandledRef.current = true;
+      clearPromptFromUrl();
+      return;
+    }
+    promptHandledRef.current = true;
+    setInput(initPrompt);
+    const t = setTimeout(() => {
+      sendMessage(initPrompt);
+      clearPromptFromUrl();
+    }, 800);
+    return () => clearTimeout(t);
+  }, [loading, initPrompt, sendMessage]);
 
   /* ── core: assistant turn (LLM call + persist + render) ── */
   const runAssistantTurn = useCallback(
