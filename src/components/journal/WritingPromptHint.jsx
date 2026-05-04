@@ -33,10 +33,10 @@ export default function WritingPromptHint() {
 
   return (
     <p
-      className="text-[12px] mt-1.5 leading-[1.45]"
+      className="text-[12px] italic mt-1.5 leading-[1.45]"
       style={{ color: "var(--text-3)" }}
     >
-      ✎ {prompt}
+      {prompt}
     </p>
   );
 }
