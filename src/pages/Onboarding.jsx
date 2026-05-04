@@ -48,6 +48,7 @@ export default function Onboarding() {
           userId: user.id,
           primary_moods: moods,
           preferred_moments: moments,
+          concern: concern,
           onboardingCompleted: true,
         }).catch(() => {});
       }
