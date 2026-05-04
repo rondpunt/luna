@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import PageNotFound from "./lib/PageNotFound";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import UserNotRegisteredError from "@/components/UserNotRegisteredError";
-import LoadingSplash from "./components/luna/LoadingSplash";
 import AppShell from "@/components/nora/AppShell";
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
@@ -22,13 +21,10 @@ import Voorwaarden from "./pages/Voorwaarden";
 import Contact from "./pages/Contact";
 import PrivacyCenter from "./pages/PrivacyCenter";
 import AdminDashboard from "./pages/AdminDashboard";
-import { useState } from "react";
 
 const AuthenticatedApp = () => {
   const { authError } = useAuth();
-  const [splashDone, setSplashDone] = useState(false);
 
-  if (!splashDone) return <LoadingSplash onDone={() => setSplashDone(true)} />;
   if (authError?.type === "user_not_registered") return <UserNotRegisteredError />;
 
   if (authError?.type === "auth_required") {
