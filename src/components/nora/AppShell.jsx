@@ -1,18 +1,17 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Home, MessageCircle, TrendingUp, User } from "lucide-react";
+import { Home, MessageCircle, BookOpen, TrendingUp, User } from "lucide-react";
 import CrisisButton from "@/components/luna/CrisisButton";
+import { motion } from "framer-motion";
 
 const NAV = [
   { to: "/",          label: "Home",      icon: Home },
   { to: "/chat",      label: "Chat",      icon: MessageCircle },
+  { to: "/diary",     label: "Dagboek",   icon: BookOpen },
   { to: "/voortgang", label: "Voortgang", icon: TrendingUp },
   { to: "/profiel",   label: "Profiel",   icon: User },
 ];
 
-// Crisis button overal, behalve splash (/landing) en onboarding
 const NO_CRISIS = ["/landing", "/onboarding"];
-// Geen bottom nav in chat (chat heeft eigen input bar)
-const NO_NAV = ["/chat"];
 
 export default function AppShell() {
   const { pathname } = useLocation();
@@ -21,8 +20,7 @@ export default function AppShell() {
 
   return (
     <div className="flex flex-col min-h-dvh relative" style={{ background: "var(--bg)" }}>
-
-      {/* Ambient background — eenmalig, achter alles */}
+      {/* Ambient background */}
       <div className="fixed inset-0 -z-10" style={{ background: "#0B0B14" }}>
         <div
           className="absolute inset-0"
@@ -40,10 +38,8 @@ export default function AppShell() {
         />
       </div>
 
-      {/* Crisis button — top right */}
       {showCrisis && !isChat && <CrisisButton />}
 
-      {/* Main content */}
       <main
         className="flex-1 mx-auto w-full max-w-[480px]"
         style={{
@@ -55,14 +51,14 @@ export default function AppShell() {
         <Outlet />
       </main>
 
-      {/* Floating glass nav — niet in chat */}
+      {/* Floating glass nav — 5 icons, geen labels */}
       {!isChat && (
         <nav
           aria-label="Hoofdnavigatie"
           className="fixed z-50 left-1/2 -translate-x-1/2"
           style={{
             bottom: 20,
-            width: 280,
+            width: 320,
             height: 64,
             borderRadius: 32,
             background: "rgba(20,20,30,0.55)",
@@ -72,34 +68,40 @@ export default function AppShell() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "0 8px",
+            padding: "0 6px",
           }}
         >
           {NAV.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to || (to === "/" && pathname === "/home");
+            const active =
+              pathname === to ||
+              (to === "/" && pathname === "/home") ||
+              (to !== "/" && pathname.startsWith(to));
             return (
               <Link
                 key={to}
                 to={to}
                 aria-label={label}
-                className="press"
                 style={{
                   width: 56, height: 56,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   textDecoration: "none",
+                  flexShrink: 0,
                 }}
               >
-                <div
+                <motion.div
+                  whileTap={{ scale: 0.88 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   style={{
                     width: active ? 44 : "auto",
                     height: active ? 44 : "auto",
-                    borderRadius: active ? "50%" : 0,
+                    borderRadius: "50%",
                     background: active ? "rgba(232,131,74,0.10)" : "transparent",
                     border: active ? "1px solid rgba(232,131,74,0.28)" : "none",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     transition: "all 0.2s ease",
+                    padding: active ? 0 : 8,
                   }}
                 >
                   <Icon
@@ -110,7 +112,7 @@ export default function AppShell() {
                       transition: "color 0.2s ease",
                     }}
                   />
-                </div>
+                </motion.div>
               </Link>
             );
           })}
