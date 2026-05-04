@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Orb } from "./Orb";
 
 const PHASES = [
   "Beveiligde sessie starten…",
@@ -30,40 +31,74 @@ export default function LoadingSplash({ onDone }) {
       clearInterval(phaseInterval);
       clearInterval(progressInterval);
     };
-  }, []);
+  }, [onDone]);
 
   return (
     <div
-      className="fixed inset-0 z-[999] flex flex-col items-center justify-center gap-8"
-      style={{ background: "var(--bg)" }}
+      className="fixed inset-0 flex flex-col items-center justify-center z-[100]"
+      style={{ background: "#0B0B14" }}
     >
-      {/* Orb */}
+      {/* Ambient */}
       <div
-        className="orb-breathe rounded-full"
+        className="absolute inset-0"
         style={{
-          width: 72,
-          height: 72,
-          background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 55%, #7a2d14 100%)",
-          boxShadow: "0 0 40px 12px rgba(194,90,50,0.28)",
+          background: "radial-gradient(ellipse 80% 50% at 50% 30%, rgba(232,131,74,0.10), transparent 70%)",
         }}
       />
 
-      <div className="flex flex-col items-center gap-1.5">
-        <h1 className="text-[28px] font-bold" style={{ color: "var(--text)", letterSpacing: "-0.5px" }}>Luna</h1>
-        <p className="text-[14px]" style={{ color: "var(--text-3)" }}>Jouw ruimte. Altijd hier.</p>
+      {/* Orb */}
+      <div className="relative z-10 fade-in">
+        <Orb size="lg" />
       </div>
 
-      {/* Progress */}
-      <div className="w-40 flex flex-col items-center gap-2.5">
-        <div className="w-full h-[2px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <div
-            className="h-full rounded-full transition-all duration-100"
-            style={{ width: `${progress}%`, background: "#C25A32" }}
-          />
-        </div>
-        <p className="text-[11.5px] text-center" style={{ color: "var(--text-3)" }}>
-          {PHASES[phase]}
-        </p>
+      {/* Name */}
+      <p
+        className="font-display relative z-10 fade-up"
+        style={{
+          fontSize: 28,
+          color: "var(--text)",
+          letterSpacing: "-0.02em",
+          marginTop: 40,
+          animationDelay: "0.2s",
+        }}
+      >
+        Luna
+      </p>
+
+      {/* Status */}
+      <p
+        className="relative z-10"
+        style={{
+          fontSize: 13,
+          color: "var(--text-muted)",
+          marginTop: 12,
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        {PHASES[phase]}
+      </p>
+
+      {/* Progress bar */}
+      <div
+        className="relative z-10"
+        style={{
+          width: 160,
+          height: 2,
+          background: "rgba(255,255,255,0.06)",
+          borderRadius: 1,
+          marginTop: 24,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            width: `${progress}%`,
+            background: "#E8834A",
+            borderRadius: 1,
+            transition: "width 0.05s linear",
+          }}
+        />
       </div>
     </div>
   );
