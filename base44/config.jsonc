@@ -1,5 +1,5 @@
 {
-  "name": "untitled",
+  "name": "Luna",
   "site": {
     "installCommand": "npm install",
     "buildCommand": "npm run build",
