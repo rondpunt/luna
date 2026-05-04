@@ -1,0 +1,11 @@
+{
+  "name": "BrainDump",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "rawText": { "type": "string" },
+      "aiStructured": { "type": "string" }
+    }
+  }
+}
