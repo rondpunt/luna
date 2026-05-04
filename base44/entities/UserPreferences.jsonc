@@ -11,6 +11,20 @@
         "type": "string"
       }
     },
+    "primary_moods": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Hoe gebruiker zich meestal voelt (onboarding hook)"
+    },
+    "preferred_moments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Wanneer gebruiker Luna wil gebruiken (onboarding hook)"
+    },
     "notificationTime": {
       "type": "string"
     },
