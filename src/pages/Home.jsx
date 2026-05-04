@@ -1,132 +1,183 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import PrimaryActionCard from "@/components/home/PrimaryActionCard";
-import TodayMoodRow from "@/components/home/TodayMoodRow";
-import RecentActivityList from "@/components/home/RecentActivityList";
-import HomeEmpty from "@/components/home/HomeEmpty";
-import StreakPill from "@/components/home/StreakPill";
-import DailyQuestionCard from "@/components/home/DailyQuestionCard";
-import WeeklyProgressPill from "@/components/home/WeeklyProgressPill";
+import { format, differenceInDays, parseISO } from "date-fns";
+import { nl } from "date-fns/locale";
+
+const MOOD_LABELS = {
+  1: "Het is zwaar.", 2: "Het is zwaar.",
+  3: "Niet makkelijk.", 4: "Niet makkelijk.",
+  5: "Het gaat.", 6: "Het gaat.",
+  7: "Goed.", 8: "Goed.",
+  9: "Heel goed.", 10: "Heel goed.",
+};
+
+function returnNudge(checkIns) {
+  if (!checkIns?.length) return null;
+  const sorted = [...checkIns].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+  const last = sorted[0];
+  if (!last) return null;
+  const daysSince = differenceInDays(new Date(), parseISO(last.created_date));
+  if (daysSince > 14) return "Welkom terug. Goed dat je er weer bent.";
+  const thisWeek = checkIns.filter((c) => differenceInDays(new Date(), parseISO(c.created_date)) < 7).length;
+  if (thisWeek >= 7) return "Je maakt hier ruimte voor jezelf. Mooi.";
+  if (thisWeek >= 3) return "Je hebt er deze week meerdere keren even bij stilgestaan.";
+  if (daysSince <= 1) return "Je was hier gisteren ook.";
+  return null;
+}
 
 export default function Home() {
+  const navigate = useNavigate();
   const qc = useQueryClient();
-  const today = format(new Date(), "yyyy-MM-dd");
+  const [mood, setMood] = useState(5);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
-
-  const { data: prefsList = [] } = useQuery({
-    queryKey: ["user-prefs", user?.id],
-    queryFn: () => base44.entities.UserPreferences.filter({ userId: user.id }),
-    enabled: !!user?.id,
-  });
-  const prefs = prefsList?.[0];
-  const preferredMoments = prefs?.preferred_moments || [];
-
-  const { data: checkIns = [], isLoading: loadingCheckIns } = useQuery({
+  const { data: checkIns = [] } = useQuery({
     queryKey: ["checkins-home"],
-    queryFn: () => base44.entities.CheckIn.list("-date", 7),
+    queryFn: () => base44.entities.CheckIn.list("-created_date", 30),
   });
-
-  const { data: conversations = [], isLoading: loadingConvs } = useQuery({
-    queryKey: ["conversations-home"],
-    queryFn: () => base44.entities.Conversation.list("-last_message_at", 20),
-  });
-
-  const { data: journalEntries = [], isLoading: loadingJournal } = useQuery({
-    queryKey: ["journal-home"],
-    queryFn: () => base44.entities.JournalEntry.list("-updated_date", 20),
-  });
-
-  const isLoading = loadingCheckIns || loadingConvs || loadingJournal;
-
-  const myConvs = conversations.filter((c) => c.userId === user?.id && !c.archived);
-  const myJournal = journalEntries.filter((e) => e.userId === user?.id);
-
-  const todayCheckin = checkIns.find((c) => c.date === today);
-  const hasMoodPrompt = !todayCheckin;
-
-  // Naam fix: splits volledige naam, val terug op email prefix, dan "daar"
-  const rawName = user?.full_name || "";
-  const firstName = rawName.length > 1
-    ? rawName.split(" ")[0]
-    : (user?.email?.split("@")[0] || "");
-  const displayName = firstName.length > 1 ? firstName : null;
 
   const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Goedemorgen." : hour < 18 ? "Goedemiddag." : "Goedenavond.";
+  const nudge = returnNudge(checkIns);
 
-  const greeting = (() => {
-    const n = displayName ? `, ${displayName}` : "";
-    if (hour < 12 && preferredMoments.includes("morning")) return `Goedemorgen${n}. Hoe begin jij vandaag?`;
-    if (hour >= 19 && preferredMoments.includes("evening")) return `Tijd om even te landen${n}.`;
-    if (preferredMoments.length > 0) return `Fijn dat je er bent${n}.`;
-    const base = hour < 12 ? "Goedemorgen" : hour < 18 ? "Goedemiddag" : "Goedeavond";
-    return `${base}${n}`;
-  })();
+  const saveAndChat = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await base44.entities.CheckIn.create({
+        score: mood,
+        date: format(new Date(), "yyyy-MM-dd"),
+      });
+      qc.invalidateQueries({ queryKey: ["checkins-home"] });
+      navigate("/chat");
+    } catch { navigate("/chat"); }
+    setSaving(false);
+  };
 
-  const completelyEmpty = !isLoading && myConvs.length === 0 && myJournal.length === 0 && !todayCheckin;
-  const hasActivity = myConvs.length > 0 || myJournal.length > 0;
-  const hasTodaySection = hasMoodPrompt;
+  const saveOnly = async () => {
+    if (saving || saved) return;
+    setSaving(true);
+    try {
+      await base44.entities.CheckIn.create({
+        score: mood,
+        date: format(new Date(), "yyyy-MM-dd"),
+      });
+      qc.invalidateQueries({ queryKey: ["checkins-home"] });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {}
+    setSaving(false);
+  };
+
+  // Slider fill style
+  const fillPct = ((mood - 1) / 9) * 100;
 
   return (
-    <div className="px-4 pt-6 pb-6 space-y-5">
+    <div
+      className="px-6 fade-in"
+      style={{ paddingTop: "calc(32px + env(safe-area-inset-top, 0px))" }}
+    >
+      {/* Greeting */}
+      <h1
+        className="font-display"
+        style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}
+      >
+        {greeting}
+      </h1>
+      <p style={{ fontSize: 17, color: "var(--text-muted)", marginTop: 6, lineHeight: 1.5 }}>
+        Hoe is het met je?
+      </p>
 
-      {/* Header — greeting + streak */}
-      <div className="flex items-start justify-between gap-3 px-1 pt-1">
-        <div className="flex-1 min-w-0">
-          {/* Kleine label boven greeting */}
-          <p className="text-[11px] font-semibold uppercase mb-1.5 tracking-[1.2px]" style={{ color: "var(--text-3)" }}>
-            {format(new Date(), "EEEE d MMMM").charAt(0).toUpperCase() + format(new Date(), "EEEE d MMMM").slice(1)}
-          </p>
-          <h1
-            className="text-[27px] font-bold leading-[1.15]"
-            style={{ color: "var(--text)", letterSpacing: "-0.5px" }}
-          >
-            {greeting}
-          </h1>
-        </div>
-        {!loadingCheckIns && (
-          <div className="pt-1.5 shrink-0">
-            <StreakPill checkIns={checkIns} />
+      {/* Soft return nudge — geen streak, geen getallen */}
+      {nudge && (
+        <p
+          style={{
+            fontSize: 14,
+            color: "var(--text-muted)",
+            marginTop: 16,
+            lineHeight: 1.5,
+            textAlign: "center",
+          }}
+        >
+          {nudge}
+        </p>
+      )}
+
+      {/* Hero check-in card */}
+      <div
+        className="surface"
+        style={{ padding: "28px 24px", marginTop: nudge ? 24 : 40, borderRadius: 24 }}
+      >
+        <p className="eyebrow" style={{ marginBottom: 16 }}>CHECK-IN</p>
+        <h2
+          className="font-display"
+          style={{ fontSize: 24, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: 24 }}
+        >
+          Wat zit er op je?
+        </h2>
+
+        {/* Mood slider */}
+        <div>
+          <input
+            type="range"
+            min={1}
+            max={10}
+            value={mood}
+            onChange={(e) => setMood(Number(e.target.value))}
+            className="mood-slider"
+            style={{
+              background: `linear-gradient(to right, #E8834A ${fillPct}%, rgba(255,255,255,0.06) ${fillPct}%)`,
+            }}
+            aria-label="Stemming 1 tot 10"
+          />
+
+          {/* Big number */}
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <span
+              className="font-display"
+              style={{
+                fontSize: 64,
+                color: "#E8834A",
+                letterSpacing: "-0.02em",
+                lineHeight: 1,
+                display: "block",
+              }}
+            >
+              {mood}
+            </span>
+            <span style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
+              {MOOD_LABELS[mood]}
+            </span>
           </div>
-        )}
+        </div>
+
+        {/* Actions */}
+        <div style={{ marginTop: 28, display: "flex", flexDirection: "column", gap: 10 }}>
+          <button
+            onClick={saveAndChat}
+            disabled={saving}
+            className="btn btn-primary"
+            style={{ fontSize: 15 }}
+          >
+            Praat met Luna
+          </button>
+          <button
+            onClick={saveOnly}
+            disabled={saving}
+            className="btn btn-ghost"
+            style={{ fontSize: 15, color: saved ? "#E8834A" : "var(--text-muted)" }}
+          >
+            {saved ? "Genoteerd." : "Alleen registreren"}
+          </button>
+        </div>
       </div>
 
-      {completelyEmpty ? (
-        <>
-          <PrimaryActionCard />
-          <HomeEmpty />
-        </>
-      ) : (
-        <>
-          <PrimaryActionCard />
-          <DailyQuestionCard />
-
-          {hasTodaySection && (
-            <section>
-              <div className="flex items-center justify-between mb-3 px-1">
-                <h2 className="text-[13px] font-semibold uppercase tracking-[0.8px]" style={{ color: "var(--text-3)" }}>
-                  Vandaag
-                </h2>
-                {!loadingCheckIns && <WeeklyProgressPill checkIns={checkIns} />}
-              </div>
-              <TodayMoodRow
-                todayDate={today}
-                onLogged={() => qc.invalidateQueries({ queryKey: ["checkins-home"] })}
-              />
-            </section>
-          )}
-
-          {hasActivity && (
-            <section>
-              <h2 className="text-[13px] font-semibold uppercase tracking-[0.8px] mb-3 px-1" style={{ color: "var(--text-3)" }}>
-                Recente activiteit
-              </h2>
-              <RecentActivityList conversations={myConvs} entries={myJournal} />
-            </section>
-          )}
-        </>
-      )}
+      {/* Breathing room */}
+      <div style={{ height: 40 }} />
     </div>
   );
 }
