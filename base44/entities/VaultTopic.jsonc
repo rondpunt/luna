@@ -1,0 +1,15 @@
+{
+  "name": "VaultTopic",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "category": { "type": "string", "enum": ["person","situation","theme","trigger","goal"] },
+      "title": { "type": "string" },
+      "summary": { "type": "string" },
+      "emotions": { "type": "array", "items": { "type": "string" } },
+      "mentionCount": { "type": "number" },
+      "lastMentionedAt": { "type": "string" }
+    }
+  }
+}
