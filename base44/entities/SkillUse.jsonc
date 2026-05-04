@@ -1,0 +1,13 @@
+{
+  "name": "SkillUse",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "skillKey": { "type": "string" },
+      "effective": { "type": "number" },
+      "context": { "type": "string" },
+      "durationSeconds": { "type": "number" }
+    }
+  }
+}
