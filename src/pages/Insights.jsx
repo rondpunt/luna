@@ -5,6 +5,7 @@ import { format, subDays, parseISO } from "date-fns";
 import { nl } from "date-fns/locale";
 import ThemesList from "@/components/insights/ThemesList";
 import InsightsEmpty from "@/components/insights/InsightsEmpty";
+import MotivationPill from "@/components/insights/MotivationPill";
 
 /**
  * Insights — rustig mobiel inzichten-scherm binnen de Luna design layer.
@@ -98,6 +99,9 @@ export default function Insights() {
         <InsightsEmpty />
       ) : (
         <>
+          {/* Motiverende hook */}
+          {!loadingCheckIns && <MotivationPill checkIns={checkIns} />}
+
           {/* 2. Samenvattingskaart */}
           <SummaryCard loading={isLoading} avg={avg} count={valid.length} trendLabel={trendLabel} />
 

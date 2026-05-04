@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { Pencil } from "lucide-react";
 import JournalRow from "@/components/journal/JournalRow";
 import JournalEmpty from "@/components/journal/JournalEmpty";
+import WritingPromptHint from "@/components/journal/WritingPromptHint";
 
 /**
  * Journal lijst-screen.
@@ -61,6 +62,7 @@ export default function Journal() {
         <div className="flex-1 min-w-0">
           <p className="text-[16px] font-semibold leading-tight" style={{ color: "var(--text)", letterSpacing: "-0.2px" }}>Nieuwe notitie</p>
           <p className="text-[13px] mt-1" style={{ color: "var(--text-2)" }}>Even iets neerschrijven</p>
+          <WritingPromptHint />
         </div>
         <button
           onClick={openWriter}
