@@ -1,23 +1,21 @@
 import { useNavigate } from "react-router-dom";
 
 /**
- * Rustige empty-state voor wanneer er nog geen data is om iets zinnigs te zeggen.
- * Eén actie, geen marketingcopy, geen illustraties.
+ * Empty insights — sub-aanwezig, één heldere actie.
  */
 export default function InsightsEmpty() {
   const navigate = useNavigate();
   return (
-    <div className="card px-5 py-7 text-center space-y-3">
-      <p className="text-[16px] font-semibold" style={{ color: "var(--text)" }}>
+    <div className="card flex flex-col items-center text-center px-5 py-7 gap-4">
+      <p className="text-[14.5px] font-semibold leading-tight" style={{ color: "var(--text)" }}>
         Nog niets om te tonen
       </p>
-      <p className="text-[13px] leading-[1.6]" style={{ color: "var(--text-2)" }}>
-        Hier verschijnt straks hoe het recent gaat, welke thema's terugkomen en kleine veranderingen die Luna opmerkt.
+      <p className="text-[13px] -mt-2 leading-[1.55] max-w-xs" style={{ color: "var(--text-2)" }}>
+        Hier verschijnt straks hoe het met je gaat en welke thema's terugkomen.
       </p>
       <button
         onClick={() => navigate("/journal/new")}
-        className="rounded-xl px-4 py-2.5 text-[14px] font-semibold text-white btn-press"
-        style={{ background: "#C25A32" }}
+        className="btn btn-primary"
       >
         Schrijf een notitie
       </button>

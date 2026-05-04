@@ -179,12 +179,12 @@ export default function JournalEntry() {
         <button
           onClick={handleSave}
           disabled={!body.trim() || saving}
-          className="w-full rounded-xl py-3.5 text-[15px] font-semibold text-white btn-press disabled:opacity-40 flex items-center justify-center gap-2"
-          style={{ background: "#C25A32" }}
+          className="btn btn-primary w-full"
+          style={{ height: 48 }}
         >
           {saving ? "Bezig…" : (
             <>
-              <Check className="h-4 w-4" strokeWidth={2.5} />
+              <Check className="h-[15px] w-[15px]" strokeWidth={2.5} />
               {isNew ? "Notitie bewaren" : "Wijzigingen bewaren"}
             </>
           )}

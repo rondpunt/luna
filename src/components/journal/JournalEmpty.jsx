@@ -1,20 +1,21 @@
 import { useNavigate } from "react-router-dom";
 
 /**
- * Mobiele empty state — geen illustratie, geen marketingcopy.
- * Eén korte regel + 1 primary action.
+ * Mobiele empty state — sub-aanwezig, één rustige actie.
  */
 export default function JournalEmpty() {
   const navigate = useNavigate();
   return (
-    <div className="card flex flex-col items-center text-center px-5 py-8 gap-4">
-      <p className="text-[14px]" style={{ color: "var(--text-2)" }}>
-        Nog geen notities.
+    <div className="card flex flex-col items-center text-center px-5 py-7 gap-4">
+      <p className="text-[14.5px] font-semibold leading-tight" style={{ color: "var(--text)" }}>
+        Nog geen notities
+      </p>
+      <p className="text-[13px] -mt-2 leading-[1.55]" style={{ color: "var(--text-2)" }}>
+        Schrijf wat speelt. Niemand leest mee.
       </p>
       <button
         onClick={() => navigate("/journal/new")}
-        className="rounded-xl px-5 py-3 text-[14px] font-semibold text-white btn-press"
-        style={{ background: "#C25A32" }}
+        className="btn btn-primary"
       >
         Eerste notitie schrijven
       </button>

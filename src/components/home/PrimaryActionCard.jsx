@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
-import { MessageCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 /**
- * Eén duidelijke hoofdactie boven de vouw.
- * Zelfde card-pattern als Journal "Nieuwe notitie".
- * 1 primary button + 1 secundaire tekstactie.
+ * Primaire dagelijkse actie — premium hero-card.
+ * Eén dominante CTA + één rustige tekstlink.
  */
 export default function PrimaryActionCard() {
   const navigate = useNavigate();
@@ -19,43 +18,41 @@ export default function PrimaryActionCard() {
   };
 
   return (
-    <div
-      className="px-5 py-5 flex items-center gap-4"
-      style={{
-        background: "var(--bg-card)",
-        border: "1px solid var(--line)",
-        borderRadius: 20,
-        boxShadow: "0 1px 0 rgba(255,255,255,0.02) inset, 0 8px 24px rgba(0,0,0,0.18)",
-      }}
-    >
+    <div className="card-hero px-5 py-6">
+      {/* Orb mark */}
       <div
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-        style={{ background: "rgba(194,90,50,0.14)" }}
+        className="h-10 w-10 rounded-full mb-4"
+        style={{
+          background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 55%, #7a2d14 100%)",
+          boxShadow: "0 0 14px 3px rgba(194,90,50,0.20)",
+        }}
+      />
+
+      <p
+        className="text-[20px] font-bold leading-[1.2]"
+        style={{ color: "var(--text)", letterSpacing: "-0.3px" }}
       >
-        <MessageCircle className="h-[22px] w-[22px]" style={{ color: "#C25A32" }} strokeWidth={1.8} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p
-          className="text-[16px] font-semibold leading-tight"
-          style={{ color: "var(--text)", letterSpacing: "-0.2px" }}
+        Wat speelt er nu?
+      </p>
+      <p className="text-[13.5px] mt-1.5 leading-[1.5]" style={{ color: "var(--text-2)" }}>
+        Vertel het Luna in je eigen woorden. Geen oordeel, geen haast.
+      </p>
+
+      <div className="flex items-center gap-3 mt-5">
+        <button
+          onClick={() => go("/chat")}
+          className="btn btn-primary flex-1"
         >
           Praat met Luna
-        </p>
+          <ArrowRight className="h-[15px] w-[15px]" strokeWidth={2.4} />
+        </button>
         <button
           onClick={() => go("/journal/new")}
-          className="text-[13px] mt-1 btn-press"
-          style={{ color: "var(--text-2)" }}
+          className="btn btn-secondary"
         >
-          of schrijf van je af →
+          Schrijven
         </button>
       </div>
-      <button
-        onClick={() => go("/chat")}
-        className="rounded-xl px-4 h-10 text-[14px] font-semibold text-white btn-press shrink-0"
-        style={{ background: "#C25A32" }}
-      >
-        Beginnen
-      </button>
     </div>
   );
 }

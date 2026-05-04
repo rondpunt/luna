@@ -55,13 +55,13 @@ export default function LoadingSplash({ onDone }) {
 
       {/* Progress */}
       <div className="w-40 flex flex-col items-center gap-2.5">
-        <div className="w-full h-[2px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+        <div className="w-full h-[2px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
           <div
             className="h-full rounded-full transition-all duration-100"
-            style={{ width: `${progress}%`, background: "linear-gradient(90deg, #ee9670, #c25a32)" }}
+            style={{ width: `${progress}%`, background: "#C25A32" }}
           />
         </div>
-        <p className="text-[11px] text-center" style={{ color: "var(--text-3)" }}>
+        <p className="text-[11.5px] text-center" style={{ color: "var(--text-3)" }}>
           {PHASES[phase]}
         </p>
       </div>

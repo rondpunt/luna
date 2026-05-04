@@ -1,8 +1,6 @@
 /**
- * Terugkerende thema's — afgeleid uit echte Base44 data:
- *   - Conversation.folderName (frequentie per map)
- *   - JournalEntry.templateType (frequentie per template)
- * Geen dummy data. Geen tag cloud. Max 4 thema's.
+ * Terugkerende thema's — uit echte Base44 data.
+ * Premium balk-rendering, max 4 thema's, no clutter.
  */
 
 const COLORS = ["#C25A32", "#4A9EFF", "#34C77B", "#F5A623"];
@@ -40,11 +38,11 @@ export default function ThemesList({ conversations = [], entries = [] }) {
 
   if (themes.length === 0) {
     return (
-      <div className="card px-4 py-5 text-center">
+      <div className="card px-5 py-6 text-center">
         <p className="text-[14px]" style={{ color: "var(--text-2)" }}>
-          Nog geen thema's zichtbaar.
+          Nog geen thema's zichtbaar
         </p>
-        <p className="text-[12px] mt-1" style={{ color: "var(--text-3)" }}>
+        <p className="text-[12px] mt-1.5" style={{ color: "var(--text-3)" }}>
           Gesprekken en notities vormen je terugkerende thema's.
         </p>
       </div>
@@ -52,30 +50,36 @@ export default function ThemesList({ conversations = [], entries = [] }) {
   }
 
   return (
-    <div className="list-group">
+    <div className="card px-5 py-5 space-y-4">
       {themes.map(({ label, pct, color }) => (
-        <div key={label} className="list-row gap-4" style={{ minHeight: 56 }}>
-          <span
-            className="text-[14px] font-medium shrink-0 truncate"
-            style={{ color: "var(--text)", maxWidth: "40%" }}
-          >
-            {label}
-          </span>
+        <div key={label}>
+          <div className="flex items-center justify-between mb-2">
+            <span
+              className="text-[13.5px] font-medium truncate pr-3"
+              style={{ color: "var(--text)" }}
+            >
+              {label}
+            </span>
+            <span
+              className="text-[12px] font-semibold tabular-nums shrink-0"
+              style={{ color: "var(--text-3)" }}
+            >
+              {pct}%
+            </span>
+          </div>
           <div
-            className="flex-1 h-2 rounded-full overflow-hidden"
-            style={{ background: "rgba(255,255,255,0.06)" }}
+            className="h-[6px] rounded-full overflow-hidden"
+            style={{ background: "rgba(255,255,255,0.05)" }}
           >
             <div
-              className="h-2 rounded-full"
-              style={{ width: `${pct}%`, background: color, transition: "width 0.4s ease" }}
+              className="h-full rounded-full"
+              style={{
+                width: `${pct}%`,
+                background: color,
+                transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
             />
           </div>
-          <span
-            className="text-[12px] font-medium w-10 text-right shrink-0 tabular-nums"
-            style={{ color: "var(--text-3)" }}
-          >
-            {pct}%
-          </span>
         </div>
       ))}
     </div>

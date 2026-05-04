@@ -5,8 +5,6 @@ import { nl } from "date-fns/locale";
 
 /**
  * Recente activiteit — max 3 items, alleen echte data.
- * Items komen uit Conversation + JournalEntry, nieuwste eerst.
- * Hele rij is tappable enkel naar bestaande routes.
  */
 function formatWhen(d) {
   if (!d) return "";
@@ -15,7 +13,7 @@ function formatWhen(d) {
   const today = new Date();
   const sameDay = format(date, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
   return sameDay
-    ? `vandaag · ${format(date, "HH:mm")}`
+    ? `Vandaag · ${format(date, "HH:mm")}`
     : format(date, "EEE d MMM", { locale: nl });
 }
 
@@ -52,7 +50,7 @@ export default function RecentActivityList({ conversations = [], entries = [] })
         const Icon = it.kind === "conversation" ? MessageCircle : BookHeart;
         const accent = it.kind === "conversation" ? "#C25A32" : "#4A9EFF";
         return (
-          <Link key={it.key} to={it.to} className="list-row gap-3">
+          <Link key={it.key} to={it.to} className="list-row gap-3" style={{ minHeight: 64 }}>
             <div
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
               style={{ background: `${accent}14` }}
@@ -63,7 +61,7 @@ export default function RecentActivityList({ conversations = [], entries = [] })
               <p className="text-[15px] font-medium truncate leading-tight" style={{ color: "var(--text)" }}>
                 {it.title}
               </p>
-              <p className="text-[12px] mt-1 truncate" style={{ color: "var(--text-3)" }}>
+              <p className="text-[12.5px] mt-1 truncate" style={{ color: "var(--text-3)" }}>
                 {formatWhen(it.when)} · {it.sub}
               </p>
             </div>

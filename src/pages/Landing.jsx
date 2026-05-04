@@ -35,33 +35,36 @@ export default function Landing() {
       {/* Hero */}
       <div className="flex-1 flex flex-col justify-center py-8">
         <div
-          className="h-20 w-20 rounded-[26px] mb-8"
+          className="orb-breathe h-[72px] w-[72px] rounded-full mb-8"
           style={{
             background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 55%, #7a2d14 100%)",
-            boxShadow: "0 16px 56px rgba(194,90,50,0.40)",
+            boxShadow: "0 0 36px 10px rgba(194,90,50,0.28)",
           }}
         />
 
-        <p className="text-[13px] font-semibold uppercase tracking-widest mb-4" style={{ color: "rgba(194,90,50,0.70)" }}>
+        <p className="text-[12.5px] font-semibold mb-3" style={{ color: "rgba(194,90,50,0.75)", letterSpacing: "-0.1px" }}>
           Emotionele steun · Belgisch-Vlaams
         </p>
-        <h1 className="text-[38px] font-bold leading-[1.08] mb-5" style={{ color: "var(--text)", letterSpacing: "-1px" }}>
+        <h1 className="text-[36px] font-bold leading-[1.08] mb-4" style={{ color: "var(--text)", letterSpacing: "-0.9px" }}>
           Voel je gehoord,<br />wanneer je het<br />nodig hebt.
         </h1>
-        <p className="text-[17px] leading-[1.6] mb-10" style={{ color: "var(--text-2)" }}>
+        <p className="text-[16px] leading-[1.55] mb-10" style={{ color: "var(--text-2)" }}>
           Luna luistert. Geen oordeel, geen haast. Een rustige AI-gezel voor als het zwaar is.
         </p>
 
         {/* Perks */}
         <div className="list-group mb-8">
-          {PERKS.map(({ icon: Icon, label, sub, color }, i) => (
-            <div key={label} className="list-row gap-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: `${color}18` }}>
+          {PERKS.map(({ icon: Icon, label, sub, color }) => (
+            <div key={label} className="list-row gap-3" style={{ minHeight: 64 }}>
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                style={{ background: `${color}14` }}
+              >
                 <Icon className="h-[18px] w-[18px]" style={{ color }} strokeWidth={1.8} />
               </div>
-              <div>
-                <p className="text-[14px] font-semibold" style={{ color: "var(--text)" }}>{label}</p>
-                <p className="text-[12px] mt-0.5" style={{ color: "var(--text-2)" }}>{sub}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14.5px] font-semibold leading-tight" style={{ color: "var(--text)" }}>{label}</p>
+                <p className="text-[12.5px] mt-1" style={{ color: "var(--text-3)" }}>{sub}</p>
               </div>
             </div>
           ))}
@@ -69,26 +72,26 @@ export default function Landing() {
       </div>
 
       {/* CTAs */}
-      <div className="space-y-3 pb-4">
+      <div className="space-y-2.5 pb-4">
         <Link
           to="/onboarding"
-          className="block w-full rounded-2xl py-4 text-center text-[17px] font-semibold text-white btn-press"
+          className="block w-full rounded-[16px] h-[52px] flex items-center justify-center text-[16px] font-semibold text-white btn-press"
           style={{
-            background: "linear-gradient(135deg, #ee9670, #c25a32)",
-            boxShadow: "0 8px 28px rgba(194,90,50,0.35)",
+            background: "#C25A32",
+            boxShadow: "0 1px 0 rgba(255,255,255,0.10) inset, 0 6px 20px rgba(194,90,50,0.28)",
           }}
         >
           Gratis beginnen
         </Link>
         <Link
           to="/pricing"
-          className="block w-full rounded-2xl py-4 text-center text-[16px] font-medium btn-press"
-          style={{ background: "var(--bg-card)", border: "1px solid var(--line)", color: "var(--text-2)" }}
+          className="block w-full rounded-[16px] h-[52px] flex items-center justify-center text-[15px] font-medium btn-press"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--line-subtle)", color: "var(--text-2)" }}
         >
           Bekijk abonnementen
         </Link>
-        <p className="text-center text-[12px] leading-5 px-4" style={{ color: "var(--text-3)" }}>
-          Luna is geen noodhulp en geen therapeut. Bij acuut gevaar: bel 112 of 1813.
+        <p className="text-center text-[11.5px] leading-[1.5] px-4 pt-2" style={{ color: "var(--text-3)" }}>
+          Luna is geen noodhulp en geen therapeut. Bij acuut gevaar: bel 112.
         </p>
       </div>
     </div>
