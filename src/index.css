@@ -295,3 +295,33 @@
   border: none;
   box-shadow: 0 0 12px rgba(232, 131, 74, 0.4);
 }
+
+/* ─────────────────────────────────────────
+   ORB ANIMATIONS
+   ───────────────────────────────────────── */
+@keyframes orbGlowOuter {
+  0%, 100% { opacity: 0.7; transform: scale(2.4); }
+  50%       { opacity: 1;   transform: scale(2.6); }
+}
+@keyframes orbGlowInner {
+  0%, 100% { opacity: 0.85; }
+  50%       { opacity: 1; }
+}
+@keyframes orbCore {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.025); }
+}
+.orb-glow-outer { animation: orbGlowOuter 5s ease-in-out infinite; }
+.orb-glow-inner { animation: orbGlowInner 4s ease-in-out infinite; }
+.orb-core       { animation: orbCore 4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .orb-glow-outer, .orb-glow-inner, .orb-core { animation: none !important; }
+}
+
+/* Msg enter animation */
+@keyframes msgEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg-enter { animation: msgEnter 0.25s cubic-bezier(0.32, 0.72, 0, 1) both; }
