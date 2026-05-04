@@ -28,7 +28,7 @@ export default function LunaOrb({ state = PRESENCE.ONLINE, size = 36, className 
 
   return (
     <div
-      className={`rounded-full shrink-0 ${animClass} ${className}`}
+      className={`rounded-full shrink-0 luna-orb-pulse ${animClass} ${className}`}
       style={{
         width: size,
         height: size,
