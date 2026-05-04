@@ -1,612 +1,371 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowUp, Trash2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { Send, Smile, ChevronLeft, FolderPlus } from "lucide-react";
-import { Link } from "react-router-dom";
-import EmojiPicker from "@/components/nora/EmojiPicker";
-import LunaOrb from "@/components/luna/LunaOrb";
-import ChatErrorBanner from "@/components/chat/ChatErrorBanner";
-import MoodCheckBanner from "@/components/chat/MoodCheckBanner";
-import { useLunaPresence, PRESENCE } from "@/hooks/useLunaPresence";
-import {
-  saveUserMessage,
-  saveAssistantMessage,
-  loadMessages,
-  ensureConversation,
-  touchConversation,
-  invokeNoraChatWithRetry,
-} from "@/lib/chatPersistence";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Orb } from "@/components/luna/Orb";
+import CrisisSheet from "@/components/luna/CrisisSheet";
 
-const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const SYSTEM_PROMPT = `Je bent Luna, een warm en zacht digitaal gezel die in het Nederlands praat. Je bent geen therapeut. Je geeft geen diagnoses, geen medicijnen, geen crisis-interventie.
 
-function getQueryParams() {
-  const p = new URLSearchParams(window.location.search);
-  return { convId: p.get("conv"), folderId: p.get("folder"), prompt: p.get("prompt") };
-}
+Bij elk antwoord: validate first (erken het gevoel zonder te oordelen), explore with one open question (niet meerdere), normalize (laat zien dat dit menselijk is), suggest a small step (klein, haalbaar, optioneel — niet voorschrijvend).
 
-/** Verwijder ?prompt= uit URL zonder navigatie (zodat refresh niet hertriggert). */
-function clearPromptFromUrl() {
-  const url = new URL(window.location.href);
-  if (!url.searchParams.has("prompt")) return;
-  url.searchParams.delete("prompt");
-  window.history.replaceState({}, "", url.toString());
-}
+Houd antwoorden kort, maximaal 3-4 zinnen. Praat zoals een goede vriend om 2u 's nachts: rustig, zonder advies dat te snel komt, zonder clichés. Geen emoji. Geen uitroeptekens. Geen "geweldig dat je dit deelt".
 
-/** Sync ?conv=<id> in URL zonder navigatie — zodat refresh thread bewaart. */
-function syncConvIdToUrl(convId, folderId) {
-  if (!convId) return;
-  const url = new URL(window.location.href);
-  if (url.searchParams.get("conv") === convId) return;
-  url.searchParams.set("conv", convId);
-  if (folderId) url.searchParams.set("folder", folderId);
-  window.history.replaceState({}, "", url.toString());
-}
+Als de gebruiker tekenen geeft van crisis (zelfmoordgedachten, zelfbeschadiging, acute psychische nood), zeg ALTIJD eerst dat je geen vervanging bent voor hulp en verwijs naar 0800 32 123 (Zelfmoordlijn 1813) of Tele-Onthaal 106. Doe dit zonder te paniekeren — kalm en aanwezig.`;
 
-export default function Chat() {
-  const { convId: initConvId, folderId: initFolderId, prompt: initPrompt } = getQueryParams();
-
-  /* ── state ── */
-  const [dbConvId, setDbConvId] = useState(initConvId || null);
-  const [agentConvId, setAgentConvId] = useState(null);
-  const [folderId] = useState(initFolderId || null);
-  const [folder, setFolder] = useState(null);
-  const [messages, setMessages] = useState([]); // [{id?, role, content, _failed?}]
-  const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
-  const [retrying, setRetrying] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(null);
-  const [showEmoji, setShowEmoji] = useState(false);
-  const [started, setStarted] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  // refs voorkomen race-conditions bij snel dubbel-klikken / state-async
-  const sendingRef = useRef(false);
-  const dbConvIdRef = useRef(initConvId || null);
-  const agentConvIdRef = useRef(null);
-  const messagesRef = useRef([]);
-
-  const bottomRef = useRef(null);
-  const textareaRef = useRef(null);
-  const presence = useLunaPresence();
-  const promptHandledRef = useRef(false);
-
-  // Mood-check banner — na 5 assistant-berichten in deze sessie
-  const [sessionAssistantCount, setSessionAssistantCount] = useState(0);
-  const [moodCheckShown, setMoodCheckShown] = useState(false);
-  const [moodCheckDismissed, setMoodCheckDismissed] = useState(false);
-  const [me, setMe] = useState(null);
-
-  useEffect(() => { base44.auth.me().then(setMe).catch(() => {}); }, []);
-
-  /* keep refs in sync */
-  useEffect(() => { dbConvIdRef.current = dbConvId; }, [dbConvId]);
-  useEffect(() => { agentConvIdRef.current = agentConvId; }, [agentConvId]);
-  useEffect(() => { messagesRef.current = messages; }, [messages]);
-
-  /* ── load folder ── */
-  useEffect(() => {
-    if (!folderId) return;
-    base44.entities.ChatFolder.filter({ id: folderId })
-      .then((res) => res?.[0] && setFolder(res[0]))
-      .catch(() => {});
-  }, [folderId]);
-
-  /* ── boot: load thread from DB or create new agent conversation ── */
-  useEffect(() => {
-    let active = true;
-    presence.initPresence();
-
-    (async () => {
-      try {
-        // 1. Restore from DB (source of truth) als ?conv= in URL
-        if (dbConvIdRef.current) {
-          const [convs, persistedMsgs] = await Promise.all([
-            base44.entities.Conversation.filter({ id: dbConvIdRef.current }).catch(() => []),
-            loadMessages(dbConvIdRef.current),
-          ]);
-          const dbConv = convs?.[0];
-
-          if (active && persistedMsgs.length > 0) {
-            setMessages(persistedMsgs.map((m) => ({ id: m.id, role: m.role, content: m.content })));
-            setStarted(true);
-          }
-
-          // Hergebruik bestaande agent conversation
-          if (dbConv?.agentConversationId) {
-            if (active) setAgentConvId(dbConv.agentConversationId);
-            if (active) setLoading(false);
-            return;
-          }
-        }
-
-        // 2. Nieuwe agent conversation
-        const folderCtx = folderId
-          ? await base44.entities.ChatFolder.filter({ id: folderId }).then((r) => r?.[0]).catch(() => null)
-          : null;
-
-        const contextNote = folderCtx?.context
-          ? `\n\n[Mapcontext voor dit gesprek — "${folderCtx.name}"]: ${folderCtx.context}`
-          : "";
-
-        const conv = await base44.agents
-          .createConversation({
-            agent_name: "nora_agent",
-            metadata: {
-              title: folderCtx ? `Gesprek in ${folderCtx.name}` : "Gesprek met Luna",
-              system_suffix: contextNote,
-            },
-          })
-          .catch(() => null);
-
-        if (!active) return;
-        if (conv?.id) {
-          setAgentConvId(conv.id);
-          if (dbConvIdRef.current) {
-            base44.entities.Conversation
-              .update(dbConvIdRef.current, { agentConversationId: conv.id })
-              .catch(() => {});
-          }
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-          setTimeout(() => presence.onLunaReply(), rand(600, 1000));
-        }
-      }
-    })();
-
-    return () => { active = false; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /* ── scroll ── */
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, sending]);
-
-  /* ── ?prompt= support: pre-fill + auto-send na 800ms ── */
-  useEffect(() => {
-    if (loading) return;
-    if (promptHandledRef.current) return;
-    if (!initPrompt) return;
-    // Alleen automatisch sturen als gesprek leeg is (geen bestaand verloop overschrijven)
-    if (messagesRef.current.length > 0) {
-      promptHandledRef.current = true;
-      clearPromptFromUrl();
-      return;
-    }
-    promptHandledRef.current = true;
-    setInput(initPrompt);
-    const t = setTimeout(() => {
-      sendMessage(initPrompt);
-      clearPromptFromUrl();
-    }, 800);
-    return () => clearTimeout(t);
-  }, [loading, initPrompt, sendMessage]);
-
-  /* ── core: assistant turn (LLM call + persist + render) ── */
-  const runAssistantTurn = useCallback(
-    async ({ convDbId, threadForLLM }) => {
-      const reply = await invokeNoraChatWithRetry({
-        messages: threadForLLM,
-        style: "gentle",
-        memoryContext: folder?.context || "",
-      });
-
-      // Persist BEFORE rendering — geen ghost bubbles, geen lege assistant
-      const saved = await saveAssistantMessage({ conversationId: convDbId, content: reply });
-
-      setMessages((prev) => [...prev, { id: saved.id, role: "assistant", content: reply }]);
-      setSessionAssistantCount((n) => {
-        const next = n + 1;
-        if (next === 5 && !moodCheckDismissed) setMoodCheckShown(true);
-        return next;
-      });
-      presence.onLunaReply();
-      return saved;
-    },
-    [folder, presence]
-  );
-
-  /* ── core: send ── */
-  const sendMessage = useCallback(
-    async (text) => {
-      const txt = (text || input).trim();
-
-      // Hard guard tegen dubbele submits (state is async, ref niet)
-      if (!txt || sendingRef.current) return;
-      sendingRef.current = true;
-      setSending(true);
-      setErrorMsg(null);
-
-      setInput("");
-      setShowEmoji(false);
-      if (textareaRef.current) textareaRef.current.style.height = "auto";
-
-      // Optimistic user bubble
-      const userBubble = { role: "user", content: txt, _localKey: `u-${Date.now()}` };
-      setMessages((prev) => [...prev, userBubble]);
-      if (!started) setStarted(true);
-      presence.onUserMessage(txt.length);
-
-      let convDbId = dbConvIdRef.current;
-      let userSavedId = null;
-
-      try {
-        // 1. Ensure DB conversation
-        if (!convDbId) {
-          const me = await base44.auth.me();
-          convDbId = await ensureConversation({
-            existingId: null,
-            userId: me.id,
-            title: txt,
-            folderId,
-            folderName: folder?.name,
-            agentConversationId: agentConvIdRef.current,
-          });
-          setDbConvId(convDbId);
-          dbConvIdRef.current = convDbId;
-          syncConvIdToUrl(convDbId, folderId);
-        }
-
-        // 2. Persist user message
-        const savedUser = await saveUserMessage({ conversationId: convDbId, content: txt });
-        userSavedId = savedUser.id;
-        setMessages((prev) =>
-          prev.map((m) =>
-            m._localKey === userBubble._localKey ? { id: savedUser.id, role: "user", content: txt } : m
-          )
-        );
-      } catch (err) {
-        // User-message persist faalde → markeer bubble als failed, geen LLM call
-        setMessages((prev) =>
-          prev.map((m) =>
-            m._localKey === userBubble._localKey ? { ...m, _failed: true } : m
-          )
-        );
-        setErrorMsg("Bericht kon niet worden opgeslagen. Probeer opnieuw.");
-        setSending(false);
-        sendingRef.current = false;
-        presence.onLunaReply();
-        return;
-      }
-
-      // 3. Run assistant turn (zelf retry binnen invokeNoraChatWithRetry)
-      try {
-        const threadForLLM = [...messagesRef.current, { role: "user", content: txt }]
-          .filter((m) => !m._failed)
-          .map((m) => ({ role: m.role, content: m.content }));
-
-        await runAssistantTurn({ convDbId, threadForLLM });
-
-        // 4. Touch metadata met écht aantal messages uit DB
-        const real = await loadMessages(convDbId).catch(() => null);
-        touchConversation({
-          id: convDbId,
-          message_count: real?.length ?? messagesRef.current.length,
-        });
-      } catch {
-        setErrorMsg("Luna kon niet antwoorden. Probeer opnieuw.");
-        presence.onLunaReply();
-      } finally {
-        setSending(false);
-        sendingRef.current = false;
-      }
-    },
-    [input, started, presence, folderId, folder, runAssistantTurn]
-  );
-
-  /* ── retry: alleen de assistant-turn opnieuw, geen dubbele user message ── */
-  const handleRetry = useCallback(async () => {
-    if (sendingRef.current) return;
-    const convDbId = dbConvIdRef.current;
-    if (!convDbId) return;
-
-    const lastUser = [...messagesRef.current].reverse().find((m) => m.role === "user");
-    if (!lastUser) return;
-
-    sendingRef.current = true;
-    setRetrying(true);
-    setSending(true);
-    setErrorMsg(null);
-    presence.onUserMessage(lastUser.content.length);
-
-    try {
-      const threadForLLM = messagesRef.current
-        .filter((m) => !m._failed)
-        .map((m) => ({ role: m.role, content: m.content }));
-
-      await runAssistantTurn({ convDbId, threadForLLM });
-
-      const real = await loadMessages(convDbId).catch(() => null);
-      touchConversation({
-        id: convDbId,
-        message_count: real?.length ?? messagesRef.current.length,
-      });
-    } catch {
-      setErrorMsg("Het lukte nog niet. Probeer het zo nog eens.");
-      presence.onLunaReply();
-    } finally {
-      setSending(false);
-      sendingRef.current = false;
-      setRetrying(false);
-    }
-  }, [presence, runAssistantTurn]);
-
-  /* ── ui helpers ── */
-  const handleKey = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  const dotColor =
-    {
-      [PRESENCE.ONLINE]:       "#34C77B",
-      [PRESENCE.READING]:      "#4A9EFF",
-      [PRESENCE.TYPING]:       "#F5A623",
-      [PRESENCE.CONNECTING]:   "rgba(240,240,242,0.50)",
-      [PRESENCE.QUIETLY_HERE]: "rgba(240,240,242,0.40)",
-      [PRESENCE.AWAY]:         "rgba(240,240,242,0.30)",
-    }[presence.state] || "rgba(240,240,242,0.30)";
-
-  const backLink = folderId ? `/chat/folder/${folderId}` : "/";
-  const folderColor = folder?.color || "#C25A32";
-
-  const welcomeMessage = folder
-    ? `Goed dat je er bent. Je zit in de map "${folder.name}". ${
-        folder.context ? "Ik heb jouw context al gelezen." : "Wat wil je vandaag delen?"
-      }`
-    : "Goed dat je er bent. Wat zit je dwars vandaag?";
-
-  const starters = folder?.name?.toLowerCase().includes("angst")
-    ? ["Ik piekerde de hele nacht", "Ik voel me angstig zonder reden", "Er is iets wat ik niet kan loslaten", "Ik weet niet hoe ik kalmer moet worden"]
-    : folder?.name?.toLowerCase().includes("werk")
-    ? ["Ik ben op van het werk", "Ik weet niet hoe ik neen moet zeggen", "Ik voel me ondergewaardeerd", "Ik denk aan stoppen"]
-    : ["Ik wil iets kwijt 💭", "Hoe ga ik hiermee om? 🤔", "Ik voel me niet goed 😔", "Gewoon even bijpraten 🙂"];
-
+function TypingIndicator() {
   return (
-    <div className="fixed inset-0 flex flex-col" style={{ background: "var(--bg)" }}>
-
-      {/* Header */}
-      <div
-        className="flex items-center shrink-0 px-4 gap-3"
-        style={{
-          background: "rgba(10,10,11,0.94)",
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
-          paddingTop: "calc(14px + env(safe-area-inset-top, 0px))",
-          paddingBottom: "13px",
-        }}
-      >
-        <Link to={backLink} className="flex items-center gap-0.5 shrink-0 btn-press" style={{ color: folderColor }}>
-          <ChevronLeft className="h-[22px] w-[22px]" strokeWidth={2.5} />
-          <span className="text-[16px] font-medium">{folder ? folder.name : "Terug"}</span>
-        </Link>
-
-        <div className="flex flex-1 flex-col items-center gap-0.5">
-          <div style={{ opacity: presence.state === PRESENCE.IDLE ? 0 : 1, transition: "opacity 0.5s" }}>
-            <LunaOrb state={presence.state} size={30} />
-          </div>
-          <p className="text-[13px] font-semibold" style={{ color: "var(--text)", letterSpacing: "-0.1px" }}>Luna</p>
-          <div className="flex items-center gap-1.5 h-[16px]">
-            {presence.statusLabel && (
-              <>
-                {[PRESENCE.ONLINE, PRESENCE.READING, PRESENCE.TYPING].includes(presence.state) && (
-                  <span
-                    className="h-1.5 w-1.5 rounded-full shrink-0"
-                    style={{
-                      background: dotColor,
-                      animation: presence.state === PRESENCE.TYPING ? "presencePulse 1s infinite" : "none",
-                    }}
-                  />
-                )}
-                <span className="text-[11px] font-medium transition-all" style={{ color: dotColor }}>
-                  {presence.statusLabel}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        <Link
-          to="/chat/folders"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl btn-press"
-          style={{ background: "rgba(255,255,255,0.06)" }}
-        >
-          <FolderPlus className="h-[18px] w-[18px]" style={{ color: "rgba(240,240,242,0.55)" }} strokeWidth={1.8} />
-        </Link>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-1.5">
-        <div className="flex justify-center pb-2">
-          <span
-            className="text-[12px] px-3 py-1 rounded-full"
-            style={{ color: "var(--text-3)", background: "var(--bg-card)", border: "1px solid var(--line-subtle)" }}
-          >
-            {folder ? `${folder.emoji || "📁"} ${folder.name} · privé` : "Vandaag · alles privé"}
-          </span>
-        </div>
-
-        {/* Context pill */}
-        {folder?.context && !started && (
-          <div
-            className="rounded-2xl px-4 py-3 mb-2 flex items-start gap-2.5"
-            style={{ background: `${folderColor}0D`, border: `1px solid ${folderColor}25` }}
-          >
-            <span className="text-[16px] shrink-0 mt-0.5">✨</span>
-            <div>
-              <p className="text-[12px] font-semibold mb-0.5" style={{ color: folderColor }}>Luna kent jouw context</p>
-              <p className="text-[12px] leading-[1.5]" style={{ color: "var(--text-2)" }}>
-                {folder.context.length > 100 ? folder.context.slice(0, 100) + "…" : folder.context}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Welcome */}
-        {!loading && messages.length === 0 && (
-          <Bubble message={{ role: "assistant", content: welcomeMessage }} />
-        )}
-
-        {messages.map((m, i) => (
-          <Bubble key={m.id || m._localKey || `${m.role}-${i}`} message={m} />
-        ))}
-
-        {sending && !retrying && (
-          <div className="flex items-end gap-2.5 msg-enter">
-            <OrbAvatar />
-            <div className="flex items-center gap-1.5 rounded-[18px] rounded-bl-[5px] px-4 py-3.5" style={{ background: "var(--bg-elevated)", border: "1px solid var(--line)" }}>
-              <span className="typing-dot" style={{ animationDelay: "0ms" }} />
-              <span className="typing-dot" style={{ animationDelay: "180ms" }} />
-              <span className="typing-dot" style={{ animationDelay: "360ms" }} />
-            </div>
-          </div>
-        )}
-
-        {/* Starters */}
-        {!started && !loading && (
-          <div className="pt-4 space-y-2">
-            <p className="text-center text-[12px]" style={{ color: "var(--text-3)" }}>of kies een onderwerp</p>
-            {starters.map((s) => (
-              <button
-                key={s}
-                onClick={() => sendMessage(s)}
-                className="w-full text-left rounded-[14px] px-4 h-12 text-[14.5px] transition-all btn-press flex items-center"
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--line-subtle)",
-                  color: "var(--text)",
-                }}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      {showEmoji && (
-        <EmojiPicker onSelect={(e) => setInput((p) => p + e)} onClose={() => setShowEmoji(false)} />
-      )}
-
-      {/* Input bar */}
-      <div
-        className="shrink-0"
-        style={{
-          background: "rgba(10,10,11,0.96)",
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          borderTop: "1px solid rgba(255,255,255,0.07)",
-          padding: "10px 12px",
-          paddingBottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
-        }}
-      >
-        <ChatErrorBanner message={errorMsg} onRetry={handleRetry} retrying={retrying} />
-
-        {moodCheckShown && !moodCheckDismissed && (
-          <MoodCheckBanner
-            userId={me?.id}
-            onDismiss={() => { setMoodCheckShown(false); setMoodCheckDismissed(true); }}
-          />
-        )}
-
-        <div className="flex items-end gap-2">
-          <button
-            onClick={() => setShowEmoji((v) => !v)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full btn-press"
-            style={{ background: "var(--bg-elevated)", border: "1px solid var(--line-subtle)" }}
-          >
-            <Smile className="h-[18px] w-[18px]" style={{ color: showEmoji ? "#C25A32" : "var(--text-2)" }} />
-          </button>
-
-          <div
-            className="flex-1 flex items-end rounded-[22px] px-4 py-2.5"
-            style={{ background: "var(--bg-input)", border: "1px solid var(--line-subtle)", minHeight: "44px" }}
-          >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                e.target.style.height = "auto";
-                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
-              }}
-              onKeyDown={handleKey}
-              placeholder="Bericht"
-              rows={1}
-              className="flex-1 resize-none bg-transparent text-[15.5px] text-white outline-none leading-[1.4]"
-              style={{ minHeight: "22px", maxHeight: "120px" }}
-            />
-          </div>
-
-          <button
-            onClick={() => sendMessage()}
-            disabled={!input.trim() || sending}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full btn-press transition-all"
-            style={{
-              background: input.trim() && !sending ? (folder?.color || "#C25A32") : "var(--bg-elevated)",
-              border: "1px solid var(--line-subtle)",
-            }}
-          >
-            <Send className="h-[16px] w-[16px]" style={{ color: input.trim() && !sending ? "#fff" : "var(--text-3)" }} />
-          </button>
-        </div>
-      </div>
+    <div className="bubble-luna" style={{ display: "flex", gap: 4, alignItems: "center", padding: "14px 18px" }}>
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="typing-dot"
+          style={{ animationDelay: `${i * 0.2}s` }}
+        />
+      ))}
     </div>
   );
 }
 
-function OrbAvatar() {
+export default function Chat() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const qc = useQueryClient();
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [typing, setTyping] = useState(false);
+  const [convId, setConvId] = useState(null);
+  const [showCrisis, setShowCrisis] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
+
+  // Auto-scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typing]);
+
+  // Load or create conversation
+  useEffect(() => {
+    const initConv = async () => {
+      const paramConv = params.get("conv");
+      if (paramConv) {
+        setConvId(paramConv);
+        const msgs = await base44.entities.Message.filter({ conversationId: paramConv });
+        setMessages(msgs.sort((a, b) => new Date(a.created_date) - new Date(b.created_date)).map((m) => ({
+          role: m.role,
+          content: m.content,
+          id: m.id,
+        })));
+        return;
+      }
+      const conv = await base44.entities.Conversation.create({ title: "" });
+      setConvId(conv.id);
+    };
+    initConv().catch(() => {});
+
+    // Restore draft
+    const draft = sessionStorage.getItem("luna_draft");
+    if (draft) { setInput(draft); sessionStorage.removeItem("luna_draft"); }
+
+    // Pre-filled prompt from home check-in
+    const prompt = params.get("prompt");
+    if (prompt) setInput(decodeURIComponent(prompt));
+  }, []);
+
+  // Save draft on unmount
+  useEffect(() => {
+    return () => {
+      if (input.trim()) sessionStorage.setItem("luna_draft", input);
+    };
+  }, [input]);
+
+  const send = useCallback(async () => {
+    const text = input.trim();
+    if (!text || typing) return;
+    setInput("");
+
+    const userMsg = { role: "user", content: text, id: Date.now() };
+    setMessages((prev) => [...prev, userMsg]);
+    setTyping(true);
+
+    try {
+      // Save user message
+      if (convId) {
+        await base44.entities.Message.create({
+          conversationId: convId,
+          role: "user",
+          content: text,
+        });
+        // Update conversation title if first message
+        if (messages.length === 0) {
+          await base44.entities.Conversation.update(convId, {
+            title: text.slice(0, 60),
+          });
+        }
+      }
+
+      // Call AI via base44
+      const history = [...messages, userMsg].map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      const response = await base44.ai.chat({
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...history,
+        ],
+      });
+
+      const assistantContent = response?.content || response?.message || "...";
+      const assistantMsg = { role: "assistant", content: assistantContent, id: Date.now() + 1 };
+      setMessages((prev) => [...prev, assistantMsg]);
+
+      if (convId) {
+        await base44.entities.Message.create({
+          conversationId: convId,
+          role: "assistant",
+          content: assistantContent,
+        });
+        await base44.entities.Conversation.update(convId, {
+          last_message_at: new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Even geduld. Probeer het opnieuw.", id: Date.now() + 2 },
+      ]);
+    } finally {
+      setTyping(false);
+    }
+  }, [input, typing, messages, convId]);
+
+  const clearConversation = async () => {
+    setMessages([]);
+    setShowClearConfirm(false);
+    if (convId) {
+      const msgs = await base44.entities.Message.filter({ conversationId: convId });
+      await Promise.all(msgs.map((m) => base44.entities.Message.delete(m.id)));
+    }
+  };
+
+  const isEmpty = messages.length === 0;
+
   return (
     <div
-      className="h-7 w-7 shrink-0 rounded-full mb-0.5"
+      className="flex flex-col"
       style={{
-        background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 55%, #7a2d14 100%)",
-        boxShadow: "0 0 10px 3px rgba(194,90,50,0.25)",
-        flexShrink: 0,
+        height: "100dvh",
+        background: "#0B0B14",
+        paddingTop: "env(safe-area-inset-top, 0px)",
       }}
-    />
-  );
-}
-
-function Bubble({ message }) {
-  const isUser = message.role === "user";
-  const failed = message._failed;
-
-  if (isUser) {
-    return (
-      <div className="flex justify-end msg-enter">
+    >
+      {/* Ambient */}
+      <div className="fixed inset-0 -z-10" style={{ background: "#0B0B14" }}>
         <div
-          className="max-w-[78%] rounded-[20px] rounded-br-[6px] px-[14px] py-[10px] text-[15.5px] text-white leading-[1.45] break-words"
+          className="absolute inset-0"
           style={{
-            background: failed ? "rgba(240,71,71,0.55)" : "#C25A32",
-            opacity: failed ? 0.85 : 1,
+            background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(232,131,74,0.06), transparent 60%)",
+            opacity: 0.6,
+          }}
+        />
+      </div>
+
+      {/* Header */}
+      <header
+        className="glass flex items-center px-4 shrink-0"
+        style={{ height: 64, borderTop: "none", borderLeft: "none", borderRight: "none" }}
+      >
+        <Orb size="sm" />
+        <div style={{ marginLeft: 12 }}>
+          <p
+            className="font-display"
+            style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1 }}
+          >
+            Luna
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#7AB585" }} />
+            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>altijd er</span>
+          </div>
+        </div>
+
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            onClick={() => setShowCrisis(true)}
+            style={{
+              fontSize: 13, fontWeight: 500, color: "#D14D4D",
+              background: "none", border: "none", cursor: "pointer", padding: "4px 0",
+            }}
+            aria-label="Hulp nu — crisis lijn"
+          >
+            hulp
+          </button>
+          <button
+            onClick={() => setShowClearConfirm(true)}
+            aria-label="Gesprek wissen"
+            style={{
+              width: 36, height: 36, borderRadius: "50%",
+              background: "var(--surface)", border: "1px solid var(--border)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer",
+            }}
+          >
+            <Trash2 size={18} style={{ color: "var(--text-muted)" }} strokeWidth={1.5} />
+          </button>
+        </div>
+      </header>
+
+      {/* Messages */}
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{ padding: "24px 20px", display: "flex", flexDirection: "column", gap: 12 }}
+      >
+        {isEmpty && !typing && (
+          <div
+            className="flex flex-col items-center fade-in"
+            style={{ marginTop: 40 }}
+          >
+            <Orb size="md" />
+            <div
+              className="bubble-luna"
+              style={{ marginTop: 32, maxWidth: 320 }}
+            >
+              Hé. Geen druk. Je hoeft het nog niet goed te zeggen. Wat zit er nu het meest op je?
+            </div>
+          </div>
+        )}
+
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={msg.role === "user" ? "bubble-user msg-enter" : "bubble-luna msg-enter"}
+          >
+            {msg.content}
+          </div>
+        ))}
+
+        {typing && <TypingIndicator />}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input bar */}
+      <div
+        style={{
+          padding: "12px 12px",
+          paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+        }}
+      >
+        <div
+          className="glass"
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            gap: 8,
+            borderRadius: 28,
+            padding: "12px 16px",
           }}
         >
-          {message.content}
-          {failed && (
-            <span className="block text-[11px] mt-1" style={{ color: "rgba(255,255,255,0.85)" }}>
-              Niet verzonden
-            </span>
-          )}
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              e.target.style.height = "auto";
+              e.target.style.height = Math.min(e.target.scrollHeight, 96) + "px";
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+            }}
+            placeholder="Schrijf wat in je opkomt…"
+            rows={1}
+            style={{
+              flex: 1, background: "transparent", border: "none", outline: "none",
+              fontSize: 15, color: "var(--text)", lineHeight: 1.5,
+              resize: "none", fontFamily: "'Geist', system-ui, sans-serif",
+              maxHeight: 96, overflowY: "auto",
+            }}
+          />
+          <button
+            onClick={send}
+            disabled={!input.trim() || typing}
+            aria-label="Verstuur"
+            style={{
+              width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+              background: input.trim() && !typing ? "#E8834A" : "rgba(232,131,74,0.20)",
+              border: "none", cursor: input.trim() ? "pointer" : "default",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "background 0.15s",
+            }}
+          >
+            <ArrowUp size={18} style={{ color: "#1A0E08" }} strokeWidth={2.5} />
+          </button>
         </div>
       </div>
-    );
-  }
-  return (
-    <div className="flex items-end gap-2.5 msg-enter">
-      <OrbAvatar />
-      <div
-        className="max-w-[78%] rounded-[20px] rounded-bl-[6px] px-[14px] py-[10px] text-[15.5px] leading-[1.5] break-words"
-        style={{ background: "var(--bg-elevated)", border: "1px solid var(--line-subtle)", color: "var(--text)" }}
-      >
-        {message.content}
-      </div>
+
+      {/* Crisis sheet */}
+      {showCrisis && <CrisisSheet onClose={() => setShowCrisis(false)} />}
+
+      {/* Clear confirm */}
+      {showClearConfirm && (
+        <>
+          <div
+            className="fixed inset-0 z-[60]"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
+            onClick={() => setShowClearConfirm(false)}
+          />
+          <div
+            className="fixed bottom-0 left-0 right-0 z-[70] fade-up"
+            style={{
+              background: "#14141E",
+              borderRadius: "28px 28px 0 0",
+              padding: "32px 24px calc(40px + env(safe-area-inset-bottom, 0px))",
+              maxWidth: 480,
+              margin: "0 auto",
+            }}
+          >
+            <div style={{ textAlign: "center", marginBottom: 4 }}>
+              <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 24px" }} />
+            </div>
+            <h3
+              className="font-display"
+              style={{ fontSize: 24, color: "var(--text)", marginBottom: 8, letterSpacing: "-0.02em" }}
+            >
+              Dit gesprek wissen?
+            </h3>
+            <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 24 }}>
+              Dit kan niet ongedaan gemaakt worden.
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="btn btn-ghost"
+                style={{ fontSize: 14, flex: 1 }}
+              >
+                Annuleren
+              </button>
+              <button
+                onClick={clearConversation}
+                className="btn"
+                style={{
+                  flex: 1, fontSize: 14, fontWeight: 500,
+                  background: "var(--crisis-soft)",
+                  border: "1px solid var(--crisis-border)",
+                  color: "#D14D4D",
+                  borderRadius: "var(--r-pill)",
+                }}
+              >
+                Wissen
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
