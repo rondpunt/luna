@@ -10,8 +10,9 @@ import AppShell from "@/components/nora/AppShell";
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
-import Journal from "./pages/Journal";
-import JournalEntry from "./pages/JournalEntry";
+import Diary from "./pages/Diary";
+import Skills from "./pages/Skills";
+import SkillDetail from "./pages/SkillDetail";
 import Voortgang from "./pages/Voortgang";
 import Profiel from "./pages/Profiel";
 import Onboarding from "./pages/Onboarding";
@@ -49,7 +50,9 @@ const AuthenticatedApp = () => {
       <Route element={<AppShell />}>
         <Route path="/" element={<Home />} />
         <Route path="/chat" element={<Chat />} />
-        <Route path="/journal" element={<Journal />} />
+        <Route path="/diary" element={<Diary />} />
+        <Route path="/skills" element={<Skills />} />
+        <Route path="/skills/:key" element={<SkillDetail />} />
         <Route path="/voortgang" element={<Voortgang />} />
         <Route path="/profiel" element={<Profiel />} />
       </Route>
@@ -61,7 +64,6 @@ const AuthenticatedApp = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy-center" element={<PrivacyCenter />} />
       <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/journal/:id" element={<JournalEntry />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
