@@ -1,0 +1,25 @@
+{
+  "name": "DiaryEntry",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "date": { "type": "string" },
+      "sadness": { "type": "number" },
+      "shame": { "type": "number" },
+      "fear": { "type": "number" },
+      "anger": { "type": "number" },
+      "joy": { "type": "number" },
+      "urge_self_harm": { "type": "number" },
+      "urge_substance": { "type": "number" },
+      "urge_quit_therapy": { "type": "number" },
+      "urge_lash_out": { "type": "number" },
+      "acted_self_harm": { "type": "boolean" },
+      "acted_substance": { "type": "boolean" },
+      "acted_lash_out": { "type": "boolean" },
+      "skills_used": { "type": "array", "items": { "type": "string" } },
+      "notes": { "type": "string" },
+      "overall_score": { "type": "number" }
+    }
+  }
+}
