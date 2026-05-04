@@ -10,7 +10,10 @@ export default function Profile() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [showChatSettings, setShowChatSettings] = useState(false);
 
-  const name = user?.full_name || "Jij";
+  const rawName = user?.full_name || "";
+  const name = rawName.length > 1
+    ? rawName
+    : (user?.email?.split("@")[0] || "Jij");
   const email = user?.email || "";
   const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
