@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import EmojiPicker from "@/components/nora/EmojiPicker";
 import LunaOrb from "@/components/luna/LunaOrb";
 import ChatErrorBanner from "@/components/chat/ChatErrorBanner";
+import MoodCheckBanner from "@/components/chat/MoodCheckBanner";
 import { useLunaPresence, PRESENCE } from "@/hooks/useLunaPresence";
 import {
   saveUserMessage,
@@ -67,6 +68,14 @@ export default function Chat() {
   const textareaRef = useRef(null);
   const presence = useLunaPresence();
   const promptHandledRef = useRef(false);
+
+  // Mood-check banner — na 5 assistant-berichten in deze sessie
+  const [sessionAssistantCount, setSessionAssistantCount] = useState(0);
+  const [moodCheckShown, setMoodCheckShown] = useState(false);
+  const [moodCheckDismissed, setMoodCheckDismissed] = useState(false);
+  const [me, setMe] = useState(null);
+
+  useEffect(() => { base44.auth.me().then(setMe).catch(() => {}); }, []);
 
   /* keep refs in sync */
   useEffect(() => { dbConvIdRef.current = dbConvId; }, [dbConvId]);
@@ -187,6 +196,11 @@ export default function Chat() {
       const saved = await saveAssistantMessage({ conversationId: convDbId, content: reply });
 
       setMessages((prev) => [...prev, { id: saved.id, role: "assistant", content: reply }]);
+      setSessionAssistantCount((n) => {
+        const next = n + 1;
+        if (next === 5 && !moodCheckDismissed) setMoodCheckShown(true);
+        return next;
+      });
       presence.onLunaReply();
       return saved;
     },
@@ -349,7 +363,7 @@ export default function Chat() {
     ? ["Ik piekerde de hele nacht", "Ik voel me angstig zonder reden", "Er is iets wat ik niet kan loslaten", "Ik weet niet hoe ik kalmer moet worden"]
     : folder?.name?.toLowerCase().includes("werk")
     ? ["Ik ben op van het werk", "Ik weet niet hoe ik neen moet zeggen", "Ik voel me ondergewaardeerd", "Ik denk aan stoppen"]
-    : ["Ik voel me compleet overweldigd", "Ik weet niet eens wat ik voel", "Het gaat moeilijk op het werk", "Ik slaap slecht de laatste tijd"];
+    : ["Ik wil iets kwijt 💭", "Hoe ga ik hiermee om? 🤔", "Ik voel me niet goed 😔", "Gewoon even bijpraten 🙂"];
 
   return (
     <div className="fixed inset-0 flex flex-col" style={{ background: "var(--bg)" }}>
@@ -493,6 +507,13 @@ export default function Chat() {
         }}
       >
         <ChatErrorBanner message={errorMsg} onRetry={handleRetry} retrying={retrying} />
+
+        {moodCheckShown && !moodCheckDismissed && (
+          <MoodCheckBanner
+            userId={me?.id}
+            onDismiss={() => { setMoodCheckShown(false); setMoodCheckDismissed(true); }}
+          />
+        )}
 
         <div className="flex items-end gap-2">
           <button

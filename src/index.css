@@ -335,3 +335,9 @@
   50%      { transform: scale(1.03); opacity: 1; }
 }
 .orb-connect { animation: orbConnect 1.2s ease-in-out infinite; }
+
+@keyframes luna-breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.85; }
+  50%      { transform: scale(1.06); opacity: 1;    }
+}
+.luna-breathe { animation: luna-breathe 4s ease-in-out infinite; }
