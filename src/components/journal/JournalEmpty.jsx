@@ -14,7 +14,7 @@ export default function JournalEmpty() {
         Schrijf wat speelt. Niemand leest mee.
       </p>
       <button
-        onClick={() => navigate("/journal/new")}
+        onClick={() => navigate("/diary")}
         className="btn btn-primary"
       >
         Eerste notitie schrijven

@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Orb } from "@/components/luna/Orb";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { navigateToLogin } = useAuth();
 
   return (
     <div
@@ -77,17 +79,10 @@ export default function Landing() {
 
           <div style={{ marginTop: 24, textAlign: "center" }}>
             <button
-              onClick={() => navigate("/login")}
-              style={{
-                fontSize: 14,
-                color: "#8A8278",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                textDecoration: "none",
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
-              onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
+              type="button"
+              onClick={() => navigateToLogin()}
+              className="text-[14px] text-[#8A8278] bg-transparent border-none cursor-pointer underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded-md"
+              style={{ outlineColor: "rgba(232,131,74,0.45)" }}
             >
               Ik heb al een account
             </button>

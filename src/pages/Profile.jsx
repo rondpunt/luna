@@ -146,6 +146,7 @@ function Section({ label, children }) {
   );
 }
 
+/** @param {{ icon: import("lucide-react").LucideIcon, label: string, sub?: string, to?: string, value?: string, onClick?: () => void }} props */
 function Row({ icon: Icon, label, sub, to, value, onClick }) {
   const color = "#C25A32";
   const inner = (

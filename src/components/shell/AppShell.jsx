@@ -1,7 +1,8 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { Home, MessageCircle, BookOpen, TrendingUp, User } from "lucide-react";
-import CrisisButton from "@/components/luna/CrisisButton";
 import { motion } from "framer-motion";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import LunaGlobalChrome from "@/components/shell/LunaGlobalChrome";
 
 const NAV = [
   { to: "/",          label: "Home",      icon: Home },
@@ -11,15 +12,14 @@ const NAV = [
   { to: "/profiel",   label: "Profiel",   icon: User },
 ];
 
-const NO_CRISIS = ["/landing", "/onboarding"];
-
 export default function AppShell() {
   const { pathname } = useLocation();
   const isChat = pathname === "/chat";
-  const showCrisis = !NO_CRISIS.some((p) => pathname.startsWith(p));
+  const online = useOnlineStatus();
 
   return (
     <div className="flex flex-col min-h-dvh relative" style={{ background: "var(--bg)" }}>
+      <LunaGlobalChrome />
       {/* Ambient background */}
       <div className="fixed inset-0 -z-10" style={{ background: "#0B0B14" }}>
         <div
@@ -38,38 +38,39 @@ export default function AppShell() {
         />
       </div>
 
-      {showCrisis && !isChat && <CrisisButton />}
+      {!online && !isChat && (
+        <div
+          className="sticky top-0 z-[45] w-full text-center py-1.5 px-3"
+          style={{
+            background: "rgba(142, 142, 147, 0.18)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            fontSize: 12,
+            color: "rgba(242,237,227,0.65)",
+          }}
+          role="status"
+          aria-live="polite"
+        >
+          Geen netwerk — check je verbinding
+        </div>
+      )}
 
       <main
         className="flex-1 mx-auto w-full max-w-[480px]"
         style={{
           overflowY: isChat ? "hidden" : "auto",
-          paddingBottom: isChat ? 0 : "120px",
-          paddingTop: "env(safe-area-inset-top, 0px)",
+          paddingBottom: isChat ? 0 : "calc(108px + var(--safe-bottom))",
+          paddingTop: "var(--safe-top)",
         }}
       >
         <Outlet />
       </main>
 
-      {/* Floating glass nav — 5 icons, geen labels */}
+      {/* Bottom bar — icon + compact label, softer active, less chrome */}
       {!isChat && (
         <nav
           aria-label="Hoofdnavigatie"
-          className="fixed z-50 left-1/2 -translate-x-1/2"
-          style={{
-            bottom: 20,
-            width: 320,
-            height: 64,
-            borderRadius: 32,
-            background: "rgba(20,20,30,0.55)",
-            backdropFilter: "blur(24px) saturate(140%)",
-            WebkitBackdropFilter: "blur(24px) saturate(140%)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 6px",
-          }}
+          className="glass-nav fixed z-50 left-1/2 -translate-x-1/2 flex items-stretch justify-between gap-0.5 px-2 py-2 w-[min(100vw-24px,400px)] max-w-[400px] rounded-[22px]"
+          style={{ bottom: "calc(16px + var(--safe-bottom))" }}
         >
           {NAV.map(({ to, label, icon: Icon }) => {
             const active =
@@ -80,38 +81,39 @@ export default function AppShell() {
               <Link
                 key={to}
                 to={to}
-                aria-label={label}
+                aria-current={active ? "page" : undefined}
+                className="flex flex-1 min-w-0 flex-col items-center justify-center gap-0.5 no-underline rounded-[14px] py-1"
                 style={{
-                  width: 56, height: 56,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  textDecoration: "none",
-                  flexShrink: 0,
+                  background: active ? "rgba(232,131,74,0.08)" : "transparent",
+                  transition: "background 0.2s ease",
                 }}
               >
                 <motion.div
-                  whileTap={{ scale: 0.88 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  style={{
-                    width: active ? 44 : "auto",
-                    height: active ? 44 : "auto",
-                    borderRadius: "50%",
-                    background: active ? "rgba(232,131,74,0.10)" : "transparent",
-                    border: active ? "1px solid rgba(232,131,74,0.28)" : "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "all 0.2s ease",
-                    padding: active ? 0 : 8,
-                  }}
+                  whileTap={{ scale: 0.92 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                  className="flex flex-col items-center justify-center gap-0.5"
                 >
                   <Icon
-                    size={22}
+                    size={20}
                     strokeWidth={active ? 2 : 1.5}
+                    aria-hidden
                     style={{
-                      color: active ? "#E8834A" : "rgba(242,237,227,0.4)",
+                      color: active ? "#E8834A" : "rgba(242,237,227,0.38)",
                       transition: "color 0.2s ease",
                     }}
                   />
+                  <span
+                    className="max-w-full truncate px-0.5 text-center leading-none"
+                    style={{
+                      fontSize: 10,
+                      fontWeight: active ? 600 : 500,
+                      letterSpacing: "0.02em",
+                      color: active ? "rgba(242,237,227,0.82)" : "rgba(242,237,227,0.38)",
+                      transition: "color 0.2s ease",
+                    }}
+                  >
+                    {label}
+                  </span>
                 </motion.div>
               </Link>
             );

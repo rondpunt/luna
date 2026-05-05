@@ -10,6 +10,7 @@
     font-family: 'Geist', 'Manrope', system-ui, sans-serif;
     color-scheme: dark;
     height: 100%;
+    touch-action: manipulation;
   }
 
   body {
@@ -20,6 +21,7 @@
     font-feature-settings: "ss01", "cv11";
     overscroll-behavior: none;
     min-height: 100dvh;
+    -webkit-touch-callout: none;
   }
 
   .font-display {
@@ -30,6 +32,12 @@
   * {
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
+  }
+
+  input,
+  textarea,
+  [contenteditable="true"] {
+    touch-action: manipulation;
   }
 
   ::-webkit-scrollbar { width: 0; height: 0; }
@@ -47,6 +55,12 @@
    DESIGN TOKENS
    ───────────────────────────────────────── */
 :root {
+  /* Safe area (iOS / notched devices) — use in padding/margin calcs */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
   /* Colors */
   --bg:             #0B0B14;
   --bg-elevated:    #14141E;
@@ -58,6 +72,17 @@
   --text:           #F2EDE3;
   --text-muted:     #8A8278;
   --text-faint:     #4A4640;
+  /* Semantic text steps (used across chat / home / privacy) */
+  --text-2:         #D4CEC4;
+  --text-3:         #9E968C;
+  --text-4:         #5E5A54;
+
+  /* Surfaces & lines (card / sheet pattern) */
+  --bg-card:        #14141E;
+  --line:           rgba(255, 255, 255, 0.10);
+  --line-subtle:    rgba(255, 255, 255, 0.06);
+  --bg-input:       rgba(255, 255, 255, 0.04);
+  --accent-line:    rgba(232, 131, 74, 0.35);
 
   --accent:         #E8834A;
   --accent-hover:   #D26B36;
@@ -73,6 +98,17 @@
   --r-card:   20px;
   --r-input:  16px;
   --r-pill:   999px;
+
+  /* Spacing — 8px grid, page rhythm */
+  --space-1:  8px;
+  --space-2:  16px;
+  --space-3:  24px;
+  --space-4:  32px;
+  --space-5:  40px;
+  --space-6:  48px;
+  --page-px:  24px;
+  --section-gap: 32px;
+  --page-top: calc(var(--space-3) + var(--safe-top));
 
   /* shadcn compat */
   --background: 240 5% 4%;
@@ -102,13 +138,20 @@
    ───────────────────────────────────────── */
 .surface {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-subtle);
   border-radius: var(--r-card);
 }
 .surface-elevated {
   background: var(--bg-elevated);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line-subtle);
   border-radius: var(--r-card);
+}
+
+/* Page stack — consistent top padding + horizontal gutter */
+.luna-page {
+  padding-left: var(--page-px);
+  padding-right: var(--page-px);
+  padding-top: var(--page-top);
 }
 
 /* ─────────────────────────────────────────
@@ -119,6 +162,17 @@
   backdrop-filter: blur(24px) saturate(140%);
   -webkit-backdrop-filter: blur(24px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Bottom nav — lighter chrome, less visual weight than generic .glass */
+.glass-nav {
+  background: rgba(11, 11, 20, 0.72);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 8px 28px rgba(0, 0, 0, 0.28);
 }
 
 /* ─────────────────────────────────────────
@@ -193,6 +247,16 @@
 .press { transition: transform 0.1s, opacity 0.1s; }
 .press:active { transform: scale(0.97); opacity: 0.85; }
 
+/* Haptic-style micro feedback (pairs with .press on buttons) */
+.haptic-press:active {
+  animation: luna-haptic 0.12s ease-out;
+}
+@keyframes luna-haptic {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.08); }
+  100% { filter: brightness(1); }
+}
+
 /* ─────────────────────────────────────────
    ANIMATIONS
    ───────────────────────────────────────── */
@@ -222,9 +286,25 @@
   30% { transform: translateY(-4px); opacity: 1; }
 }
 
+@keyframes typingPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.88); }
+}
+
+@keyframes presenceDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.92); }
+}
+.presence-dot-pulse {
+  animation: presenceDotPulse 2.2s ease-in-out infinite;
+}
+
 /* Safe area helpers */
-.pb-safe { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-.pt-safe { padding-top: max(0px, env(safe-area-inset-top)); }
+.pb-safe { padding-bottom: max(12px, var(--safe-bottom)); }
+.pt-safe { padding-top: max(0px, var(--safe-top)); }
+.pl-safe { padding-left: max(0px, var(--safe-left)); }
+.pr-safe { padding-right: max(0px, var(--safe-right)); }
+.inset-bottom-safe { bottom: calc(20px + var(--safe-bottom)); }
 
 /* ─────────────────────────────────────────
    REDUCED MOTION
@@ -234,6 +314,38 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* User comfort toggles + OS reduced motion (mirror) */
+html[data-reduce-motion="true"] *,
+html[data-reduce-motion="true"] *::before,
+html[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+html[data-calm-ui="true"] {
+  --accent: #c57544;
+  --accent-soft: rgba(197, 117, 68, 0.07);
+  --accent-border: rgba(197, 117, 68, 0.22);
+}
+
+html[data-plain-mode="true"] .orb-glow-outer,
+html[data-plain-mode="true"] .orb-glow-inner {
+  opacity: 0.35 !important;
+  animation: none !important;
+}
+html[data-plain-mode="true"] .orb-core {
+  animation: none !important;
+}
+
+html[data-low-celebration="true"] .haptic-press:active {
+  animation: none !important;
+}
+html[data-reduce-motion="true"] .typing-dot {
+  animation: none !important;
+  opacity: 0.45;
 }
 
 /* ─────────────────────────────────────────
@@ -325,3 +437,169 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 .msg-enter { animation: msgEnter 0.25s cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+/* ─────────────────────────────────────────
+   CARDS & LISTS (semantic layout utilities)
+   ───────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--r-card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.card-hero {
+  position: relative;
+  border-radius: var(--r-card);
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    var(--bg-card) 48%
+  );
+  border: 1px solid var(--line-subtle);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 8px 28px rgba(0, 0, 0, 0.22);
+}
+
+.list-group {
+  border-radius: var(--r-card);
+  border: 1px solid var(--line-subtle);
+  overflow: hidden;
+  background: var(--bg-card);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line-subtle);
+  text-decoration: none;
+  color: inherit;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.list-row:last-child {
+  border-bottom: none;
+}
+a.list-row:hover,
+a.list-row:focus-visible,
+button.list-row:hover:not(:disabled),
+button.list-row:focus-visible:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--r-pill);
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-secondary:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.btn-press {
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease, background 0.15s ease;
+}
+.btn-press:hover:not(:disabled) {
+  opacity: 0.94;
+}
+.btn-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+.accent-gradient {
+  background: linear-gradient(135deg, #ee9670 0%, #e8834a 38%, #a64b24 100%);
+  box-shadow: 0 8px 24px rgba(232, 131, 74, 0.25);
+}
+
+/* ─────────────────────────────────────────
+   CALM UI + REDUCED MOTION (html data attrs)
+   Gezet na auth vanuit UserPreferences; stapelbaar met prefers-reduced-motion.
+   ───────────────────────────────────────── */
+html[data-calm-ui="true"] .glass {
+  backdrop-filter: blur(12px) saturate(110%);
+  -webkit-backdrop-filter: blur(12px) saturate(110%);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+html[data-calm-ui="true"] .glass-nav {
+  backdrop-filter: blur(14px) saturate(110%);
+  -webkit-backdrop-filter: blur(14px) saturate(110%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 4px 18px rgba(0, 0, 0, 0.2);
+}
+html[data-calm-ui="true"] .card-hero {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 6px 20px rgba(0, 0, 0, 0.22);
+}
+html[data-calm-ui="true"] .bubble-luna,
+html[data-calm-ui="true"] .bubble-user {
+  box-shadow: none;
+}
+html[data-calm-ui="true"] .accent-gradient {
+  box-shadow: 0 4px 14px rgba(232, 131, 74, 0.12);
+}
+
+html[data-reduce-motion="true"] .typing-dot,
+html[data-reduce-motion="true"] .presence-dot-pulse,
+html[data-reduce-motion="true"] .luna-orb-pulse {
+  animation: none !important;
+}
+html[data-reduce-motion="true"] .orb-glow-outer,
+html[data-reduce-motion="true"] .orb-glow-inner,
+html[data-reduce-motion="true"] .orb-core {
+  animation: none !important;
+}
+html[data-reduce-motion="true"] .animate-pulse {
+  animation: none !important;
+}
+html[data-reduce-motion="true"] .orb-breathe,
+html[data-reduce-motion="true"] .animate-orb-breathe {
+  animation: none !important;
+}
+html[data-reduce-motion="true"] .msg-enter {
+  animation: none !important;
+}
+html[data-reduce-motion="true"] .fade-up,
+html[data-reduce-motion="true"] .fade-in {
+  animation: none !important;
+}
+html[data-reduce-motion="true"] .haptic-press:active {
+  animation: none !important;
+}

@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import CrisisButton from "@/components/luna/CrisisButton";
-import { Save } from "lucide-react";
+import { Save, Download } from "lucide-react";
+import { usePremium } from "@/hooks/usePremium";
+import { downloadMarkdownFile, diaryToMarkdown } from "@/utils/exportLunaData";
 
 const EMOTIONS = [
   { key: "sadness",  label: "Verdriet",  color: "#6B8FD4" },
@@ -59,6 +60,7 @@ function EmotionRow({ label, value, onChange, color }) {
 }
 
 export default function Diary() {
+  const { isPlus } = usePremium();
   const qc = useQueryClient();
   const today = format(new Date(), "yyyy-MM-dd");
   const autoSaveRef = useRef(null);
@@ -125,8 +127,6 @@ export default function Diary() {
 
   return (
     <div className="fade-in px-6" style={{ paddingTop: "calc(32px + env(safe-area-inset-top, 0px))", paddingBottom: 40 }}>
-      <CrisisButton />
-
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
         <p className="eyebrow" style={{ marginBottom: 8 }}>DIARY CARD</p>
@@ -223,8 +223,27 @@ export default function Diary() {
         </div>
       </div>
 
+      {isPlus && (
+        <button
+          type="button"
+          onClick={() => {
+            const md = diaryToMarkdown({
+              date: today,
+              notes,
+              emotions: { verdriet: emotions.sadness, schaamte: emotions.shame, angst: emotions.fear, boos: emotions.anger, vreugde: emotions.joy },
+            });
+            downloadMarkdownFile(`luna-dagboek-${today}.md`, md);
+          }}
+          className="btn btn-ghost press haptic-press mb-3 w-full"
+          style={{ fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+        >
+          <Download size={16} strokeWidth={1.5} />
+          Export vandaag (markdown)
+        </button>
+      )}
+
       {/* Save */}
-      <button onClick={save} className="btn btn-primary press" style={{ fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+      <button type="button" onClick={save} className="btn btn-primary press haptic-press" style={{ fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
         <Save size={16} strokeWidth={1.5} />
         {saved ? "Opgeslagen." : "Opslaan"}
       </button>

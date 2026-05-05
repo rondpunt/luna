@@ -29,14 +29,14 @@ function buildItems(conversations, entries) {
   const journalItems = entries.map((e) => ({
     key: `j-${e.id}`,
     kind: "journal",
-    title: e.title?.trim() || "Notitie",
-    sub: (e.content || "").slice(0, 60).trim() || "Geen tekst",
+    title: e.title?.trim() || "Dagboek",
+    sub: (e.content || "").slice(0, 60).trim() || "Vandaag",
     when: e.updated_date || e.created_date,
-    to: `/journal/${e.id}`,
+    to: "/diary",
   }));
   return [...convItems, ...journalItems]
     .filter((i) => i.when)
-    .sort((a, b) => new Date(b.when) - new Date(a.when))
+    .sort((a, b) => Date.parse(String(b.when)) - Date.parse(String(a.when)))
     .slice(0, 3);
 }
 

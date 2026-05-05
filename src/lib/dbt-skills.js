@@ -1,6 +1,9 @@
 // DBT Skills library — Linehan's 4 modules
 // Content in Belgian Dutch
 
+/** Skills unlocked only with Luna Plus (interpersoonlijk diepgang). */
+export const LUNA_PLUS_SKILL_KEYS = ["dearman"];
+
 export const SKILL_MODULES = [
   {
     key: "mindfulness",

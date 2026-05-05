@@ -7,8 +7,8 @@
     },
     "concern": {
       "type": "string",
-      "enum": ["bpd", "adhd", "both", "unsure", "other"],
-      "description": "Primary concern uit onboarding stap 4"
+      "enum": ["bpd", "adhd", "both", "autism", "combination", "unsure", "other"],
+      "description": "Primary concern uit onboarding (bpd/adhd/autism/combination/unsure; both = legacy)"
     },
     "onboardingCompleted": {
       "type": "boolean",
@@ -37,8 +37,13 @@
     },
     "aiResponseStyle": {
       "type": "string",
-      "enum": ["shorter", "deeper", "practical"],
-      "default": "shorter"
+      "enum": ["shorter", "structured", "deeper", "practical"],
+      "default": "shorter",
+      "description": "Gestuurd door onboarding (communicatie); structured = meer houvast"
+    },
+    "onboarding_profile": {
+      "type": "string",
+      "description": "JSON string v1: reduceAnimations, calmPalette, fewerCelebrations, plainMode, communicationDirectness, replyShape — zie src/lib/lunaComfortPreferences.js"
     },
     "preferredLanguage": {
       "type": "string",
@@ -47,6 +52,18 @@
     "crisisDisclaimerAccepted": {
       "type": "boolean",
       "default": false
+    },
+    "chatSettings": {
+      "type": "object",
+      "description": "Chat-overzicht UI (lijst, pins, …) — zie useChatSettings.js"
+    },
+    "calmUi": {
+      "type": "boolean",
+      "description": "Spiegel van onboarding_profile.calmPalette (legacy / snelle reads)"
+    },
+    "reduceMotionUi": {
+      "type": "boolean",
+      "description": "Spiegel van onboarding_profile.reduceAnimations (legacy / snelle reads)"
     }
   },
   "required": ["userId"]

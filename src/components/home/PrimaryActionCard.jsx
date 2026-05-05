@@ -37,7 +37,7 @@ export default function PrimaryActionCard() {
             height: 42,
             borderRadius: "50%",
             background: "radial-gradient(circle at 35% 35%, #ee9670 0%, #c25a32 55%, #7a2d14 100%)",
-            boxShadow: "0 0 18px 5px rgba(194,90,50,0.22)",
+            boxShadow: "0 0 14px 4px rgba(194,90,50,0.14)",
           }}
         />
         <div className="flex-1 min-w-0">
@@ -63,7 +63,7 @@ export default function PrimaryActionCard() {
           <ArrowRight className="h-[14px] w-[14px]" strokeWidth={2.4} />
         </button>
         <button
-          onClick={() => go("/journal/new")}
+          onClick={() => go("/diary")}
           className="btn btn-secondary h-[44px] px-4"
           title="Schrijven"
         >

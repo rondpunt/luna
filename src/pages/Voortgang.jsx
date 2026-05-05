@@ -3,13 +3,15 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { nl } from "date-fns/locale";
-import { Lock } from "lucide-react";
+import { Lock, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import WellbeingInsight from "@/components/luna/WellbeingInsight";
+import { usePremium } from "@/hooks/usePremium";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip,
   BarChart, Bar, Cell,
 } from "recharts";
-import CrisisButton from "@/components/luna/CrisisButton";
 
 const RANGES = ["7d", "30d", "Alles"];
 const EMOTIONS = [
@@ -22,7 +24,9 @@ const EMOTIONS = [
 
 const SKILL_COLORS = ["#E8834A","#D4A86B","#A46BA8","#6B8FD4","#6BAD8A","#D46B6B","#8A8278","#F2EDE3","#4A4640"];
 
-function CustomTooltip({ active, payload, label }) {
+/** @param {any} props */
+function CustomTooltip(props) {
+  const { active, payload, label } = props;
   if (!active || !payload?.length) return null;
   return (
     <div style={{ background: "rgba(20,20,30,0.9)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "8px 12px", fontSize: 13, color: "var(--text)", fontWeight: 500 }}>
@@ -48,6 +52,8 @@ function weekSummary(checkIns) {
 export default function Voortgang() {
   const [range, setRange] = useState("7d");
   const [showEmotions, setShowEmotions] = useState(false);
+  const { isPlus } = usePremium();
+  useDocumentTitle("Voortgang");
 
   const { data: checkIns = [] } = useQuery({
     queryKey: ["checkins-voortgang"],
@@ -64,6 +70,18 @@ export default function Voortgang() {
     queryFn: () => base44.entities.SkillUse?.list?.("-created_date", 100) || Promise.resolve([]),
   });
 
+  const { data: insightMessages = [] } = useQuery({
+    queryKey: ["messages-voortgang-preview"],
+    queryFn: () => base44.entities.Message.list("-created_date", 40).catch(() => []),
+    enabled: isPlus,
+  });
+
+  const { data: insightCheckins = [] } = useQuery({
+    queryKey: ["checkins-voortgang-insight"],
+    queryFn: () => base44.entities.CheckIn.list("-created_date", 40),
+    enabled: isPlus,
+  });
+
   const filtered = checkIns.filter((c) => {
     if (range === "Alles") return true;
     const days = range === "7d" ? 7 : 30;
@@ -71,13 +89,13 @@ export default function Voortgang() {
   });
 
   const chartData = [...filtered]
-    .sort((a, b) => new Date(a.created_date) - new Date(b.created_date))
+    .sort((a, b) => Date.parse(String(a.created_date)) - Date.parse(String(b.created_date)))
     .map((c) => ({ date: format(parseISO(c.created_date), "d MMM", { locale: nl }), score: c.score }));
 
   // Emotion decomposition from diary entries
   const emotionData = [...diaryEntries]
     .filter((e) => range === "Alles" || differenceInDays(new Date(), parseISO(e.date || e.created_date)) < (range === "7d" ? 7 : 30))
-    .sort((a, b) => new Date(a.date || a.created_date) - new Date(b.date || b.created_date))
+    .sort((a, b) => Date.parse(String(a.date || a.created_date)) - Date.parse(String(b.date || b.created_date)))
     .map((e) => ({
       date: format(parseISO(e.date || e.created_date), "d MMM", { locale: nl }),
       sadness: e.sadness || 0,
@@ -108,8 +126,6 @@ export default function Voortgang() {
 
   return (
     <div className="fade-in px-6" style={{ paddingTop: "calc(32px + env(safe-area-inset-top, 0px))", paddingBottom: 40 }}>
-      <CrisisButton />
-
       <h1 className="font-display" style={{ fontSize: 36, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}>Voortgang.</h1>
       <p style={{ fontSize: 16, color: "var(--text-muted)", marginTop: 6, marginBottom: 32 }}>Een terugblik. Zonder oordeel.</p>
 
@@ -207,15 +223,35 @@ export default function Voortgang() {
         <p style={{ fontSize: 16, color: "var(--text)", lineHeight: 1.55 }}>{weekSummary(checkIns)}</p>
       </div>
 
-      {/* Lock card */}
-      <div className="surface" style={{ padding: "24px 20px", textAlign: "center" }}>
-        <Lock size={22} style={{ color: "#E8834A", margin: "0 auto 12px" }} strokeWidth={1.5} />
-        <p style={{ fontSize: 15, fontWeight: 500, color: "var(--text)", marginBottom: 4 }}>Volledige geschiedenis</p>
-        <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>Beschikbaar in Luna Plus. €9,99/maand.</p>
-        <Link to="/pricing">
-          <button className="btn-ghost-accent btn" style={{ height: 36, fontSize: 13 }}>Upgrade</button>
-        </Link>
-      </div>
+      {isPlus && (
+        <div className="surface" style={{ padding: "20px 20px 24px", marginBottom: 16 }}>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <p className="eyebrow" style={{ marginBottom: 0 }}>LUNA PLUS</p>
+            <Sparkles size={18} style={{ color: "#E8834A" }} strokeWidth={1.5} />
+          </div>
+          <WellbeingInsight
+            isPro={true}
+            checkIns={insightCheckins}
+            messages={insightMessages
+              .filter((m) => m.role === "user" || m.role === "assistant")
+              .map((m) => ({ role: m.role, content: m.content || "" }))}
+          />
+          <Link to="/inzichten" className="btn btn-ghost-accent btn w-full mt-4" style={{ height: 40, fontSize: 14 }}>
+            Open volledige inzichten
+          </Link>
+        </div>
+      )}
+
+      {!isPlus && (
+        <div className="surface" style={{ padding: "24px 20px", textAlign: "center" }}>
+          <Lock size={22} style={{ color: "#E8834A", margin: "0 auto 12px" }} strokeWidth={1.5} />
+          <p style={{ fontSize: 15, fontWeight: 500, color: "var(--text)", marginBottom: 4 }}>Volledige geschiedenis en AI-inzichten</p>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>Beschikbaar in Luna Plus. €9,99/maand.</p>
+          <Link to="/pricing">
+            <button type="button" className="btn-ghost-accent btn" style={{ height: 36, fontSize: 13 }}>Upgrade</button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

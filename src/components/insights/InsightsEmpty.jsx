@@ -14,7 +14,7 @@ export default function InsightsEmpty() {
         Hier verschijnt straks hoe het met je gaat en welke thema's terugkomen.
       </p>
       <button
-        onClick={() => navigate("/journal/new")}
+        onClick={() => navigate("/diary")}
         className="btn btn-primary"
       >
         Schrijf een notitie

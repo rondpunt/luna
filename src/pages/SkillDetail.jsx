@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getSkillByKey } from "@/lib/dbt-skills";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { getSkillByKey, LUNA_PLUS_SKILL_KEYS } from "@/lib/dbt-skills";
+import { usePremium } from "@/hooks/usePremium";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Play, Square, ChevronRight } from "lucide-react";
+import { ArrowLeft, Play, Square, ChevronRight, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import CrisisButton from "@/components/luna/CrisisButton";
 
 // Breathing visualizer for TIP paced breathing
 function BreathVisualizer({ active }) {
@@ -112,6 +112,7 @@ function EffectivenessRating({ onRate }) {
 export default function SkillDetail() {
   const { key } = useParams();
   const navigate = useNavigate();
+  const { isPlus } = usePremium();
   const result = getSkillByKey(key);
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -125,6 +126,20 @@ export default function SkillDetail() {
       <p style={{ color: "var(--text-muted)" }}>Skill niet gevonden.</p>
     </div>
   );
+
+  if (LUNA_PLUS_SKILL_KEYS.includes(key) && !isPlus) {
+    return (
+      <div className="fade-in px-6 flex flex-col items-center" style={{ paddingTop: "calc(48px + env(safe-area-inset-top, 0px))", minHeight: "70vh" }}>
+        <Lock size={28} style={{ color: "#E8834A", marginBottom: 16 }} strokeWidth={1.5} />
+        <h1 className="font-display text-center" style={{ fontSize: 28, color: "var(--text)", marginBottom: 12 }}>DEAR MAN — Luna Plus</h1>
+        <p style={{ fontSize: 15, color: "var(--text-muted)", textAlign: "center", maxWidth: 320, lineHeight: 1.55, marginBottom: 24 }}>
+          Deze geavanceerde interpersoonlijke module is onderdeel van Luna Plus — effectief communiceren zonder jezelf kwijt te raken.
+        </p>
+        <Link to="/pricing" className="btn btn-primary press mb-3" style={{ fontSize: 15 }}>Upgrade</Link>
+        <button type="button" className="btn btn-ghost" style={{ fontSize: 14 }} onClick={() => navigate("/skills")}>Terug</button>
+      </div>
+    );
+  }
 
   const { skill, module } = result;
   const steps = skill.steps || [];
@@ -165,8 +180,6 @@ export default function SkillDetail() {
 
   return (
     <div className="fade-in" style={{ paddingTop: "calc(32px + env(safe-area-inset-top, 0px))", paddingBottom: 40 }}>
-      <CrisisButton />
-
       {/* Header */}
       <div className="px-6" style={{ marginBottom: 32 }}>
         <button onClick={() => navigate("/skills")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", marginBottom: 16, display: "flex", alignItems: "center", gap: 6, color: "var(--text-muted)" }}>

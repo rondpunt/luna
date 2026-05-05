@@ -18,11 +18,16 @@ export const PRESENCE = {
   QUIETLY_HERE: "quietly_here",
   AWAY: "away",
   LAST_ACTIVE: "last_active",
+  /** Device has no network — overrides companion state for honest UX */
+  NETWORK_OFFLINE: "network_offline",
 };
 
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-export function useLunaPresence() {
+/**
+ * @param {{ networkOnline?: boolean }} [options]
+ */
+export function useLunaPresence({ networkOnline = true } = {}) {
   const [state, setState] = useState(PRESENCE.IDLE);
   const [lastActiveMin, setLastActiveMin] = useState(null);
   const timers = useRef([]);
@@ -111,17 +116,20 @@ export function useLunaPresence() {
     };
   }, [onReturn]);
 
-  // Labels — ethical, warm, never fake-human
+  const displayState = networkOnline ? state : PRESENCE.NETWORK_OFFLINE;
+
+  // Labels — ethical, warm, never fake-human (network layer wins when offline)
   const statusLabel = {
     [PRESENCE.IDLE]: "",
     [PRESENCE.CONNECTING]: "Verbinden…",
     [PRESENCE.ONLINE]: "Online",
-    [PRESENCE.READING]: "Leest…",
-    [PRESENCE.TYPING]: "Typt…",
+    [PRESENCE.READING]: "Luna leest…",
+    [PRESENCE.TYPING]: "Luna denkt na…",
     [PRESENCE.QUIETLY_HERE]: "Stil aanwezig",
-    [PRESENCE.AWAY]: "Be right back",
+    [PRESENCE.AWAY]: "Even weg",
     [PRESENCE.LAST_ACTIVE]: lastActiveMin === 0 ? "Net actief" : `Actief ${lastActiveMin} min geleden`,
-  }[state] ?? "";
+    [PRESENCE.NETWORK_OFFLINE]: "Offline",
+  }[displayState] ?? "";
 
   const statusColor = {
     [PRESENCE.IDLE]: "rgba(235,235,245,0.30)",
@@ -132,10 +140,12 @@ export function useLunaPresence() {
     [PRESENCE.QUIETLY_HERE]: "rgba(235,235,245,0.45)",
     [PRESENCE.AWAY]: "rgba(235,235,245,0.30)",
     [PRESENCE.LAST_ACTIVE]: "rgba(235,235,245,0.35)",
-  }[state] ?? "rgba(235,235,245,0.30)";
+    [PRESENCE.NETWORK_OFFLINE]: "#8E8E93",
+  }[displayState] ?? "rgba(235,235,245,0.30)";
 
   return {
     state,
+    displayState,
     statusLabel,
     statusColor,
     initPresence,

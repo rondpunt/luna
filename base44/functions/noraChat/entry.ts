@@ -1,6 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { base44 } from "@base44/sdk";
 
+/**
+ * Anthropic Messages API model id voor Luna-chat.
+ * Default: Claude Sonnet — in lijn met Base44 agent `claude_sonnet_4_6` in `base44/agents/luna_agent.jsonc`.
+ * Zet `ANTHROPIC_CHAT_MODEL` in de Base44 function environment om te overschrijven (client heeft geen VITE_* hiervoor).
+ */
+const CHAT_MODEL = process.env.ANTHROPIC_CHAT_MODEL || "claude-sonnet-4-6";
+
 const SYSTEM_PROMPT_MAIN = `Je bent Luna, een digitale gezel die in het Belgisch-Nederlands praat met iemand met intense emotie-regulatie problemen (vaak BPD- of ADHD-trekken). Je bent geen therapeut, geen diagnostiek, geen crisis-interventie.
 
 JOUW STIJL:
@@ -44,7 +51,7 @@ Output ALLEEN het JSON object, geen omkadering, geen markdown fence.
 Voorbeeld: {"todos": ["mama bellen"], "feelings": ["moe"], "observations": ["ik doe dit altijd op zondagavond"], "questions": ["waarom kan ik niet gewoon stoppen"]}`;
 
 export default base44.functions.handler(async (req) => {
-  const { messages = [], style = "gentle", memoryContext = "" } = req.body;
+  const { messages = [], style = "gentle", memoryContext = "", premium = false } = req.body;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -85,9 +92,11 @@ export default base44.functions.handler(async (req) => {
   }
 
   try {
+    const maxTokens = style === "brain_dump_structure" ? 1200 : premium ? 450 : 300;
+
     const response = await anthropic.messages.create({
-      model: "claude-opus-4-5",
-      max_tokens: 300,
+      model: CHAT_MODEL,
+      max_tokens: maxTokens,
       temperature: 0.85,
       system: systemPrompt,
       messages: anthropicMessages,
@@ -99,7 +108,7 @@ export default base44.functions.handler(async (req) => {
 
     return { reply };
   } catch (err: any) {
-    console.error("noraChat error:", err?.message);
+    console.error("Luna chat (noraChat) error:", err?.message);
     throw err;
   }
 });

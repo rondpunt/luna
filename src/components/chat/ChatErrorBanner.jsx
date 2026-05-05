@@ -4,7 +4,7 @@ import { AlertCircle, RotateCw } from "lucide-react";
  * Inline error banner shown after a failed assistant response.
  * Sits above the input bar, never blocks the conversation.
  */
-export default function ChatErrorBanner({ message, onRetry, retrying }) {
+export default function ChatErrorBanner({ message, onRetry, retrying, retryDisabled = false }) {
   if (!message) return null;
   return (
     <div
@@ -20,8 +20,9 @@ export default function ChatErrorBanner({ message, onRetry, retrying }) {
         {message}
       </p>
       <button
+        type="button"
         onClick={onRetry}
-        disabled={retrying}
+        disabled={retrying || retryDisabled}
         className="flex items-center gap-1.5 rounded-lg px-3 h-7 text-[12px] font-semibold btn-press shrink-0"
         style={{
           background: "rgba(240,71,71,0.16)",

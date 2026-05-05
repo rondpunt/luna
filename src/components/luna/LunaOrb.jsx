@@ -1,25 +1,27 @@
 import { PRESENCE } from "@/hooks/useLunaPresence";
 
 const ORB_CLASS = {
-  [PRESENCE.IDLE]:         "orb-dim",
-  [PRESENCE.CONNECTING]:   "orb-connect",
-  [PRESENCE.ONLINE]:       "orb-breathe",
-  [PRESENCE.READING]:      "orb-breathe",
-  [PRESENCE.TYPING]:       "orb-pulse",
-  [PRESENCE.QUIETLY_HERE]: "orb-dim",
-  [PRESENCE.AWAY]:         "orb-dim",
-  [PRESENCE.LAST_ACTIVE]:  "orb-dim",
+  [PRESENCE.IDLE]:             "orb-dim",
+  [PRESENCE.CONNECTING]:       "orb-connect",
+  [PRESENCE.ONLINE]:           "orb-breathe",
+  [PRESENCE.READING]:          "orb-breathe",
+  [PRESENCE.TYPING]:           "orb-pulse",
+  [PRESENCE.QUIETLY_HERE]:     "orb-dim",
+  [PRESENCE.AWAY]:             "orb-dim",
+  [PRESENCE.LAST_ACTIVE]:      "orb-dim",
+  [PRESENCE.NETWORK_OFFLINE]:  "orb-dim",
 };
 
 const ORB_OPACITY = {
-  [PRESENCE.IDLE]:         0.4,
-  [PRESENCE.CONNECTING]:   0.75,
-  [PRESENCE.ONLINE]:       1,
-  [PRESENCE.READING]:      0.85,
-  [PRESENCE.TYPING]:       1,
-  [PRESENCE.QUIETLY_HERE]: 0.6,
-  [PRESENCE.AWAY]:         0.40,
-  [PRESENCE.LAST_ACTIVE]:  0.35,
+  [PRESENCE.IDLE]:             0.4,
+  [PRESENCE.CONNECTING]:       0.75,
+  [PRESENCE.ONLINE]:           1,
+  [PRESENCE.READING]:          0.85,
+  [PRESENCE.TYPING]:           1,
+  [PRESENCE.QUIETLY_HERE]:     0.6,
+  [PRESENCE.AWAY]:             0.40,
+  [PRESENCE.LAST_ACTIVE]:      0.35,
+  [PRESENCE.NETWORK_OFFLINE]:  0.38,
 };
 
 export default function LunaOrb({ state = PRESENCE.ONLINE, size = 36, className = "" }) {

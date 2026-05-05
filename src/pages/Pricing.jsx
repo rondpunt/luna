@@ -10,9 +10,11 @@ const FREE_FEATURES = [
 
 const PRO_FEATURES = [
   "Onbeperkt berichten",
-  "Volledige gespreksgeschiedenis",
-  "Voortgangsgrafiek (alle data)",
-  "Geheugen over gesprekken heen",
+  "Langere antwoorden en context in chat",
+  "Export gesprekken en dagboek (markdown)",
+  "Pagina Inzichten met AI-welzijnsanalyse",
+  "Geheugen beheren en wissen",
+  "Exclusieve skill DEAR MAN",
   "Prioriteit bij nieuwe functies",
 ];
 
@@ -123,6 +125,12 @@ export default function Pricing() {
           Veilig betalen via Stripe. Geen verrassingen.
         </p>
       </div>
+
+      {import.meta.env?.VITE_PREMIUM_DEV === "1" && (
+        <p style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", marginBottom: 12, lineHeight: 1.5 }}>
+          Ontwikkelaar: <code style={{ fontSize: 11 }}>VITE_PREMIUM_DEV=1</code> simuleert Luna Plus lokaal (geen Stripe nodig).
+        </p>
+      )}
 
       {/* Bottom note */}
       <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center" }}>

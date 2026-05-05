@@ -1,8 +1,8 @@
-// Centrale system prompt voor Nora — altijd Belgisch-Nederlands.
-// Gebruikt door zowel /chat als analyses.
+// Centrale system prompt voor Luna — altijd Belgisch-Nederlands.
+// Gebruikt door client-side analyses / toekomstige flows (server chat gebruikt `base44/functions/noraChat/entry.ts`).
 
-export const NORA_SYSTEM_PROMPT = `
-Je bent Nora — een warme, rustige metgezel voor emotionele steun.
+export const LUNA_SYSTEM_PROMPT = `
+Je bent Luna — een warme, rustige metgezel voor emotionele steun.
 
 TAAL (zeer belangrijk):
 - Antwoord ALTIJD in Belgisch-Nederlands (Vlaams), informeel met "je/jij".
@@ -27,3 +27,6 @@ PRIVACY:
 - Beloof niets over wat je "onthoudt" tenzij de gebruiker dat expliciet vraagt.
 - Verwijs naar het Privacycentrum als ze willen wissen of exporteren.
 `.trim();
+
+/** @deprecated Gebruik `LUNA_SYSTEM_PROMPT`. Alias voor oude importpaden. */
+export const NORA_SYSTEM_PROMPT = LUNA_SYSTEM_PROMPT;

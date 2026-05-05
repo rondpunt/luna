@@ -8,8 +8,10 @@ import { ChevronLeft } from "lucide-react";
 import LunaOrb from "./LunaOrb";
 import { PRESENCE } from "@/hooks/useLunaPresence";
 
+/** Pass `displayState` from `useLunaPresence` when combining network + companion state. */
 export default function LunaChatHeader({ state, statusLabel, statusColor }) {
   const isConnecting = state === PRESENCE.CONNECTING;
+  const isNetworkOffline = state === PRESENCE.NETWORK_OFFLINE;
 
   return (
     <div
@@ -19,12 +21,23 @@ export default function LunaChatHeader({ state, statusLabel, statusColor }) {
         backdropFilter: "saturate(180%) blur(24px)",
         WebkitBackdropFilter: "saturate(180%) blur(24px)",
         borderBottom: "0.5px solid rgba(84,84,88,0.65)",
-        paddingTop: "calc(14px + env(safe-area-inset-top, 0px))",
+        paddingTop: "calc(14px + var(--safe-top))",
         paddingBottom: "12px",
       }}
     >
       {/* Back */}
-      <Link to="/" className="flex items-center gap-0.5 shrink-0" style={{ color: "#C25A32" }}>
+      <Link
+        to="/"
+        className="flex items-center gap-0.5 shrink-0 justify-center"
+        style={{
+          color: "#C25A32",
+          minWidth: 44,
+          minHeight: 44,
+          padding: "0 8px 0 0",
+          marginLeft: -4,
+          touchAction: "manipulation",
+        }}
+      >
         <ChevronLeft className="h-[22px] w-[22px]" strokeWidth={2.5} />
         <span className="text-[17px] font-medium">Terug</span>
       </Link>
@@ -50,12 +63,20 @@ export default function LunaChatHeader({ state, statusLabel, statusColor }) {
           {statusLabel && (
             <>
               {/* Pulse dot — only for active states */}
-              {(state === PRESENCE.ONLINE || state === PRESENCE.READING || state === PRESENCE.TYPING) && (
+              {(state === PRESENCE.ONLINE ||
+                state === PRESENCE.READING ||
+                state === PRESENCE.TYPING ||
+                isNetworkOffline) && (
                 <span
                   className="inline-block h-1.5 w-1.5 rounded-full shrink-0"
                   style={{
                     background: statusColor,
-                    animation: state === PRESENCE.TYPING ? "typingPulse 1s ease-in-out infinite" : "none",
+                    animation:
+                      state === PRESENCE.TYPING
+                        ? "typingPulse 1s ease-in-out infinite"
+                        : state === PRESENCE.READING
+                          ? "typingPulse 1.4s ease-in-out infinite"
+                          : "none",
                   }}
                 />
               )}

@@ -17,7 +17,7 @@ export default function PrivacyCenter() {
   return (
     <div className="min-h-screen px-4 py-6 space-y-6" style={{ background: "var(--bg)", paddingTop: "env(safe-area-inset-top, 44px)" }}>
       <div className="flex items-center gap-2">
-        <Link to="/profile" className="flex items-center gap-1 btn-press" style={{ color: "#C25A32" }}>
+        <Link to="/profiel" className="flex items-center gap-1 btn-press" style={{ color: "#C25A32" }}>
           <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
           <span className="text-[16px] font-medium">Profiel</span>
         </Link>

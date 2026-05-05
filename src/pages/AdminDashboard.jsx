@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { Users, MessageCircle, BookHeart, BarChart3 } from "lucide-react";
+import { MessageCircle, BookHeart, BarChart3 } from "lucide-react";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -18,11 +18,12 @@ export default function AdminDashboard() {
           base44.entities.JournalEntry.list("-created_date", 999),
           base44.entities.CheckIn.list("-date", 999),
         ]);
-        setStats({
+        setStats((prev) => ({
+          ...prev,
           conversations: convs.length,
           journals: journals.length,
           checkins: checkins.length,
-        });
+        }));
       } catch {
         navigate("/");
       } finally {

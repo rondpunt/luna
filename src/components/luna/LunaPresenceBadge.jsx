@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import LunaOrb from "./LunaOrb";
 import { PRESENCE } from "@/hooks/useLunaPresence";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { ChevronRight } from "lucide-react";
 
 export default function LunaPresenceBadge() {
+  const online = useOnlineStatus();
   const [status, setStatus] = useState("online");
 
   useEffect(() => {
@@ -12,10 +14,18 @@ export default function LunaPresenceBadge() {
     return () => clearTimeout(t);
   }, []);
 
-  const label = status === "online" ? "Luna is online" : "Luna is stil aanwezig";
-  const sub   = status === "online" ? "Klaar om te luisteren" : "Tap om te beginnen";
-  const orbState = status === "online" ? PRESENCE.ONLINE : PRESENCE.QUIETLY_HERE;
-  const dotColor = status === "online" ? "#34C77B" : "rgba(240,240,242,0.35)";
+  const label = !online
+    ? "Geen verbinding"
+    : status === "online"
+      ? "Luna is online"
+      : "Luna is stil aanwezig";
+  const sub = !online
+    ? "Berichten werken weer zodra je online bent"
+    : status === "online"
+      ? "Klaar om te luisteren"
+      : "Tap om te beginnen";
+  const orbState = !online ? PRESENCE.NETWORK_OFFLINE : status === "online" ? PRESENCE.ONLINE : PRESENCE.QUIETLY_HERE;
+  const dotColor = !online ? "#8E8E93" : status === "online" ? "#34C77B" : "rgba(240,240,242,0.35)";
 
   return (
     <Link to="/chat" className="block btn-press">

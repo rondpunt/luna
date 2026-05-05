@@ -3,7 +3,7 @@
 // Spelling: typisch Vlaams ("goesting", "babbel", "even", "rustig", "tof").
 
 export const t = {
-  appName: "Nora",
+  appName: "Luna",
   tagline: "Een rustige plek om je gehoord te voelen.",
   subTagline: "Privé emotionele steun, wanneer je het nodig hebt.",
 
@@ -41,11 +41,11 @@ export const t = {
     journal5: "5 minuten in je dagboek schrijven",
     streak: "Reeks",
     streakDays: (n) => `${n} dagen`,
-    streakNote: "Regelmaat helpt Nora om te zien wat je rust geeft.",
+    streakNote: "Regelmaat helpt Luna om te zien wat je rust geeft.",
     suggestedTool: "Voorgestelde oefening",
     breathingReset: "3-minuten ademreset",
     breathingNote: "Helpt bij racende gedachten en overweldiging.",
-    unlockPlus: "Ontgrendel Nora Plus",
+    unlockPlus: "Ontgrendel Luna Plus",
     unlockPlusNote: "Stem, geheugen en diepere weekinzichten.",
     privacyTitle: "Privacy eerst",
     privacyBullets: [
@@ -60,7 +60,7 @@ export const t = {
   chat: {
     header: "Babbel",
     title: "Privé emotionele steun, altijd binnen handbereik.",
-    placeholder: "Vertel Nora wat er door je hoofd gaat…",
+    placeholder: "Vertel Luna wat er door je hoofd gaat…",
     tonightTitle: "Babbel van vanavond",
     tonightNote: "Empathische steun in korte, rustige antwoorden.",
     sidebarTitle: "Gesprekken",
@@ -118,7 +118,7 @@ export const t = {
     chooseFree: "Gratis starten",
     choose: (n) => `Kies ${n}`,
     importantTitle: "Belangrijk om te weten",
-    importantBody: "Nora is geen noodhulp, geen medische zorg en geen vervanging voor een professionele hulpverlener.",
+    importantBody: "Luna is geen noodhulp, geen medische zorg en geen vervanging voor een professionele hulpverlener.",
   },
 
   paywallHook: {
@@ -133,7 +133,7 @@ export const t = {
     steps: [
       {
         eyebrow: "Welkom",
-        title: "Hoi, ik ben Nora.",
+        title: "Hoi, ik ben Luna.",
         body: "Een rustige, privé plek om te babbelen wanneer het zwaar is. Geen oordeel, geen haast.",
       },
       {
@@ -167,7 +167,7 @@ export const t = {
     namePlaceholder: "Bv. Niels",
     consent: "Ik ga akkoord met het privacybeleid en de veiligheidsnotitie.",
     safety: "Bij directe nood of zelfmoordgedachten: bel 112 of de Zelfmoordlijn 1813.",
-    finish: "Nora openen",
+    finish: "Luna openen",
   },
 
   profile: {
@@ -191,21 +191,21 @@ export const t = {
 
   privacy: {
     eyebrow: "Privacybeleid",
-    title: "Heldere taal over wat Nora bewaart en waarom.",
+    title: "Heldere taal over wat Luna bewaart en waarom.",
     blocks: [
       ["Wat bewaren we?", "Babbels, dagboeknotities, check-ins, voorkeuren en optionele herinneringen die je expliciet bewaart."],
       ["Waarom?", "Om de app te laten werken, je steun persoonlijker te maken en continuïteit te bieden over de tijd heen."],
       ["Jouw controle", "Je kunt data exporteren, geheugen uitzetten, herinneringen wissen en je account verwijderen."],
-      ["Geen noodhulp", "Nora is geen noodhulp, geen medische zorg en geen vervanger voor een professional."],
+      ["Geen noodhulp", "Luna is geen noodhulp, geen medische zorg en geen vervanger voor een professional."],
     ],
   },
 
   voorwaarden: {
     eyebrow: "Voorwaarden",
-    title: "Wat Nora wel en niet is.",
+    title: "Wat Luna wel en niet is.",
     blocks: [
-      ["Geen therapeut", "Nora is een AI-gezel voor emotionele steun, geen therapeut, dokter of crisislijn."],
-      ["Geen diagnose", "Nora stelt geen diagnoses en biedt geen medische behandeling."],
+      ["Geen therapeut", "Luna is een AI-gezel voor emotionele steun, geen therapeut, dokter of crisislijn."],
+      ["Geen diagnose", "Luna stelt geen diagnoses en biedt geen medische behandeling."],
       ["Veiligheid eerst", "Bij direct gevaar contacteer je lokale noodhulp of een vertrouwenspersoon."],
       ["Voor volwassenen", "Ontworpen als algemene emotionele steun voor volwassenen."],
     ],
@@ -214,13 +214,13 @@ export const t = {
   contact: {
     eyebrow: "Contact",
     title: "Vragen, feedback of een idee?",
-    body: "Mail het Nora-team via hello@nora.app — we lezen alles.",
+    body: "Mail het Luna-team via hallo@luna-app.be — we lezen alles.",
     button: "Stuur een mail",
   },
 
   privacyCenter: {
     eyebrow: "Privacycentrum",
-    title: "Bepaal zelf wat Nora onthoudt en wat van jou blijft.",
+    title: "Bepaal zelf wat Luna onthoudt en wat van jou blijft.",
     storedTitle: "Wat wordt bewaard",
     storedItems: [
       "Babbels en dagboeknotities op je privé account",

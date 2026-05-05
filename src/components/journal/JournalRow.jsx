@@ -14,7 +14,7 @@ export default function JournalRow({ entry }) {
   const handleTap = () => {
     if (tappedRef.current) return;
     tappedRef.current = true;
-    navigate(`/journal/${entry.id}`);
+    navigate("/diary");
     setTimeout(() => { tappedRef.current = false; }, 600);
   };
 

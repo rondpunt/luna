@@ -1,4 +1,5 @@
 import { base44 } from "@/api/base44Client";
+import { BASE44_LUNA_CHAT_FUNCTION_ID } from "@/lib/base44ChatFunction";
 
 /**
  * Single source of truth for chat persistence.
@@ -74,14 +75,14 @@ export async function touchConversation({ id, message_count }) {
 }
 
 /**
- * Call noraChat with up to 2 retries (exponential backoff).
+ * Roept de Base44 Luna-chatfunctie aan (deploy-id: `BASE44_LUNA_CHAT_FUNCTION_ID`) met tot 2 retries.
  * Throws on final failure so the caller can show the retry UI.
  */
-export async function invokeNoraChatWithRetry({ messages, style = "gentle", memoryContext = "" }, maxRetries = 2) {
+export async function invokeLunaChatWithRetry({ messages, style = "gentle", memoryContext = "" }, maxRetries = 2) {
   let lastError;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const res = await base44.functions.invoke("noraChat", { messages, style, memoryContext });
+      const res = await base44.functions.invoke(BASE44_LUNA_CHAT_FUNCTION_ID, { messages, style, memoryContext });
       const reply =
         typeof res?.data?.reply === "string"
           ? res.data.reply
@@ -95,5 +96,8 @@ export async function invokeNoraChatWithRetry({ messages, style = "gentle", memo
       }
     }
   }
-  throw lastError || new Error("noraChat_failed");
+  throw lastError || new Error("luna_chat_invoke_failed");
 }
+
+/** @deprecated Gebruik `invokeLunaChatWithRetry`. */
+export const invokeNoraChatWithRetry = invokeLunaChatWithRetry;

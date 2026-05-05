@@ -1,7 +1,7 @@
 import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Phone, ExternalLink, X } from "lucide-react";
+import { Phone, ExternalLink } from "lucide-react";
 
 export default function CrisisHelpSheet({ trigger }) {
   return (
