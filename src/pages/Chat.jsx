@@ -167,16 +167,12 @@ export default function Chat() {
     if (!dumpText.trim()) return;
     setProcessing(true);
     try {
-      const resp = await base44.functions.noraChat({
+      const resp = await base44.functions.invoke("noraChat", {
         messages: [{ role: "user", content: dumpText }],
         style: "brain_dump_structure",
         memoryContext: "",
       });
-      // Try to parse JSON from reply
-      const raw = resp?.reply || resp?.content || "{}";
-      let parsed;
-      try { parsed = JSON.parse(raw.replace(/```json\n?/g,"").replace(/```/g,"")); }
-      catch { parsed = { todos: [], feelings: [], observations: [raw], questions: [] }; }
+      const parsed = resp?.data?.structured || JSON.parse(resp?.data?.reply || "{}");
       // Save to BrainDump entity
       await base44.entities.BrainDump.create({ rawText: dumpText, aiStructured: JSON.stringify(parsed) }).catch(() => {});
       setBrainDumpResult(parsed);
@@ -211,12 +207,12 @@ export default function Chat() {
       }
       const history = [...messages, userMsg].slice(-12).map(m => ({ role: m.role, content: m.content }));
       const memoryContext = await loadMemoryContext();
-      const resp = await base44.functions.noraChat({
+      const resp = await base44.functions.invoke("noraChat", {
         messages: history,
         style: mode === "body_double" ? "body_double" : "gentle",
         memoryContext,
       });
-      const assistantContent = resp?.reply || resp?.content || "...";
+      const assistantContent = resp?.data?.reply || "Luna kon net niet antwoorden. Probeer het nog eens.";
       const assistantMsg = { role: "assistant", content: assistantContent, id: Date.now() + 1 };
       setMessages((prev) => [...prev, assistantMsg]);
       onLunaReply();
@@ -226,8 +222,9 @@ export default function Chat() {
       }
       setMsgCount((c) => c + 1);
       if (msgCount + 1 >= FREE_DAILY_LIMIT) setLimitReached(true);
-    } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Even geduld. Probeer het opnieuw.", id: Date.now() + 2 }]);
+    } catch (error) {
+      console.error("Luna chat error:", error);
+      setMessages((prev) => [...prev, { role: "assistant", content: "Luna kon net niet antwoorden. Probeer het nog eens.", id: Date.now() + 2 }]);
       onLunaReply();
     } finally {
       setTyping(false);

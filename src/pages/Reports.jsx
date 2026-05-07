@@ -80,8 +80,8 @@ ${diaryText}
 SKILL-GEBRUIK:
 ${skillText}`;
 
-      const result = await base44.functions.noraChat({ messages: [{ role: "user", content: prompt }], style: "weekly_report" });
-      const content = result?.content || result?.text || result?.response || "Rapport kon niet worden gegenereerd.";
+      const result = await base44.functions.invoke("noraChat", { messages: [{ role: "user", content: prompt }], style: "weekly_report" });
+      const content = result?.data?.reply || "Rapport kon niet worden gegenereerd.";
 
       await base44.entities.Report?.create?.({
         type: "weekly",
