@@ -1,15 +1,41 @@
 {
   "name": "VaultTopic",
-  "schema": {
-    "type": "object",
-    "properties": {
-      "userId": { "type": "string" },
-      "category": { "type": "string", "enum": ["person","situation","theme","trigger","goal"] },
-      "title": { "type": "string" },
-      "summary": { "type": "string" },
-      "emotions": { "type": "array", "items": { "type": "string" } },
-      "mentionCount": { "type": "number" },
-      "lastMentionedAt": { "type": "string" }
+  "type": "object",
+  "properties": {
+    "category": {
+      "type": "string",
+      "enum": [
+        "person",
+        "situation",
+        "theme",
+        "trigger",
+        "goal"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "emotions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "last_mentioned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "mention_count": {
+      "type": "number",
+      "default": 1
     }
-  }
+  },
+  "required": [
+    "category",
+    "title"
+  ]
 }

@@ -2,43 +2,46 @@
   "name": "Report",
   "type": "object",
   "properties": {
-    "userId": {
-      "type": "string",
-      "description": "Owner"
-    },
     "type": {
       "type": "string",
-      "enum": ["weekly", "session", "monthly", "therapist"],
-      "description": "Soort rapport"
+      "enum": [
+        "weekly",
+        "monthly",
+        "session",
+        "therapist",
+        "therapist_export"
+      ],
+      "default": "weekly"
     },
     "title": {
-      "type": "string",
-      "description": "Leesbare titel, bijv. 'Week van 1–7 mei'"
+      "type": "string"
     },
     "period_start": {
       "type": "string",
-      "description": "ISO date start"
+      "format": "date"
     },
     "period_end": {
       "type": "string",
-      "description": "ISO date einde"
+      "format": "date"
     },
     "content": {
-      "type": "string",
-      "description": "Volledige markdown content"
+      "type": "string"
     },
     "preview": {
-      "type": "string",
-      "description": "Eerste 120 tekens voor de lijst-kaart"
+      "type": "string"
+    },
+    "insights": {
+      "type": "object"
     },
     "pdf_data": {
-      "type": "object",
-      "description": "Gestructureerde data voor PDF-generatie (emotionAvg, urges, skills, etc)"
+      "type": "object"
     },
-    "conversation_id": {
-      "type": "string",
-      "description": "Link naar chat-conversatie (voor sessie-samenvatting)"
+    "pdf_url": {
+      "type": "string"
     }
   },
-  "required": ["type", "title"]
+  "required": [
+    "type",
+    "title"
+  ]
 }

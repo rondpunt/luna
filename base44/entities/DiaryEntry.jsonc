@@ -1,25 +1,95 @@
 {
   "name": "DiaryEntry",
-  "schema": {
-    "type": "object",
-    "properties": {
-      "userId": { "type": "string" },
-      "date": { "type": "string" },
-      "sadness": { "type": "number" },
-      "shame": { "type": "number" },
-      "fear": { "type": "number" },
-      "anger": { "type": "number" },
-      "joy": { "type": "number" },
-      "urge_self_harm": { "type": "number" },
-      "urge_substance": { "type": "number" },
-      "urge_quit_therapy": { "type": "number" },
-      "urge_lash_out": { "type": "number" },
-      "acted_self_harm": { "type": "boolean" },
-      "acted_substance": { "type": "boolean" },
-      "acted_lash_out": { "type": "boolean" },
-      "skills_used": { "type": "array", "items": { "type": "string" } },
-      "notes": { "type": "string" },
-      "overall_score": { "type": "number" }
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "sadness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "shame": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "fear": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "anger": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "joy": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "urge_self_harm": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "urge_substance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "urge_quit_therapy": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "urge_lash_out": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "default": 0
+    },
+    "acted_self_harm": {
+      "type": "boolean",
+      "default": false
+    },
+    "acted_substance": {
+      "type": "boolean",
+      "default": false
+    },
+    "acted_lash_out": {
+      "type": "boolean",
+      "default": false
+    },
+    "skills_used": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "notes": {
+      "type": "string"
+    },
+    "overall_score": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 5
     }
-  }
+  },
+  "required": [
+    "date"
+  ]
 }
