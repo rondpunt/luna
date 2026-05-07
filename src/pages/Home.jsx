@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, differenceInDays, parseISO } from "date-fns";
+import { format, differenceInDays, parseISO, subDays } from "date-fns";
 import { nl } from "date-fns/locale";
+import DailyRewardCard from "@/components/home/DailyRewardCard";
 
 const MOOD_LABELS = {
   1: "Het is zwaar.", 2: "Het is zwaar.",
@@ -14,17 +15,31 @@ const MOOD_LABELS = {
 };
 
 function returnNudge(checkIns) {
-  if (!checkIns?.length) return null;
+  if (!checkIns?.length) return "Eén minuut inchecken is genoeg om Luna beter te laten aansluiten.";
   const sorted = [...checkIns].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
   const last = sorted[0];
   if (!last) return null;
   const daysSince = differenceInDays(new Date(), parseISO(last.created_date));
   if (daysSince > 14) return "Welkom terug. Goed dat je er weer bent.";
   const thisWeek = checkIns.filter((c) => differenceInDays(new Date(), parseISO(c.created_date)) < 7).length;
-  if (thisWeek >= 7) return "Je maakt hier ruimte voor jezelf. Mooi.";
-  if (thisWeek >= 3) return "Je hebt er deze week meerdere keren even bij stilgestaan.";
-  if (daysSince <= 1) return "Je was hier gisteren ook.";
-  return null;
+  if (thisWeek >= 7) return "Je ritme wordt zichtbaar. Luna onthoudt de lijn, jij hoeft dat niet te dragen.";
+  if (thisWeek >= 3) return "Je hebt deze week al een paar keer ingecheckt. Dat helpt patronen zien.";
+  if (daysSince <= 1) return "Je was hier gisteren ook. Hou het klein, dat is genoeg.";
+  return "Vandaag even landen maakt morgen makkelijker terugkijken.";
+}
+
+function dailyStreak(checkIns, includeToday) {
+  const dates = new Set((checkIns || []).map((c) => c.date || (c.created_date || "").split("T")[0]).filter(Boolean));
+  const today = format(new Date(), "yyyy-MM-dd");
+  if (includeToday) dates.add(today);
+
+  let count = 0;
+  let cursor = new Date();
+  while (dates.has(format(cursor, "yyyy-MM-dd"))) {
+    count += 1;
+    cursor = subDays(cursor, 1);
+  }
+  return count;
 }
 
 export default function Home() {
@@ -43,6 +58,9 @@ export default function Home() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Goedemorgen." : hour < 18 ? "Goedemiddag." : "Goedenavond.";
   const nudge = returnNudge(checkIns);
+  const today = format(new Date(), "yyyy-MM-dd");
+  const checkedToday = checkIns.some((c) => (c.date || (c.created_date || "").split("T")[0]) === today);
+  const streak = dailyStreak(checkIns, saved || checkedToday);
 
   const saveAndChat = async () => {
     if (saving) return;
@@ -171,9 +189,11 @@ export default function Home() {
             className="btn btn-ghost"
             style={{ fontSize: 15, color: saved ? "#E8834A" : "var(--text-muted)" }}
           >
-            {saved ? "Genoteerd." : "Alleen registreren"}
+            {saved ? "Beloning vrijgespeeld." : "Alleen registreren"}
           </button>
         </div>
+
+        <DailyRewardCard streak={streak} saved={saved} checkedToday={checkedToday} />
       </div>
 
       {/* Breathing room */}
