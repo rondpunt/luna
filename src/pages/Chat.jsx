@@ -9,6 +9,7 @@ import { useLunaPresence, PRESENCE } from "@/hooks/useLunaPresence";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import { buildLunaUserState, formatLunaUserState } from "@/lib/lunaUserState";
 
 const FREE_DAILY_LIMIT = 10;
 
@@ -146,11 +147,11 @@ export default function Chat() {
     try {
       const storedTags = JSON.parse(sessionStorage.getItem("luna_selected_tags") || "[]");
       if (storedTags.length) {
-        contextParts.push(`Bij de start herkende deze persoon zich in: ${storedTags.join(", ")}. Gebruik dit voorzichtig als richting, stel geen diagnose en vraag altijd om bevestiging.`);
+        contextParts.push(formatLunaUserState(buildLunaUserState(storedTags)));
       } else if (user?.id) {
         const rows = await base44.entities.UserSelectedTags.filter({ userId: user.id }, "-created_date", 1);
         if (rows?.[0]?.tags?.length) {
-          contextParts.push(`Bij de start herkende deze persoon zich in: ${rows[0].tags.join(", ")}. Gebruik dit voorzichtig als richting, stel geen diagnose en vraag altijd om bevestiging.`);
+          contextParts.push(formatLunaUserState(buildLunaUserState(rows[0].tags)));
         }
       }
     } catch {}

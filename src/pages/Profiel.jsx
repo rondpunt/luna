@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Lock, Download, Trash2, AlertTriangle, FileText, BookMarked } from "lucide-react";
+import { ChevronRight, Lock, Download, Trash2, AlertTriangle, FileText, BookMarked, ClipboardCheck } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { nl } from "date-fns/locale";
 import CrisisButton from "@/components/luna/CrisisButton";
@@ -92,13 +92,14 @@ export default function Profiel() {
         {[
           { label: "Rapporten", icon: FileText, to: "/reports", desc: "Wekelijkse overzichten & exports" },
           { label: "Topic Vault", icon: BookMarked, to: "/vault", desc: "Wat steeds terugkomt" },
+          { label: "Zelftesten", icon: ClipboardCheck, to: "/selftests", desc: "Screenings voor patronen, geen diagnoses" },
         ].map((item, i) => (
           <Link key={item.label} to={item.to} style={{ textDecoration: "none" }}>
             <div
               style={{
                 height: 64, display: "flex", alignItems: "center",
                 padding: "0 20px", justifyContent: "space-between",
-                borderBottom: i === 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.04)" : "none",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

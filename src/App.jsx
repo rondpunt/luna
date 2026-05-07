@@ -25,6 +25,7 @@ import Voorwaarden from "./pages/Voorwaarden";
 import Contact from "./pages/Contact";
 import PrivacyCenter from "./pages/PrivacyCenter";
 import AdminDashboard from "./pages/AdminDashboard";
+import SelfTests from "./pages/SelfTests";
 
 const AuthenticatedApp = () => {
   const { authError } = useAuth();
@@ -60,6 +61,7 @@ const AuthenticatedApp = () => {
         <Route path="/voortgang" element={<Voortgang />} />
         <Route path="/profiel" element={<Profiel />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/selftests" element={<SelfTests />} />
       </Route>
       <Route path="/landing" element={<Landing />} />
       <Route path="/pricing" element={<Pricing />} />
