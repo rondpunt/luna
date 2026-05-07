@@ -12,7 +12,8 @@ import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { buildLunaUserState, formatLunaUserState } from "@/lib/lunaUserState";
 
-const FREE_DAILY_LIMIT = 10;
+const FREE_MESSAGE_LIMIT = 10;
+const MIN_USAGE_DAYS_BEFORE_PAYWALL = 5;
 
 const MODES = [
   { key: "normal",      label: "Gesprek",       desc: "Luna luistert en reageert." },
@@ -83,7 +84,8 @@ export default function Chat() {
   const [convId, setConvId] = useState(null);
   const [showCrisis, setShowCrisis] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [msgCount, setMsgCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
+  const [usageDays, setUsageDays] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
   const [mode, setMode] = useState("normal");
   const [showBodyDoubleInfo, setShowBodyDoubleInfo] = useState(false);
@@ -136,11 +138,12 @@ export default function Chat() {
 
   const checkQuota = async () => {
     try {
-      const today = format(new Date(), "yyyy-MM-dd");
-      const todayMsgs = await base44.entities.Message.filter({ role: "user" });
-      const todayCount = todayMsgs?.filter((m) => (m.created_date || "").split("T")[0] === today).length || 0;
-      setMsgCount(todayCount);
-      setLimitReached(todayCount >= FREE_DAILY_LIMIT);
+      const userMsgs = await base44.entities.Message.filter({ role: "user" });
+      const total = userMsgs?.length || 0;
+      const distinctDays = new Set((userMsgs || []).map((m) => (m.created_date || "").split("T")[0]).filter(Boolean)).size;
+      setMessageCount(total);
+      setUsageDays(distinctDays);
+      setLimitReached(total >= FREE_MESSAGE_LIMIT && distinctDays >= MIN_USAGE_DAYS_BEFORE_PAYWALL);
     } catch {}
   };
 
@@ -223,8 +226,12 @@ export default function Chat() {
         await base44.entities.Message.create({ conversation_id: convId, role: "assistant", content: assistantContent });
         await base44.entities.Conversation.update(convId, { last_message_at: new Date().toISOString(), message_count: messages.length + 2 });
       }
-      setMsgCount((c) => c + 1);
-      if (msgCount + 1 >= FREE_DAILY_LIMIT) setLimitReached(true);
+      const nextCount = messageCount + 1;
+      const today = format(new Date(), "yyyy-MM-dd");
+      const nextUsageDays = Math.max(usageDays, new Set([...messages.filter((m) => m.role === "user").map((m) => m.created_date?.split?.("T")?.[0]).filter(Boolean), today]).size || usageDays || 1);
+      setMessageCount(nextCount);
+      setUsageDays(nextUsageDays);
+      if (nextCount >= FREE_MESSAGE_LIMIT && nextUsageDays >= MIN_USAGE_DAYS_BEFORE_PAYWALL) setLimitReached(true);
     } catch (error) {
       console.error("Luna chat error:", error);
       setMessages((prev) => [...prev, { role: "assistant", content: "Luna kon net niet antwoorden. Probeer het nog eens.", id: Date.now() + 2 }]);
@@ -232,7 +239,7 @@ export default function Chat() {
     } finally {
       setTyping(false);
     }
-  }, [input, typing, messages, convId, limitReached, msgCount, mode, onUserMessage, onLunaReply, user?.id]);
+  }, [input, typing, messages, convId, limitReached, messageCount, usageDays, mode, onUserMessage, onLunaReply, user?.id]);
 
   const clearConversation = async () => {
     setMessages([]);
@@ -249,7 +256,6 @@ export default function Chat() {
   };
 
   const isEmpty = messages.length === 0 && !typing;
-  const msgsLeft = FREE_DAILY_LIMIT - msgCount;
 
   if (mode === "body_double") {
     return <BodyDoubleFocus onBack={() => { setMode("normal"); setShowBodyDoubleInfo(false); }} />;
@@ -273,9 +279,6 @@ export default function Chat() {
           </div>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-          {msgsLeft <= FREE_DAILY_LIMIT && msgsLeft > 0 && (
-            <span style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", whiteSpace: "nowrap" }}>{msgsLeft} berichten over</span>
-          )}
           <button onClick={() => setShowCrisis(true)} style={{ fontSize: 13, fontWeight: 500, color: "#D14D4D", background: "none", border: "none", cursor: "pointer" }} aria-label="Hulp nu — crisis lijn">hulp</button>
           <button onClick={() => setShowClearConfirm(true)} aria-label="Gesprek wissen" style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--surface)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             <Trash2 size={18} style={{ color: "var(--text-muted)" }} strokeWidth={1.5} />
@@ -338,7 +341,7 @@ export default function Chat() {
             {typing && <TypingIndicator />}
             {limitReached && !typing && mode === "normal" && (
               <div className="fade-in" style={{ padding: "20px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, textAlign: "center", marginTop: 8 }}>
-                <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16 }}>Je hebt vandaag al even gepraat. Morgen mag het weer. Of upgrade voor onbeperkt.</p>
+                <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 16 }}>Je gebruikt Luna nu echt. Upgrade naar Plus om door te praten zonder limiet.</p>
                 <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
                   <button className="btn-ghost-accent btn" style={{ height: 36, fontSize: 13, flex: 1 }} onClick={() => navigate("/pricing")}>Upgrade</button>
                   <button className="btn btn-ghost" style={{ height: 36, fontSize: 13, flex: 1 }} onClick={() => navigate("/")}>Misschien morgen</button>

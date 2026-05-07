@@ -10,8 +10,8 @@ export default function DailyRewardCard({ streak, saved, checkedToday }) {
   const text = saved
     ? "Je hebt vandaag even naar jezelf geluisterd. Dat telt."
     : checkedToday
-      ? "Kom morgen terug voor je volgende zachte check-in."
-      : "Registreer vandaag en bouw rustig verder aan je ritme.";
+      ? "Kom morgen terug voor je volgende check-in."
+      : "Registreer vandaag en bouw verder aan je ritme.";
 
   return (
     <div

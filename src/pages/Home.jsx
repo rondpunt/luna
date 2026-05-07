@@ -22,10 +22,10 @@ function returnNudge(checkIns) {
   const daysSince = differenceInDays(new Date(), parseISO(last.created_date));
   if (daysSince > 14) return "Welkom terug. Goed dat je er weer bent.";
   const thisWeek = checkIns.filter((c) => differenceInDays(new Date(), parseISO(c.created_date)) < 7).length;
-  if (thisWeek >= 7) return "Je ritme wordt zichtbaar. Luna onthoudt de lijn, jij hoeft dat niet te dragen.";
-  if (thisWeek >= 3) return "Je hebt deze week al een paar keer ingecheckt. Dat helpt patronen zien.";
-  if (daysSince <= 1) return "Je was hier gisteren ook. Hou het klein, dat is genoeg.";
-  return "Vandaag even landen maakt morgen makkelijker terugkijken.";
+  if (thisWeek >= 7) return "Je ritme wordt zichtbaar. Luna houdt de lijn bij.";
+  if (thisWeek >= 3) return "Je hebt deze week al een paar keer ingecheckt. Dat maakt patronen duidelijker.";
+  if (daysSince <= 1) return "Je was hier gisteren ook. Blijf die lijn vasthouden.";
+  return "Vandaag inchecken maakt morgen scherper terugkijken.";
 }
 
 function dailyStreak(checkIns, includeToday) {
