@@ -1,28 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { Users, MessageCircle, BookHeart, BarChart3 } from "lucide-react";
+import { BarChart3, BookHeart, MessageCircle, Shield, Users } from "lucide-react";
+import AdminStatCard from "@/components/admin/AdminStatCard";
+import AdminUserList from "@/components/admin/AdminUserList";
+import AdminUserDetail from "@/components/admin/AdminUserDetail";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ users: 0, conversations: 0, journals: 0, checkins: 0 });
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [overview, setOverview] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedDetail, setSelectedDetail] = useState(null);
+  const [search, setSearch] = useState("");
+
+  const loadOverview = async () => {
+    const response = await base44.functions.invoke("adminOverview", {});
+    setOverview(response.data);
+    if (!selectedUserId && response.data.users?.[0]?.id) setSelectedUserId(response.data.users[0].id);
+  };
+
+  const loadUserDetail = async (userId) => {
+    if (!userId) return;
+    setDetailLoading(true);
+    const response = await base44.functions.invoke("adminUserProfile", { userId });
+    setSelectedDetail(response.data);
+    setDetailLoading(false);
+  };
 
   useEffect(() => {
     (async () => {
       try {
         const user = await base44.auth.me();
         if (user?.role !== "admin") { navigate("/"); return; }
-        const [convs, journals, checkins] = await Promise.all([
-          base44.entities.Conversation.list("-created_date", 999),
-          base44.entities.JournalEntry.list("-created_date", 999),
-          base44.entities.CheckIn.list("-date", 999),
-        ]);
-        setStats({
-          conversations: convs.length,
-          journals: journals.length,
-          checkins: checkins.length,
-        });
+        await loadOverview();
       } catch {
         navigate("/");
       } finally {
@@ -31,42 +43,66 @@ export default function AdminDashboard() {
     })();
   }, [navigate]);
 
-  const CARDS = [
-    { icon: MessageCircle, label: "Gesprekken", value: stats.conversations, color: "#c25a32" },
-    { icon: BookHeart, label: "Dagboeknotities", value: stats.journals, color: "#ee9670" },
-    { icon: BarChart3, label: "Check-ins", value: stats.checkins, color: "#a04028" },
-  ];
+  useEffect(() => {
+    if (selectedUserId) loadUserDetail(selectedUserId);
+  }, [selectedUserId]);
+
+  const filteredUsers = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return overview?.users || [];
+    return (overview?.users || []).filter((user) =>
+      `${user.full_name || ""} ${user.email || ""} ${(user.selectedTags || []).join(" ")}`.toLowerCase().includes(term)
+    );
+  }, [overview?.users, search]);
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#000" }}>
-      <p className="text-white/50 text-sm">Laden…</p>
+    <div className="flex min-h-screen items-center justify-center bg-black">
+      <p className="text-sm text-white/50">Admin laden…</p>
     </div>
   );
 
+  const totals = overview?.totals || {};
+  const cards = [
+    { icon: Users, label: "Users", value: totals.users || 0, detail: "Alle geregistreerde accounts" },
+    { icon: MessageCircle, label: "Chatberichten", value: totals.messages || 0, detail: "User + Luna berichten" },
+    { icon: BarChart3, label: "Check-ins", value: totals.checkins || 0, detail: "Dagelijkse scores" },
+    { icon: BookHeart, label: "Dagboek", value: totals.diaryEntries || 0, detail: "Diary entries" },
+  ];
+
   return (
-    <div className="min-h-screen px-5 py-10 space-y-6" style={{ background: "#000" }}>
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Admin</p>
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {CARDS.map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="rounded-2xl p-5" style={{ background: "#1c1c1e" }}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl mb-3" style={{ background: `${color}25` }}>
-              <Icon className="h-5 w-5" style={{ color }} />
+    <div className="min-h-screen bg-black px-4 py-8 text-white sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-orange-200/60">
+              <Shield className="h-4 w-4" /> Admin only
             </div>
-            <p className="text-3xl font-bold text-white">{value}</p>
-            <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>{label}</p>
+            <h1 className="text-3xl font-semibold tracking-tight">Luna admin panel</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
+              Beveiligd overzicht van users, statistieken, onboardingwoorden, volledige chatlogs en AI-profielen.
+            </p>
           </div>
-        ))}
-      </div>
+          <button onClick={loadOverview} className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/65 hover:bg-white/[0.06]">
+            Refresh data
+          </button>
+        </div>
 
-      <div className="rounded-2xl px-4 py-4" style={{ background: "#1c1c1e" }}>
-        <p className="text-sm font-semibold text-white mb-1">Over dit dashboard</p>
-        <p className="text-sm leading-5" style={{ color: "rgba(255,255,255,0.50)" }}>
-          Enkel zichtbaar voor admin-gebruikers. Data is anoniem geaggregeerd — geen persoonsgegevens worden hier weergegeven.
-        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {cards.map((card) => <AdminStatCard key={card.label} {...card} />)}
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
+          <div className="space-y-3">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Zoek user, mail of woord…"
+              className="h-12 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white outline-none placeholder:text-white/30 focus:border-orange-300/40"
+            />
+            <AdminUserList users={filteredUsers} selectedId={selectedUserId} onSelect={setSelectedUserId} />
+          </div>
+          <AdminUserDetail detail={selectedDetail} loading={detailLoading} onAnalyze={() => loadUserDetail(selectedUserId)} />
+        </div>
       </div>
     </div>
   );
