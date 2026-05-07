@@ -142,11 +142,23 @@ export default function Chat() {
   };
 
   const loadMemoryContext = async () => {
+    const contextParts = [];
+    try {
+      const storedTags = JSON.parse(sessionStorage.getItem("luna_selected_tags") || "[]");
+      if (storedTags.length) {
+        contextParts.push(`Bij de start herkende deze persoon zich in: ${storedTags.join(", ")}. Gebruik dit voorzichtig als richting, stel geen diagnose en vraag altijd om bevestiging.`);
+      } else if (user?.id) {
+        const rows = await base44.entities.UserSelectedTags.filter({ userId: user.id }, "-created_date", 1);
+        if (rows?.[0]?.tags?.length) {
+          contextParts.push(`Bij de start herkende deze persoon zich in: ${rows[0].tags.join(", ")}. Gebruik dit voorzichtig als richting, stel geen diagnose en vraag altijd om bevestiging.`);
+        }
+      }
+    } catch {}
     try {
       const memories = await base44.entities.Memory.list("-created_date", 20);
-      if (!memories?.length) return "";
-      return memories.map((m) => m.content || "").filter(Boolean).join("\n").slice(0, 1500);
-    } catch { return ""; }
+      if (memories?.length) contextParts.push(memories.map((m) => m.content || "").filter(Boolean).join("\n").slice(0, 1500));
+    } catch {}
+    return contextParts.filter(Boolean).join("\n");
   };
 
   // Brain dump: process the full dump
@@ -220,7 +232,7 @@ export default function Chat() {
     } finally {
       setTyping(false);
     }
-  }, [input, typing, messages, convId, limitReached, msgCount, mode, onUserMessage, onLunaReply]);
+  }, [input, typing, messages, convId, limitReached, msgCount, mode, onUserMessage, onLunaReply, user?.id]);
 
   const clearConversation = async () => {
     setMessages([]);

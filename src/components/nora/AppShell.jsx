@@ -4,7 +4,7 @@ import CrisisButton from "@/components/luna/CrisisButton";
 import { motion } from "framer-motion";
 
 const NAV = [
-  { to: "/",          label: "Home",      icon: Home },
+  { to: "/home",      label: "Home",      icon: Home },
   { to: "/chat",      label: "Chat",      icon: MessageCircle },
   { to: "/diary",     label: "Dagboek",   icon: BookOpen },
   { to: "/voortgang", label: "Voortgang", icon: TrendingUp },

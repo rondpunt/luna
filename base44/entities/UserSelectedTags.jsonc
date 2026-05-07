@@ -1,0 +1,23 @@
+{
+  "name": "UserSelectedTags",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source": {
+      "type": "string",
+      "default": "console_intro"
+    }
+  },
+  "required": [
+    "userId",
+    "tags"
+  ]
+}

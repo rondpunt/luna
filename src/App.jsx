@@ -8,6 +8,7 @@ import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import AppShell from "@/components/nora/AppShell";
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
+import OnboardingGate from "@/components/onboarding/OnboardingGate";
 import Chat from "./pages/Chat";
 import Diary from "./pages/Diary";
 import Skills from "./pages/Skills";
@@ -16,6 +17,8 @@ import Voortgang from "./pages/Voortgang";
 import Profiel from "./pages/Profiel";
 import Reports from "./pages/Reports";
 import Onboarding from "./pages/Onboarding";
+import ConsoleOnboarding from "./pages/ConsoleOnboarding";
+import WordSelect from "./pages/WordSelect";
 import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
 import Voorwaarden from "./pages/Voorwaarden";
@@ -32,7 +35,8 @@ const AuthenticatedApp = () => {
     return (
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/onboarding" element={<ConsoleOnboarding />} />
+      <Route path="/wordselect" element={<WordSelect />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/voorwaarden" element={<Voorwaarden />} />
@@ -44,8 +48,11 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
+      <Route path="/" element={<OnboardingGate />} />
+      <Route path="/onboarding" element={<ConsoleOnboarding />} />
+      <Route path="/wordselect" element={<WordSelect />} />
       <Route element={<AppShell />}>
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/diary" element={<Diary />} />
         <Route path="/skills" element={<Skills />} />
@@ -55,7 +62,6 @@ const AuthenticatedApp = () => {
         <Route path="/reports" element={<Reports />} />
       </Route>
       <Route path="/landing" element={<Landing />} />
-      <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/voorwaarden" element={<Voorwaarden />} />

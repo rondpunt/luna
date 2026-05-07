@@ -319,6 +319,51 @@
   .orb-glow-outer, .orb-glow-inner, .orb-core { animation: none !important; }
 }
 
+.console-cursor {
+  display: inline-block;
+  width: 12px;
+  height: 20px;
+  margin-top: 8px;
+  background: rgba(242, 237, 227, 0.88);
+  animation: consoleBlink 1s steps(1, end) infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes consoleBlink {
+  0%, 48% { opacity: 1; }
+  49%, 100% { opacity: 0; }
+}
+
+.tag-orbit-button {
+  position: absolute;
+  min-height: 48px;
+  min-width: 64px;
+  transform: translate(-50%, -50%);
+  padding: 13px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 237, 227, 0.16);
+  background: rgba(242, 237, 227, 0.035);
+  color: rgba(242, 237, 227, 0.86);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(242, 237, 227, 0.025);
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.tag-orbit-button:hover,
+.tag-orbit-button:focus-visible {
+  border-color: rgba(242, 237, 227, 0.34);
+  background: rgba(242, 237, 227, 0.065);
+  color: rgba(242, 237, 227, 0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .console-cursor { animation: none !important; }
+}
+
 /* Msg enter animation */
 @keyframes msgEnter {
   from { opacity: 0; transform: translateY(6px); }
