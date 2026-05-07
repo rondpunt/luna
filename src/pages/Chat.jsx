@@ -278,7 +278,7 @@ export default function Chat() {
       </header>
 
       {/* Mode selector */}
-      <div style={{ padding: "8px 16px", display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none" }}>
+      <div style={{ padding: "8px 16px 4px", display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none" }}>
         {MODES.map(({ key, label }) => (
           <button
             key={key}
@@ -289,6 +289,9 @@ export default function Chat() {
           </button>
         ))}
       </div>
+      <p style={{ padding: "0 18px 8px", fontSize: 12, color: "var(--text-faint)", lineHeight: 1.4 }}>
+        {MODES.find((item) => item.key === mode)?.desc}
+      </p>
 
       {/* Brain dump result */}
       {brainDumpDone && brainDumpResult ? (
