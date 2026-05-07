@@ -4,6 +4,7 @@ import { ArrowUp, Trash2, Send, HelpCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Orb } from "@/components/luna/Orb";
+import BodyDoubleFocus from "@/components/luna/BodyDoubleFocus";
 import CrisisSheet from "@/components/luna/CrisisSheet";
 import { useLunaPresence, PRESENCE } from "@/hooks/useLunaPresence";
 import { format } from "date-fns";
@@ -15,7 +16,7 @@ const FREE_DAILY_LIMIT = 10;
 
 const MODES = [
   { key: "normal",      label: "Gesprek",       desc: "Luna luistert en reageert." },
-  { key: "body_double", label: "Body Double",    desc: "Luna is stil aanwezig terwijl je werkt." },
+  { key: "body_double", label: "Body Double",    desc: "Een aparte focusruimte: Luna blijft aanwezig zonder de chat te vullen." },
   { key: "brain_dump",  label: "Brain Dump",     desc: "Gooi alles eruit. Luna structureert daarna." },
 ];
 
@@ -249,6 +250,10 @@ export default function Chat() {
 
   const isEmpty = messages.length === 0 && !typing;
   const msgsLeft = FREE_DAILY_LIMIT - msgCount;
+
+  if (mode === "body_double") {
+    return <BodyDoubleFocus onBack={() => { setMode("normal"); setShowBodyDoubleInfo(false); }} />;
+  }
 
   return (
     <div className="flex flex-col" style={{ height: "100dvh", background: "#0B0B14", paddingTop: "env(safe-area-inset-top, 0px)" }}>
