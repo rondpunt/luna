@@ -14,6 +14,7 @@ import Skills from "./pages/Skills";
 import SkillDetail from "./pages/SkillDetail";
 import Voortgang from "./pages/Voortgang";
 import Profiel from "./pages/Profiel";
+import Reports from "./pages/Reports";
 import Onboarding from "./pages/Onboarding";
 import Pricing from "./pages/Pricing";
 import Privacy from "./pages/Privacy";
@@ -51,6 +52,7 @@ const AuthenticatedApp = () => {
         <Route path="/skills/:key" element={<SkillDetail />} />
         <Route path="/voortgang" element={<Voortgang />} />
         <Route path="/profiel" element={<Profiel />} />
+        <Route path="/reports" element={<Reports />} />
       </Route>
       <Route path="/landing" element={<Landing />} />
       <Route path="/onboarding" element={<Onboarding />} />
