@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const POSITIONS = [
@@ -10,9 +11,30 @@ const POSITIONS = [
 ];
 
 export default function TagConstellation({ tags, selectedCount, onSelect, onContinue }) {
+  const [dissolvingKey, setDissolvingKey] = useState(null);
+
+  const handleSelect = (tag) => {
+    if (dissolvingKey) return;
+    setDissolvingKey(tag.label);
+    setTimeout(() => {
+      onSelect(tag);
+      setDissolvingKey(null);
+    }, 260);
+  };
+
   return (
     <div className="min-h-dvh relative overflow-hidden" style={{ background: "#050508" }}>
       <div className="sr-only" aria-live="polite">{selectedCount} woorden gekozen</div>
+
+      <div className="fixed left-6 right-6 top-8 z-10" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <p className="eyebrow-muted" style={{ marginBottom: 8 }}>KIES WAT KLOPT</p>
+        <h1 className="font-display" style={{ fontSize: 34, color: "var(--text)", letterSpacing: "-0.03em", lineHeight: 1.02 }}>
+          Tik op woorden die bij je passen.
+        </h1>
+        <p style={{ marginTop: 10, maxWidth: 310, fontSize: 14, color: "var(--text-muted)", lineHeight: 1.55 }}>
+          Elk gekozen woord lost op en maakt plaats voor een nieuw woord.
+        </p>
+      </div>
 
       <AnimatePresence>
         {tags.map((tag, index) => {
@@ -21,12 +43,12 @@ export default function TagConstellation({ tags, selectedCount, onSelect, onCont
             <motion.button
               key={tag.label}
               type="button"
-              onClick={() => onSelect(tag)}
+              onClick={() => handleSelect(tag)}
               className="tag-orbit-button"
               style={{ left: position.left, top: position.top }}
               initial={{ opacity: 0, filter: "blur(10px)", scale: 0.92 }}
-              animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
-              exit={{ opacity: 0, filter: "blur(12px)", scale: 0.82 }}
+              animate={dissolvingKey === tag.label ? { opacity: 0, filter: "blur(16px)", scale: 0.72 } : { opacity: 1, filter: "blur(0px)", scale: 1 }}
+              exit={{ opacity: 0, filter: "blur(16px)", scale: 0.72 }}
               transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
               aria-label={`Kies ${tag.label}`}
             >

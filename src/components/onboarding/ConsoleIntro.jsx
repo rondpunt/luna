@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 const LINES = [
-  "Ik toon je nu woorden.",
-  "Tik gewoon wat bij je past.",
-  "Niets typen. Niets uitleggen."
+  "Kies een paar woorden die iets over jou zeggen.",
+  "Tik op een woord als het klopt. Het verdwijnt daarna vanzelf.",
+  "Je hoeft niets uit te leggen. Luna gebruikt dit alleen om zachter aan te sluiten."
 ];
 
 export default function ConsoleIntro({ onDone }) {
