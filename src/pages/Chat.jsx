@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowUp, Trash2, Send } from "lucide-react";
+import { ArrowUp, Trash2, Send, HelpCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Orb } from "@/components/luna/Orb";
@@ -85,6 +85,7 @@ export default function Chat() {
   const [msgCount, setMsgCount] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
   const [mode, setMode] = useState("normal");
+  const [showBodyDoubleInfo, setShowBodyDoubleInfo] = useState(false);
   const [brainDumpDone, setBrainDumpDone] = useState(false);
   const [brainDumpResult, setBrainDumpResult] = useState(null);
   const [processing, setProcessing] = useState(false);
@@ -282,16 +283,30 @@ export default function Chat() {
         {MODES.map(({ key, label }) => (
           <button
             key={key}
-            onClick={() => { if (key !== mode) { setMode(key); setMessages([]); setBrainDumpDone(false); setBrainDumpResult(null); } }}
-            style={{ height: 30, padding: "0 14px", borderRadius: 20, fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0, background: mode === key ? "rgba(232,131,74,0.10)" : "transparent", border: mode === key ? "1px solid rgba(232,131,74,0.28)" : "1px solid rgba(255,255,255,0.08)", color: mode === key ? "#E8834A" : "var(--text-muted)", cursor: "pointer", transition: "all 0.15s" }}
+            onClick={() => { if (key !== mode) { setMode(key); setShowBodyDoubleInfo(false); setMessages([]); setBrainDumpDone(false); setBrainDumpResult(null); } }}
+            style={{ height: 30, padding: "0 14px", borderRadius: 20, fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0, background: mode === key ? "rgba(232,131,74,0.10)" : "transparent", border: mode === key ? "1px solid rgba(232,131,74,0.28)" : "1px solid rgba(255,255,255,0.08)", color: mode === key ? "#E8834A" : "var(--text-muted)", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 6 }}
           >
             {label}
+            {key === "body_double" && (
+              <span
+                role="button"
+                tabIndex={0}
+                aria-label="Wat is Body Double?"
+                onClick={(e) => { e.stopPropagation(); setShowBodyDoubleInfo((open) => !open); }}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setShowBodyDoubleInfo((open) => !open); } }}
+                style={{ display: "inline-flex", alignItems: "center" }}
+              >
+                <HelpCircle size={13} strokeWidth={1.8} />
+              </span>
+            )}
           </button>
         ))}
       </div>
-      <p style={{ padding: "0 18px 8px", fontSize: 12, color: "var(--text-faint)", lineHeight: 1.4 }}>
-        {MODES.find((item) => item.key === mode)?.desc}
-      </p>
+      {showBodyDoubleInfo && (
+        <div style={{ margin: "0 16px 8px", padding: "12px 14px", borderRadius: 16, background: "rgba(20,20,30,0.92)", border: "1px solid rgba(232,131,74,0.22)", color: "var(--text-muted)", fontSize: 12, lineHeight: 1.5 }}>
+          Body Double betekent: Luna blijft rustig naast je terwijl jij iets doet. Geen zwaar gesprek, alleen korte steun of één volgende stap als je vastloopt.
+        </div>
+      )}
 
       {/* Brain dump result */}
       {brainDumpDone && brainDumpResult ? (
