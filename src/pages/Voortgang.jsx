@@ -20,6 +20,20 @@ const EMOTIONS = [
   { key: "joy",     label: "Vreugde",  color: "#6BAD8A" },
 ];
 
+const URGE_LABELS = {
+  urge_self_harm:   "Zelfbeschadiging",
+  urge_substance:   "Middelen",
+  urge_quit_therapy:"Therapie stoppen",
+  urge_lash_out:    "Uitvallen",
+};
+
+const ACTED_KEYS = {
+  urge_self_harm:   "acted_self_harm",
+  urge_substance:   "acted_substance",
+  urge_quit_therapy: null,
+  urge_lash_out:    "acted_lash_out",
+};
+
 const SKILL_COLORS = ["#E8834A","#D4A86B","#A46BA8","#6B8FD4","#6BAD8A","#D46B6B","#8A8278","#F2EDE3","#4A4640"];
 
 function CustomTooltip({ active, payload, label }) {
@@ -43,6 +57,70 @@ function weekSummary(checkIns) {
   if (lighter >= thisWeek.length - 1) return `Je hebt ${thisWeek.length} keer ingecheckt deze week. Bijna altijd voelde het lichter.`;
   if (lighter > 0) return `Je hebt ${thisWeek.length} keer ingecheckt deze week. ${lighter} keer voelde het lichter.`;
   return `Eén keer was de week zwaarder. Dat is ook ok.`;
+}
+
+// Urge/acted ratio card — per urge type: hoeveel urges, hoeveel acted
+function UrgeActedCard({ diaryEntries }) {
+  const week = diaryEntries.filter((e) =>
+    differenceInDays(new Date(), parseISO(e.date || e.created_date)) < 7
+  );
+
+  const stats = Object.entries(URGE_LABELS).map(([urgeKey, label]) => {
+    const total = week.filter((e) => (e[urgeKey] || 0) > 0).length;
+    const actedKey = ACTED_KEYS[urgeKey];
+    const acted = actedKey ? week.filter((e) => e[actedKey]).length : null;
+    return { urgeKey, label, total, acted };
+  }).filter((s) => s.total > 0);
+
+  if (!stats.length) return null;
+
+  return (
+    <div className="surface" style={{ padding: "20px 20px 16px", marginBottom: 16 }}>
+      <h2 className="font-display" style={{ fontSize: 20, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: 4 }}>Urges deze week</h2>
+      <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>Hoe vaak je de impuls voelde — en hoe vaak je erop handelde.</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {stats.map(({ urgeKey, label, total, acted }) => {
+          const ratio = acted !== null ? acted / total : null;
+          return (
+            <div key={urgeKey} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {/* Cirkel-stat */}
+              <div style={{
+                width: 48, height: 48, borderRadius: "50%", flexShrink: 0,
+                border: `2px solid ${ratio === null ? "rgba(255,255,255,0.08)" : ratio === 0 ? "#6BAD8A" : ratio < 0.5 ? "#D4A86B" : "#D46B6B"}`,
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                background: "rgba(255,255,255,0.03)",
+              }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", lineHeight: 1 }}>{total}</span>
+                {acted !== null && <span style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 1 }}>{acted}× act.</span>}
+              </div>
+              {/* Label + progress bar */}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, color: "var(--text)", fontWeight: 500, marginBottom: 4 }}>{label}</div>
+                {acted !== null && (
+                  <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2 }}>
+                    <div style={{
+                      height: "100%", borderRadius: 2,
+                      width: `${Math.round(ratio * 100)}%`,
+                      background: ratio === 0 ? "#6BAD8A" : ratio < 0.5 ? "#D4A86B" : "#D46B6B",
+                      transition: "width 0.4s ease"
+                    }} />
+                  </div>
+                )}
+                {acted !== null && (
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3 }}>
+                    {acted === 0 ? "Niet op gehandeld" : `${acted} van ${total} keer gehandeld`}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 16, lineHeight: 1.4 }}>
+        Dit is geen beoordeling — het is informatie voor jou en je therapeut.
+      </p>
+    </div>
+  );
 }
 
 export default function Voortgang() {
@@ -181,6 +259,9 @@ export default function Voortgang() {
           )}
         </div>
       )}
+
+      {/* Urge/Acted ratio */}
+      <UrgeActedCard diaryEntries={diaryEntries} />
 
       {/* Skills gebruikt */}
       {skillChartData.length > 0 && (
