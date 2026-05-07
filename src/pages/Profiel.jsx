@@ -2,21 +2,79 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Lock, Download, Trash2, AlertTriangle, FileText, BookMarked, ClipboardCheck } from "lucide-react";
+import {
+  ChevronRight, Download, Trash2, AlertTriangle,
+  FileText, BookMarked, ClipboardCheck, Sparkles, Shield, LogOut
+} from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { nl } from "date-fns/locale";
-import CrisisButton from "@/components/luna/CrisisButton";
+import { motion } from "framer-motion";
 
 function rhythmSentence(checkIns, user) {
   if (!checkIns?.length) return "Je bent hier voor het eerst. Fijn dat je er bent.";
-  const totalWeeks = user?.created_date
-    ? Math.ceil(differenceInDays(new Date(), parseISO(user.created_date)) / 7)
-    : null;
   const thisWeek = checkIns.filter((c) => differenceInDays(new Date(), parseISO(c.created_date)) < 7).length;
   if (thisWeek >= 5) return "Je maakt hier ruimte voor jezelf. Mooi.";
-  if (thisWeek >= 2) return "Je hebt er deze week meerdere keren even bij stilgestaan.";
+  if (thisWeek >= 2) return "Je hebt er deze week meerdere keren bij stilgestaan.";
+  const totalWeeks = user?.created_date ? Math.ceil(differenceInDays(new Date(), parseISO(user.created_date)) / 7) : null;
   if (totalWeeks && totalWeeks >= 4) return `Je bent hier nu meerdere weken. Mooi dat je dat doet.`;
   return "Goed dat je hier bent.";
+}
+
+function ListCard({ items }) {
+  return (
+    <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.055)", borderRadius: 20, overflow: "hidden" }}>
+      {items.map((item, i) => (
+        item.href ? (
+          <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+            <ListRow item={item} isLast={i === items.length - 1} />
+          </a>
+        ) : item.to ? (
+          <Link key={item.label} to={item.to} style={{ textDecoration: "none" }}>
+            <ListRow item={item} isLast={i === items.length - 1} />
+          </Link>
+        ) : (
+          <button key={item.label} onClick={item.onClick} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}>
+            <ListRow item={item} isLast={i === items.length - 1} />
+          </button>
+        )
+      ))}
+    </div>
+  );
+}
+
+function ListRow({ item, isLast }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        height: 64, display: "flex", alignItems: "center", padding: "0 20px",
+        justifyContent: "space-between", cursor: "pointer",
+        background: hov ? "rgba(255,255,255,0.03)" : "transparent",
+        borderBottom: !isLast ? "1px solid rgba(255,255,255,0.04)" : "none",
+        transition: "background 0.12s",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {item.icon && (
+          <div style={{
+            width: 36, height: 36, borderRadius: 11,
+            background: item.danger ? "rgba(201,64,64,0.08)" : "rgba(232,131,74,0.08)",
+            border: item.danger ? "1px solid rgba(201,64,64,0.20)" : "1px solid rgba(232,131,74,0.18)",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <item.icon size={16} style={{ color: item.danger ? "var(--crisis)" : "#E8834A" }} strokeWidth={1.8} />
+          </div>
+        )}
+        <div>
+          <p style={{ fontSize: 14, fontWeight: 500, color: item.danger ? "var(--crisis)" : "var(--text)", lineHeight: 1 }}>{item.label}</p>
+          {item.desc && <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{item.desc}</p>}
+        </div>
+      </div>
+      <ChevronRight size={15} style={{ color: "var(--text-faint)" }} strokeWidth={1.5} />
+    </div>
+  );
 }
 
 export default function Profiel() {
@@ -33,6 +91,7 @@ export default function Profiel() {
   const name = rawName.length > 1 ? rawName : (user?.email?.split("@")[0] || "Jij");
   const email = user?.email || "";
   const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const memberSince = user?.created_date ? format(parseISO(user.created_date), "MMMM yyyy", { locale: nl }) : null;
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -40,157 +99,183 @@ export default function Profiel() {
   };
 
   return (
-    <div
-      className="fade-in"
-      style={{
-        padding: "calc(32px + env(safe-area-inset-top, 0px)) 24px 40px",
-        maxWidth: 480,
-        margin: "0 auto",
-      }}
-    >
-      <CrisisButton />
+    <div className="fade-in px-5" style={{ paddingTop: "calc(28px + env(safe-area-inset-top, 0px))", paddingBottom: 8 }}>
 
       {/* Profile header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 32 }}>
-        <div
-          style={{
-            width: 64, height: 64, borderRadius: "50%", flexShrink: 0,
-            background: "#14141E",
-            border: "1px solid rgba(232,131,74,0.25)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}
-        >
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: "linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+          border: "1px solid rgba(255,255,255,0.065)",
+          borderRadius: 24, padding: "24px", marginBottom: 14,
+          display: "flex", alignItems: "center", gap: 16,
+        }}
+      >
+        <div style={{
+          width: 60, height: 60, borderRadius: "50%", flexShrink: 0,
+          background: "linear-gradient(135deg, rgba(232,131,74,0.15), rgba(232,131,74,0.05))",
+          border: "1.5px solid rgba(232,131,74,0.25)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
           <span className="font-display" style={{ fontSize: 22, color: "#E8834A" }}>{initials}</span>
         </div>
-        <div>
-          <p className="font-display" style={{ fontSize: 24, color: "var(--text)", letterSpacing: "-0.02em" }}>{name}</p>
-          <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 4 }}>{email}</p>
+        <div style={{ flex: 1 }}>
+          <p className="font-display" style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.1 }}>{name}</p>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 3 }}>{email}</p>
+          {memberSince && <p style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 2 }}>Lid sinds {memberSince}</p>}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Abonnement */}
-      <div className="surface" style={{ padding: 24, marginBottom: 24 }}>
-        <p className="eyebrow-muted" style={{ marginBottom: 12 }}>ABONNEMENT</p>
-        <p className="font-display" style={{ fontSize: 32, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: 8 }}>Gratis</p>
-        <p style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 20 }}>10 berichten per dag.</p>
-        <Link to="/pricing">
-          <button className="btn btn-primary press" style={{ fontSize: 15 }}>Upgrade naar Luna Plus</button>
+      {/* Subscription card */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: "linear-gradient(145deg, rgba(232,131,74,0.08), rgba(232,131,74,0.03))",
+          border: "1px solid rgba(232,131,74,0.20)",
+          borderRadius: 20, padding: "20px 20px 18px", marginBottom: 14,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div>
+            <p className="eyebrow" style={{ marginBottom: 4 }}>ABONNEMENT</p>
+            <p className="font-display" style={{ fontSize: 26, color: "var(--text)", letterSpacing: "-0.02em" }}>Gratis plan</p>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>10 berichten per dag.</p>
+          </div>
+          <div style={{
+            width: 44, height: 44, borderRadius: 14,
+            background: "rgba(232,131,74,0.10)", border: "1px solid rgba(232,131,74,0.22)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Sparkles size={20} style={{ color: "#E8834A" }} strokeWidth={1.8} />
+          </div>
+        </div>
+        <Link to="/pricing" style={{ textDecoration: "none" }}>
+          <button className="btn btn-primary press" style={{ fontSize: 14, height: 46 }}>
+            <Sparkles size={14} strokeWidth={2} />
+            Upgrade naar Luna Plus
+          </button>
         </Link>
-        <p style={{ fontSize: 12, color: "var(--text-faint)", textAlign: "center", marginTop: 8 }}>€9,99/maand. Maandelijks opzegbaar.</p>
-      </div>
+        <p style={{ fontSize: 11, color: "var(--text-faint)", textAlign: "center", marginTop: 8 }}>€9,99/maand — maandelijks opzegbaar</p>
+      </motion.div>
 
-      {/* Jouw ritme */}
-      <div className="surface" style={{ padding: "20px 24px", marginBottom: 24 }}>
-        <p className="eyebrow-muted" style={{ marginBottom: 12 }}>JOUW RITME</p>
-        <p style={{ fontSize: 16, color: "var(--text)", lineHeight: 1.55 }}>{rhythmSentence(checkIns, user)}</p>
-        <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>Geen score. Geen druk. Gewoon: dat je er bent.</p>
-      </div>
+      {/* Ritme */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.055)",
+          borderRadius: 18, padding: "16px 20px", marginBottom: 14,
+        }}
+      >
+        <p className="eyebrow-muted" style={{ marginBottom: 8 }}>JOUW RITME</p>
+        <p style={{ fontSize: 15, color: "var(--text)", lineHeight: 1.55 }}>{rhythmSentence(checkIns, user)}</p>
+        <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>Geen score. Geen druk. Gewoon dat je er bent.</p>
+      </motion.div>
 
       {/* Tools */}
-      <p className="eyebrow-muted" style={{ marginBottom: 8, paddingLeft: 4 }}>TOOLS</p>
-      <div className="surface" style={{ padding: 0, marginBottom: 24, overflow: "hidden" }}>
-        {[
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ marginBottom: 14 }}
+      >
+        <p className="eyebrow-muted" style={{ marginBottom: 8, paddingLeft: 4 }}>TOOLS</p>
+        <ListCard items={[
           { label: "Rapporten", icon: FileText, to: "/reports", desc: "Wekelijkse overzichten & exports" },
-          { label: "Topic Vault", icon: BookMarked, to: "/vault", desc: "Wat steeds terugkomt" },
-          { label: "Zelftesten", icon: ClipboardCheck, to: "/selftests", desc: "Screenings voor patronen, geen diagnoses" },
-        ].map((item, i) => (
-          <Link key={item.label} to={item.to} style={{ textDecoration: "none" }}>
-            <div
-              style={{
-                height: 64, display: "flex", alignItems: "center",
-                padding: "0 20px", justifyContent: "space-between",
-                borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.04)" : "none",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <item.icon size={18} style={{ color: "#E8834A" }} strokeWidth={1.5} />
-                <div>
-                  <p style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>{item.label}</p>
-                  <p style={{ fontSize: 12, color: "var(--text-muted)" }}>{item.desc}</p>
-                </div>
-              </div>
-              <ChevronRight size={16} style={{ color: "var(--text-faint)" }} strokeWidth={1.5} />
-            </div>
-          </Link>
-        ))}
-      </div>
+          { label: "Zelftesten", icon: ClipboardCheck, to: "/selftests", desc: "Screenings, geen diagnoses" },
+        ]} />
+      </motion.div>
 
       {/* Privacy & data */}
-      <div className="surface" style={{ padding: 24, marginBottom: 24 }}>
-        <p className="eyebrow-muted" style={{ marginBottom: 12 }}>JE DATA & PRIVACY</p>
-        <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6, marginBottom: 20 }}>
-          Onder GDPR heb je altijd recht op inzage, export en verwijdering. Alles wat je hier zegt is end-to-end versleuteld. Niemand kan het lezen — wij ook niet. Geen tracking. Geen ads.
-        </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <button className="btn btn-ghost press" style={{ fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}>
-            <Download size={16} strokeWidth={1.5} />
-            Exporteer mijn data
-          </button>
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="btn btn-ghost-crisis press"
-            style={{ fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}
-          >
-            <Trash2 size={16} strokeWidth={1.5} />
-            Wis dit account
-          </button>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ marginBottom: 14 }}
+      >
+        <p className="eyebrow-muted" style={{ marginBottom: 8, paddingLeft: 4 }}>DATA & PRIVACY</p>
+        <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.055)", borderRadius: 20, overflow: "hidden" }}>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <Shield size={15} style={{ color: "#6BAD8A", flexShrink: 0, marginTop: 1 }} strokeWidth={1.8} />
+              <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                Alles is end-to-end versleuteld. GDPR-compliant. Geen tracking. Geen ads. Niemand kan jouw data lezen — wij ook niet.
+              </p>
+            </div>
+          </div>
+          <ListCard items={[
+            { label: "Exporteer mijn data", icon: Download, onClick: () => {} },
+            { label: "Wis dit account", icon: Trash2, onClick: () => setShowDeleteConfirm(true), danger: true, desc: "Permanent en onomkeerbaar" },
+          ]} />
         </div>
-      </div>
+      </motion.div>
 
       {/* Legal */}
-      <p className="eyebrow-muted" style={{ marginBottom: 8, paddingLeft: 4 }}>JURIDISCH</p>
-      <div className="surface" style={{ padding: 0, marginBottom: 24, overflow: "hidden" }}>
-        {[
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ marginBottom: 14 }}
+      >
+        <p className="eyebrow-muted" style={{ marginBottom: 8, paddingLeft: 4 }}>JURIDISCH</p>
+        <ListCard items={[
           { label: "Privacybeleid", to: "/privacy" },
           { label: "Algemene voorwaarden", to: "/voorwaarden" },
           { label: "Contact", to: "/contact" },
-        ].map((item, i, arr) => (
-          <Link key={item.label} to={item.to} style={{ textDecoration: "none" }}>
-            <div
-              style={{
-                height: 56, display: "flex", alignItems: "center",
-                padding: "0 20px", justifyContent: "space-between",
-                borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
-              }}
-            >
-              <span style={{ fontSize: 15, fontWeight: 500, color: "var(--text)" }}>{item.label}</span>
-              <ChevronRight size={16} style={{ color: "var(--text-faint)" }} strokeWidth={1.5} />
-            </div>
-          </Link>
-        ))}
-      </div>
+        ]} />
+      </motion.div>
 
       {/* Logout */}
-      <button
-        onClick={handleLogout}
-        disabled={loggingOut}
-        className="btn btn-ghost"
-        style={{ fontSize: 15, color: "var(--text-muted)", transition: "color 0.15s" }}
-        onMouseEnter={(e) => e.currentTarget.style.color = "#D14D4D"}
-        onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ marginBottom: 8 }}
       >
-        {loggingOut ? "Even geduld…" : "Uitloggen"}
-      </button>
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="btn btn-ghost press"
+          style={{ fontSize: 14, display: "flex", alignItems: "center", gap: 8, color: "var(--text-muted)", height: 48 }}
+        >
+          <LogOut size={15} strokeWidth={1.5} />
+          {loggingOut ? "Even geduld…" : "Uitloggen"}
+        </button>
+      </motion.div>
 
-      {/* Delete confirm */}
+      <div style={{ height: 16 }} />
+
+      {/* Delete confirm sheet */}
       {showDeleteConfirm && (
         <>
-          <div className="fixed inset-0 z-[60]" style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }} onClick={() => setShowDeleteConfirm(false)} />
-          <div className="fixed bottom-0 left-0 right-0 z-[70] fade-up" style={{ background: "#14141E", borderRadius: "28px 28px 0 0", padding: "32px 24px calc(40px + env(safe-area-inset-bottom, 0px))", maxWidth: 480, margin: "0 auto" }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 24px" }} />
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
-              <AlertTriangle size={28} style={{ color: "#D14D4D", marginBottom: 12 }} strokeWidth={1.5} />
+          <div className="fixed inset-0 z-[60]" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(10px)" }} onClick={() => setShowDeleteConfirm(false)} />
+          <motion.div
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+            className="fixed bottom-0 left-0 right-0 z-[70]"
+            style={{ background: "#0F0F1A", borderRadius: "28px 28px 0 0", padding: "28px 24px calc(40px + env(safe-area-inset-bottom, 0px))", maxWidth: 480, margin: "0 auto", border: "1px solid rgba(255,255,255,0.06)", borderBottom: "none" }}
+          >
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.12)", margin: "0 auto 24px" }} />
+            <div style={{ textAlign: "center", marginBottom: 14 }}>
+              <div style={{ width: 52, height: 52, borderRadius: "50%", margin: "0 auto 12px", background: "rgba(201,64,64,0.08)", border: "1px solid rgba(201,64,64,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AlertTriangle size={22} style={{ color: "var(--crisis)" }} strokeWidth={1.5} />
+              </div>
             </div>
-            <h3 className="font-display" style={{ fontSize: 24, color: "var(--text)", marginBottom: 8, letterSpacing: "-0.02em" }}>Account wissen?</h3>
-            <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 8 }}>Dit verwijdert direct alles. Geen herstel mogelijk.</p>
-            <p style={{ fontSize: 13, color: "var(--text-faint)", marginBottom: 24 }}>Al je gesprekken, dagboeknotities en check-ins worden permanent gewist.</p>
+            <h3 className="font-display" style={{ fontSize: 26, color: "var(--text)", marginBottom: 8, letterSpacing: "-0.02em" }}>Account wissen?</h3>
+            <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 6, lineHeight: 1.55 }}>Dit verwijdert direct alles. Geen herstel mogelijk.</p>
+            <p style={{ fontSize: 13, color: "var(--text-faint)", marginBottom: 24, lineHeight: 1.5 }}>Al je gesprekken, dagboeknotities en check-ins worden permanent gewist.</p>
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setShowDeleteConfirm(false)} className="btn btn-ghost press" style={{ flex: 1, fontSize: 14 }}>Annuleren</button>
-              <button className="btn press" style={{ flex: 1, fontSize: 14, background: "var(--crisis-soft)", border: "1px solid var(--crisis-border)", color: "#D14D4D", borderRadius: "var(--r-pill)" }}>
-                Definitief wissen
-              </button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="btn btn-ghost press" style={{ flex: 1, fontSize: 14, height: 48 }}>Annuleren</button>
+              <button className="btn btn-ghost-crisis press" style={{ flex: 1, fontSize: 14, height: 48 }}>Definitief wissen</button>
             </div>
-          </div>
+          </motion.div>
         </>
       )}
     </div>

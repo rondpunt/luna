@@ -10,14 +10,15 @@ module.exports = {
       },
       colors: {
         // Luna design tokens as Tailwind colors
-        bg:           "#0B0B14",
-        "bg-elevated":"#14141E",
+        bg:           "#080810",
+        "bg-elevated":"#0F0F1A",
+        "bg-card":    "#111118",
         accent:       "#E8834A",
         "accent-hover":"#D26B36",
-        crisis:       "#D14D4D",
-        "text-base":  "#F2EDE3",
-        "text-muted": "#8A8278",
-        "text-faint": "#4A4640",
+        crisis:       "#C94040",
+        "text-base":  "#F0EBE1",
+        "text-muted": "#7A7268",
+        "text-faint": "#3A3630",
 
         // shadcn compat (amber-based, NOT purple)
         background: "hsl(var(--background))",
