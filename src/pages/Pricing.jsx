@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import { Orb } from "@/components/luna/Orb";
 
 const FREE_FEATURES = [
@@ -14,10 +15,14 @@ const PRO_FEATURES = [
   "Voortgangsgrafiek (alle data)",
   "Geheugen over gesprekken heen",
   "Prioriteit bij nieuwe functies",
+  "AI-duiding bij zelftesten",
+  "PDF-export voor therapie",
 ];
 
 export default function Pricing() {
   const navigate = useNavigate();
+
+  const handleLogin = () => base44.auth.redirectToLogin(window.location.origin + "/pricing");
 
   return (
     <div
@@ -114,13 +119,22 @@ export default function Pricing() {
         </div>
         <button
           className="btn btn-primary press"
-          style={{ fontSize: 15 }}
-          onClick={() => alert("Stripe checkout — binnenkort beschikbaar.")}
+          style={{ fontSize: 15, marginBottom: 10 }}
+          onClick={handleLogin}
         >
-          Upgrade naar Luna Plus
+          <Sparkles size={16} strokeWidth={1.8} />
+          Start met Luna Plus
+        </button>
+        <button
+          onClick={handleLogin}
+          className="btn btn-ghost press"
+          style={{ fontSize: 15, gap: 10 }}
+        >
+          <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#F2EDE3", color: "#11131A", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13 }}>G</span>
+          Verder met Google of e-mail
         </button>
         <p style={{ fontSize: 12, color: "var(--text-faint)", textAlign: "center", marginTop: 8 }}>
-          Veilig betalen via Stripe. Geen verrassingen.
+          Eerst veilig aanmelden. Betalen activeren we daarna via de checkout.
         </p>
       </div>
 

@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 import { Orb } from "@/components/luna/Orb";
 
 export default function Landing() {
   const navigate = useNavigate();
+
+  const handleLogin = () => base44.auth.redirectToLogin(window.location.origin + "/home");
 
   return (
     <div
@@ -75,9 +78,18 @@ export default function Landing() {
             Begin
           </button>
 
-          <div style={{ marginTop: 24, textAlign: "center" }}>
+          <button
+            onClick={handleLogin}
+            className="btn btn-ghost press"
+            style={{ fontSize: 15, marginTop: 12, gap: 10 }}
+          >
+            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#F2EDE3", color: "#11131A", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13 }}>G</span>
+            Verder met Google of e-mail
+          </button>
+
+          <div style={{ marginTop: 18, textAlign: "center" }}>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/pricing")}
               style={{
                 fontSize: 14,
                 color: "#8A8278",
@@ -89,7 +101,7 @@ export default function Landing() {
               onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"}
               onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}
             >
-              Ik heb al een account
+              Bekijk Luna Plus
             </button>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Lock, Sparkles, FileText, TrendingUp } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import SelfTestCard from "@/components/selftests/SelfTestCard";
 
 const TESTS = [
@@ -28,6 +29,8 @@ const TESTS = [
 export default function SelfTests() {
   const navigate = useNavigate();
 
+  const handleLogin = () => base44.auth.redirectToLogin(window.location.href);
+
   return (
     <div className="fade-in px-6" style={{ paddingTop: "calc(32px + env(safe-area-inset-top, 0px))", paddingBottom: 40 }}>
       <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", marginBottom: 20, display: "flex", alignItems: "center", gap: 6, color: "var(--text-muted)" }}>
@@ -51,6 +54,43 @@ export default function SelfTests() {
           <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
             Bij acute nood of gevaar: bel 112. Bij zelfmoordgedachten in België: Zelfmoordlijn 1813 of Tele-Onthaal 106.
           </p>
+        </div>
+      </div>
+
+      <div style={{ padding: 22, marginBottom: 18, borderRadius: 24, background: "linear-gradient(145deg, rgba(232,131,74,0.12), rgba(242,237,227,0.04))", border: "1px solid rgba(232,131,74,0.28)", boxShadow: "0 24px 70px rgba(0,0,0,0.22)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+          <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(232,131,74,0.12)", border: "1px solid rgba(232,131,74,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Lock size={16} style={{ color: "#E8834A" }} strokeWidth={1.8} />
+          </div>
+          <div>
+            <p className="eyebrow" style={{ marginBottom: 2 }}>LUNA PLUS</p>
+            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Premium zelftesten</p>
+          </div>
+        </div>
+        <h2 className="font-display" style={{ fontSize: 28, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05, marginBottom: 10 }}>
+          Meer dan alleen een link.
+        </h2>
+        <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.55, marginBottom: 18 }}>
+          Met Plus krijg je scores opgeslagen in Luna, zachte AI-duiding, trends doorheen de tijd en een export voor je therapeut.
+        </p>
+        <div style={{ display: "grid", gap: 9, marginBottom: 18 }}>
+          {[
+            { icon: Sparkles, text: "AI-uitleg zonder diagnose-taal" },
+            { icon: TrendingUp, text: "Verloop en patronen per test" },
+            { icon: FileText, text: "PDF-bundel voor therapie" },
+          ].map((item) => (
+            <div key={item.text} style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text)", fontSize: 13 }}>
+              <item.icon size={15} style={{ color: "#E8834A", flexShrink: 0 }} strokeWidth={1.8} />
+              {item.text}
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "grid", gap: 10 }}>
+          <button onClick={() => navigate("/pricing")} className="btn btn-primary press" style={{ fontSize: 15 }}>Bekijk Premium</button>
+          <button onClick={handleLogin} className="btn btn-ghost press" style={{ fontSize: 15, gap: 10 }}>
+            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#F2EDE3", color: "#11131A", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13 }}>G</span>
+            Verder met Google of e-mail
+          </button>
         </div>
       </div>
 
