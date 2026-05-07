@@ -1,0 +1,44 @@
+{
+  "name": "Report",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Owner"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["weekly", "session", "monthly", "therapist"],
+      "description": "Soort rapport"
+    },
+    "title": {
+      "type": "string",
+      "description": "Leesbare titel, bijv. 'Week van 1–7 mei'"
+    },
+    "period_start": {
+      "type": "string",
+      "description": "ISO date start"
+    },
+    "period_end": {
+      "type": "string",
+      "description": "ISO date einde"
+    },
+    "content": {
+      "type": "string",
+      "description": "Volledige markdown content"
+    },
+    "preview": {
+      "type": "string",
+      "description": "Eerste 120 tekens voor de lijst-kaart"
+    },
+    "pdf_data": {
+      "type": "object",
+      "description": "Gestructureerde data voor PDF-generatie (emotionAvg, urges, skills, etc)"
+    },
+    "conversation_id": {
+      "type": "string",
+      "description": "Link naar chat-conversatie (voor sessie-samenvatting)"
+    }
+  },
+  "required": ["type", "title"]
+}
