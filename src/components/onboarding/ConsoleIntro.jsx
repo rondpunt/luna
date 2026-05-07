@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 const LINES = [
   "Kies een paar woorden die iets over jou zeggen.",
@@ -15,7 +16,7 @@ export default function ConsoleIntro({ onDone }) {
     if (finished) return;
     const current = LINES[lineIndex];
     if (charIndex < current.length) {
-      const delay = 115 + Math.floor(Math.random() * 70);
+      const delay = 100 + Math.floor(Math.random() * 60);
       const timer = setTimeout(() => setCharIndex((i) => i + 1), delay);
       return () => clearTimeout(timer);
     }
@@ -23,46 +24,50 @@ export default function ConsoleIntro({ onDone }) {
       const timer = setTimeout(() => {
         setLineIndex((i) => i + 1);
         setCharIndex(0);
-      }, 620);
+      }, 600);
       return () => clearTimeout(timer);
     }
-    const timer = setTimeout(() => setFinished(true), 700);
+    const timer = setTimeout(() => setFinished(true), 600);
     return () => clearTimeout(timer);
   }, [charIndex, lineIndex, finished]);
 
   const shownLines = LINES.slice(0, lineIndex).concat(LINES[lineIndex].slice(0, charIndex));
 
   return (
-    <div className="min-h-dvh relative overflow-hidden" style={{ background: "#050508" }}>
+    <div className="min-h-dvh relative overflow-hidden flex flex-col" style={{ background: "var(--bg)" }}>
+      {/* Ambient */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 20% 30%, rgba(232,131,74,0.06), transparent 70%)" }} />
+      </div>
+
       <div
-        className="absolute left-6 right-6 top-8"
-        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+        className="flex-1"
+        style={{ padding: "calc(32px + env(safe-area-inset-top, 0px)) 24px" }}
       >
-        <div style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 17, lineHeight: 1.9, color: "rgba(242,237,227,0.88)", letterSpacing: "0.01em" }}>
+        <div style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 16, lineHeight: 1.8, color: "var(--text-muted)", letterSpacing: "0.02em" }}>
           {shownLines.map((line, i) => (
             <div key={i} style={{ minHeight: 32 }}>{line}</div>
           ))}
-          <span className="console-cursor" aria-hidden="true" />
+          <span className="console-cursor" aria-hidden="true" style={{ background: "#E8834A" }} />
         </div>
       </div>
 
-      <button
-        onClick={onDone}
-        className="fixed left-6 right-6 press"
-        style={{
-          bottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
-          minHeight: 48,
-          borderRadius: 999,
-          border: "1px solid rgba(242,237,227,0.18)",
-          background: finished ? "rgba(242,237,227,0.055)" : "transparent",
-          color: finished ? "rgba(242,237,227,0.82)" : "rgba(242,237,227,0.42)",
-          fontSize: 14,
-          fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-          transition: "opacity 180ms ease, background 180ms ease, color 180ms ease",
-        }}
-      >
-        {finished ? "verder" : "overslaan"}
-      </button>
+      <div style={{ padding: "0 24px calc(24px + env(safe-area-inset-bottom, 0px))" }}>
+        <button
+          onClick={onDone}
+          className="press"
+          style={{
+            width: "100%", height: 52, borderRadius: 999,
+            border: finished ? "1px solid rgba(232,131,74,0.3)" : "1px solid var(--border)",
+            background: finished ? "rgba(232,131,74,0.12)" : "rgba(255,255,255,0.02)",
+            color: finished ? "#E8834A" : "var(--text-faint)",
+            fontSize: 14, fontWeight: 500, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+            transition: "all 0.2s ease",
+          }}
+        >
+          {finished ? "Start selectie" : "Overslaan"}
+        </button>
+      </div>
     </div>
   );
 }

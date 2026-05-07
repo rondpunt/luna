@@ -1,276 +1,143 @@
-import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getSkillByKey } from "@/lib/dbt-skills";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, Check, AlertCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Play, Square, ChevronRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { SKILL_MODULES } from "@/lib/dbt-skills";
 import { motion, AnimatePresence } from "framer-motion";
-import CrisisButton from "@/components/luna/CrisisButton";
-
-// Breathing visualizer for TIP paced breathing
-function BreathVisualizer({ active }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "24px 0" }}>
-      <motion.div
-        animate={active ? {
-          scale: [1, 1.6, 1.6, 1],
-          opacity: [0.6, 1, 1, 0.6],
-        } : { scale: 1, opacity: 0.4 }}
-        transition={active ? {
-          duration: 10,
-          repeat: Infinity,
-          times: [0, 0.4, 0.6, 1],
-          ease: "easeInOut",
-        } : {}}
-        style={{
-          width: 80, height: 80, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(232,131,74,0.5) 0%, rgba(232,131,74,0.15) 60%, transparent 100%)",
-          border: "1px solid rgba(232,131,74,0.30)",
-        }}
-      />
-      {active && (
-        <motion.p
-          key="breath-label"
-          animate={{ opacity: [1, 0.4, 1] }}
-          transition={{ duration: 10, repeat: Infinity, times: [0, 0.5, 1] }}
-          style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 16 }}
-        >
-          In 4 · Uit 6
-        </motion.p>
-      )}
-    </div>
-  );
-}
-
-// Timer component
-function Timer({ seconds, onComplete, running }) {
-  const [remaining, setRemaining] = useState(seconds);
-  const intervalRef = useRef(null);
-
-  useEffect(() => {
-    setRemaining(seconds);
-  }, [seconds]);
-
-  useEffect(() => {
-    if (running && remaining > 0) {
-      intervalRef.current = setInterval(() => {
-        setRemaining((r) => {
-          if (r <= 1) { clearInterval(intervalRef.current); onComplete?.(); return 0; }
-          return r - 1;
-        });
-      }, 1000);
-    } else {
-      clearInterval(intervalRef.current);
-    }
-    return () => clearInterval(intervalRef.current);
-  }, [running, seconds]);
-
-  const pct = ((seconds - remaining) / seconds) * 100;
-  const mins = Math.floor(remaining / 60);
-  const secs = remaining % 60;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "20px 0" }}>
-      {/* Progress ring */}
-      <div style={{ position: "relative", width: 88, height: 88 }}>
-        <svg width={88} height={88} style={{ transform: "rotate(-90deg)" }}>
-          <circle cx={44} cy={44} r={38} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={4} />
-          <circle cx={44} cy={44} r={38} fill="none" stroke="#E8834A" strokeWidth={4}
-            strokeDasharray={`${2 * Math.PI * 38}`}
-            strokeDashoffset={`${2 * Math.PI * 38 * (1 - pct / 100)}`}
-            strokeLinecap="round"
-            style={{ transition: "stroke-dashoffset 1s linear" }}
-          />
-        </svg>
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <span className="font-display" style={{ fontSize: 22, color: "#E8834A" }}>
-            {mins > 0 ? `${mins}:${String(secs).padStart(2, "0")}` : secs}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Effectiveness rating
-function EffectivenessRating({ onRate }) {
-  const [selected, setSelected] = useState(null);
-  return (
-    <div style={{ padding: "24px 0" }}>
-      <p style={{ fontSize: 15, color: "var(--text)", marginBottom: 16, textAlign: "center" }}>Hoe effectief was dit?</p>
-      <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} onClick={() => { setSelected(n); onRate(n); }}
-            style={{ width: 44, height: 44, borderRadius: "50%", border: selected === n ? "1.5px solid #E8834A" : "1px solid rgba(255,255,255,0.12)", background: selected === n ? "rgba(232,131,74,0.12)" : "var(--surface)", cursor: "pointer", fontSize: 16, fontWeight: 600, color: selected === n ? "#E8834A" : "var(--text-muted)", transition: "all 0.15s" }}>
-            {n}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function SkillDetail() {
   const { key } = useParams();
   const navigate = useNavigate();
-  const result = getSkillByKey(key);
+  const [step, setStep] = useState(0);
+  const [rating, setRating] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  const [currentStep, setCurrentStep] = useState(0);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timerDone, setTimerDone] = useState(false);
-  const [showRating, setShowRating] = useState(false);
-  const [done, setDone] = useState(false);
+  const skill = SKILL_MODULES.flatMap((m) => m.skills).find((s) => s.key === key);
+  const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
 
-  if (!result) return (
-    <div className="fade-in px-6" style={{ paddingTop: 64 }}>
-      <p style={{ color: "var(--text-muted)" }}>Skill niet gevonden.</p>
-    </div>
-  );
-
-  const { skill, module } = result;
-  const steps = skill.steps || [];
-  const step = steps[currentStep];
-  const isLast = currentStep === steps.length - 1;
-  const hasTimer = step?.timer && step?.duration;
-  const isBreathing = step?.visualizer === "breath";
-
-  const handleTimerComplete = () => { setTimerRunning(false); setTimerDone(true); };
-
-  const nextStep = () => {
-    if (isLast) { setShowRating(true); }
-    else { setCurrentStep(c => c + 1); setTimerRunning(false); setTimerDone(false); }
-  };
-
-  const logSkill = async (effectiveness) => {
-    try {
-      await base44.entities.SkillUse.create({
-        skillKey: skill.key,
-        effective: effectiveness,
-      });
-    } catch {}
-    setDone(true);
-  };
-
-  if (done) {
+  if (!skill) {
     return (
-      <div className="fade-in px-6 flex flex-col items-center justify-center" style={{ paddingTop: 120, minHeight: "60vh" }}>
-        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(107,173,138,0.12)", border: "1px solid rgba(107,173,138,0.30)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-          <span style={{ fontSize: 28 }}>✓</span>
-        </div>
-        <h2 className="font-display" style={{ fontSize: 28, color: "var(--text)", textAlign: "center", marginBottom: 12 }}>Gedaan.</h2>
-        <p style={{ fontSize: 15, color: "var(--text-muted)", textAlign: "center", marginBottom: 32 }}>Gelogd. Goed dat je het geprobeerd hebt.</p>
-        <button onClick={() => navigate("/skills")} className="btn btn-primary press" style={{ fontSize: 15 }}>Terug naar skills</button>
+      <div className="flex flex-col items-center justify-center min-h-dvh px-6 text-center">
+        <AlertCircle size={32} style={{ color: "var(--text-faint)", marginBottom: 16 }} strokeWidth={1.5} />
+        <h1 className="font-display text-2xl text-white mb-2">Skill niet gevonden.</h1>
+        <button onClick={() => navigate("/skills")} className="btn btn-ghost mt-4">Terug naar overzicht</button>
+      </div>
+    );
+  }
+
+  const steps = skill.steps || [{ instruction: "Geen stappen gedefinieerd.", title: skill.title }];
+  const currentStep = steps[step];
+
+  const handleNext = () => {
+    if (step < steps.length - 1) setStep(step + 1);
+    else setStep("rating");
+  };
+
+  const handleSave = async () => {
+    if (!rating || saving || !user) return;
+    setSaving(true);
+    try {
+      await base44.entities.SkillUse.create({ skillKey: skill.key, effective: rating });
+      navigate("/skills");
+    } catch {}
+    setSaving(false);
+  };
+
+  if (step === "rating") {
+    return (
+      <div className="fade-in px-5 flex flex-col items-center justify-center min-h-dvh" style={{ background: "var(--bg)" }}>
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center max-w-sm w-full">
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(107,173,138,0.15)", border: "1px solid rgba(107,173,138,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+            <Check size={28} style={{ color: "#6BAD8A" }} strokeWidth={2.5} />
+          </div>
+          <h2 className="font-display" style={{ fontSize: 32, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: 12 }}>
+            Klaar.
+          </h2>
+          <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 32, lineHeight: 1.5 }}>
+            Hoe helpend was {skill.title} voor jou, net nu?
+          </p>
+
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 40 }}>
+            {[1, 2, 3, 4, 5].map((val) => (
+              <button
+                key={val}
+                onClick={() => setRating(val)}
+                className="press"
+                style={{
+                  width: 52, height: 52, borderRadius: "50%",
+                  background: rating === val ? "#E8834A" : "rgba(255,255,255,0.04)",
+                  border: rating === val ? "1px solid #E8834A" : "1px solid rgba(255,255,255,0.1)",
+                  color: rating === val ? "#1A0E08" : "var(--text-muted)",
+                  fontSize: 20, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "all 0.15s", boxShadow: rating === val ? "0 8px 24px rgba(232,131,74,0.3)" : "none",
+                }}
+              >
+                {val}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: 12 }}>
+            <button onClick={() => navigate("/skills")} className="btn btn-ghost press" style={{ flex: 1, height: 50 }}>Overslaan</button>
+            <button onClick={handleSave} disabled={!rating || saving} className="btn btn-primary press" style={{ flex: 2, height: 50 }}>
+              {saving ? "Opslaan…" : "Sla op en terug"}
+            </button>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="fade-in" style={{ paddingTop: "calc(32px + env(safe-area-inset-top, 0px))", paddingBottom: 40 }}>
-      <CrisisButton />
-
+    <div className="flex flex-col min-h-dvh px-5" style={{ paddingTop: "calc(20px + env(safe-area-inset-top, 0px))" }}>
       {/* Header */}
-      <div className="px-6" style={{ marginBottom: 32 }}>
-        <button onClick={() => navigate("/skills")} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0", marginBottom: 16, display: "flex", alignItems: "center", gap: 6, color: "var(--text-muted)" }}>
+      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
+        <button onClick={() => navigate(-1)} className="press" style={{ background: "none", border: "none", display: "flex", alignItems: "center", gap: 8, color: "var(--text-muted)", padding: "8px 0" }}>
           <ArrowLeft size={18} strokeWidth={1.5} />
-          <span style={{ fontSize: 14 }}>Skills</span>
+          <span style={{ fontSize: 14 }}>Terug</span>
         </button>
-        <p className="eyebrow" style={{ marginBottom: 8 }}>{module.title.toUpperCase()}</p>
-        <h1 className="font-display" style={{ fontSize: 32, color: "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.1 }}>
-          {skill.title}
-        </h1>
+        <span style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>
+          Stap {step + 1} van {steps.length}
+        </span>
+      </header>
+
+      {/* Progress bar */}
+      <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.05)", borderRadius: 2, marginBottom: 40, overflow: "hidden" }}>
+        <motion.div
+          initial={{ width: `${(step / steps.length) * 100}%` }}
+          animate={{ width: `${((step + 1) / steps.length) * 100}%` }}
+          transition={{ ease: "easeInOut", duration: 0.3 }}
+          style={{ height: "100%", background: "#E8834A", borderRadius: 2 }}
+        />
       </div>
 
-      {/* Progress */}
-      {steps.length > 1 && !showRating && (
-        <div className="px-6" style={{ marginBottom: 24 }}>
-          <div style={{ display: "flex", gap: 6 }}>
-            {steps.map((_, i) => (
-              <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i <= currentStep ? "#E8834A" : "rgba(255,255,255,0.08)", transition: "background 0.3s" }} />
-            ))}
-          </div>
-          <p style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 8 }}>Stap {currentStep + 1} van {steps.length}</p>
-        </div>
-      )}
-
-      {/* Step content */}
-      {!showRating && (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3 }}
-            className="px-6"
-          >
-            {step?.title && (
-              <h2 className="font-display" style={{ fontSize: 26, color: "var(--text)", marginBottom: 16 }}>
-                {step.title}
-              </h2>
-            )}
-
-            {/* Instruction */}
-            <div className="surface" style={{ padding: "20px", marginBottom: 16, borderRadius: 18 }}>
-              <p style={{ fontSize: 16, color: "var(--text)", lineHeight: 1.6 }}>{step?.instruction}</p>
-            </div>
-
-            {/* Why */}
-            {step?.why && (
-              <div style={{ padding: "14px 18px", background: "rgba(232,131,74,0.04)", border: "1px solid rgba(232,131,74,0.12)", borderRadius: 14, marginBottom: 20 }}>
-                <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
-                  <span style={{ color: "#E8834A", fontWeight: 500 }}>Waarom: </span>{step.why}
-                </p>
-              </div>
-            )}
-
-            {/* Timer or breathing visualizer */}
-            {isBreathing && (
-              <BreathVisualizer active={timerRunning} />
-            )}
-            {hasTimer && !isBreathing && (
-              <Timer seconds={step.duration} running={timerRunning} onComplete={handleTimerComplete} />
-            )}
-
-            {/* Timer controls */}
-            {hasTimer && !timerDone && (
-              <button
-                onClick={() => setTimerRunning(r => !r)}
-                className="btn press"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", marginBottom: 12, background: timerRunning ? "rgba(209,77,77,0.08)" : "rgba(232,131,74,0.10)", border: timerRunning ? "1px solid rgba(209,77,77,0.25)" : "1px solid rgba(232,131,74,0.25)", color: timerRunning ? "#D14D4D" : "#E8834A", fontSize: 15, fontWeight: 500 }}
-              >
-                {timerRunning ? <><Square size={16} strokeWidth={2} /> Stop</> : <><Play size={16} strokeWidth={2} /> Start timer</>}
-              </button>
-            )}
-
-            {/* Next button */}
-            {(!hasTimer || timerDone) && (
-              <button onClick={nextStep} className="btn btn-primary press" style={{ fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                {isLast ? "Klaar" : <><span>Volgende stap</span><ChevronRight size={16} strokeWidth={2} /></>}
-              </button>
-            )}
-            {hasTimer && !timerDone && timerRunning && (
-              <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center", marginTop: 12 }}>Timer loopt… je kunt ook overslaan.</p>
-            )}
-            {hasTimer && !timerDone && !timerRunning && (
-              <button onClick={nextStep} style={{ background: "none", border: "none", cursor: "pointer", width: "100%", padding: "12px 0", fontSize: 13, color: "var(--text-faint)" }}>
-                Overslaan
-              </button>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      )}
-
-      {/* Effectiveness rating */}
-      {showRating && (
+      <AnimatePresence mode="wait">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="px-6"
+          key={step}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          style={{ flex: 1, display: "flex", flexDirection: "column" }}
         >
-          <div className="surface" style={{ padding: 24 }}>
-            <EffectivenessRating onRate={logSkill} />
-          </div>
+          {currentStep.title && (
+            <p className="eyebrow" style={{ marginBottom: 12 }}>{currentStep.title}</p>
+          )}
+          <h2 className="font-display" style={{ fontSize: 32, color: "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.2, marginBottom: 24 }}>
+            {currentStep.instruction}
+          </h2>
+          {currentStep.detail && (
+            <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.6 }}>{currentStep.detail}</p>
+          )}
         </motion.div>
-      )}
+      </AnimatePresence>
+
+      <div style={{ paddingBottom: "calc(32px + env(safe-area-inset-bottom, 0px))" }}>
+        <button onClick={handleNext} className="btn btn-primary press" style={{ height: 56, fontSize: 16, width: "100%" }}>
+          {step < steps.length - 1 ? "Volgende stap" : "Afronden"}
+        </button>
+      </div>
     </div>
   );
 }
