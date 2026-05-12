@@ -1,14 +1,13 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Home, MessageCircle, BookOpen, TrendingUp, User } from "lucide-react";
+import { Sparkles, MessageCircle, Zap, User } from "lucide-react";
 import CrisisButton from "@/components/luna/CrisisButton";
 import { motion, AnimatePresence } from "framer-motion";
 
 const NAV = [
-  { to: "/home",      label: "Home",      icon: Home },
-  { to: "/chat",      label: "Chat",      icon: MessageCircle },
-  { to: "/diary",     label: "Dagboek",   icon: BookOpen },
-  { to: "/voortgang", label: "Voortgang", icon: TrendingUp },
-  { to: "/profiel",   label: "Profiel",   icon: User },
+  { to: "/home",    label: "Home",    icon: Sparkles },
+  { to: "/chat",    label: "Chat",    icon: MessageCircle },
+  { to: "/reflex",  label: "Reflex",  icon: Zap },
+  { to: "/profiel", label: "Profiel", icon: User },
 ];
 
 const NO_CRISIS = ["/landing", "/onboarding"];
@@ -59,7 +58,7 @@ export default function AppShell() {
             className="fixed z-50 left-1/2 -translate-x-1/2"
             style={{
               bottom: "calc(20px + env(safe-area-inset-bottom, 0px))",
-              width: 310,
+              width: 280,
               height: 62,
               borderRadius: 31,
               background: "rgba(10,10,18,0.82)",

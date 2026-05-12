@@ -16,9 +16,9 @@ const FREE_MESSAGE_LIMIT = 10;
 const MIN_USAGE_DAYS_BEFORE_PAYWALL = 5;
 
 const MODES = [
-  { key: "normal",      label: "Gesprek",       desc: "Luna luistert en reageert." },
-  { key: "body_double", label: "Body Double",    desc: "Een aparte focusruimte: Luna blijft aanwezig zonder de chat te vullen." },
-  { key: "brain_dump",  label: "Brain Dump",     desc: "Gooi alles eruit. Luna structureert daarna." },
+  { key: "normal",      label: "Gesprek",       desc: "66 luistert en reageert." },
+  { key: "body_double", label: "Body Double",    desc: "Een aparte focusruimte: 66 blijft aanwezig zonder de chat te vullen." },
+  { key: "brain_dump",  label: "Brain Dump",     desc: "Gooi alles eruit. 66 structureert daarna." },
 ];
 
 function TypingIndicator() {
@@ -219,7 +219,7 @@ export default function Chat() {
         style: mode === "body_double" ? "body_double" : "gentle",
         memoryContext,
       });
-      const assistantContent = resp?.data?.reply || "Luna kon net niet antwoorden. Probeer het nog eens.";
+      const assistantContent = resp?.data?.reply || "66 kon net niet antwoorden. Probeer het nog eens.";
       const assistantMsg = { role: "assistant", content: assistantContent, id: Date.now() + 1 };
       setMessages((prev) => [...prev, assistantMsg]);
       onLunaReply();
@@ -235,7 +235,7 @@ export default function Chat() {
       if (nextCount >= FREE_MESSAGE_LIMIT && nextUsageDays >= MIN_USAGE_DAYS_BEFORE_PAYWALL) setLimitReached(true);
     } catch (error) {
       console.error("Luna chat error:", error);
-      setMessages((prev) => [...prev, { role: "assistant", content: "Luna kon net niet antwoorden. Probeer het nog eens.", id: Date.now() + 2 }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "66 kon net niet antwoorden. Probeer het nog eens.", id: Date.now() + 2 }]);
       onLunaReply();
     } finally {
       setTyping(false);
@@ -276,7 +276,7 @@ export default function Chat() {
         </button>
         <Orb size="sm" />
         <div style={{ marginLeft: 12 }}>
-          <p className="font-display" style={{ fontSize: 24, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1 }}>Luna</p>
+          <p className="font-display" style={{ fontSize: 24, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1 }}>66</p>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
             <PresenceDot color={statusColor} />
             <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{statusLabel || "Aanwezig"}</span>
@@ -317,7 +317,7 @@ export default function Chat() {
         {showBodyDoubleInfo && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
             <div style={{ margin: "4px 16px 8px", padding: "14px 16px", borderRadius: 16, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", color: "var(--text-muted)", fontSize: 13, lineHeight: 1.5 }}>
-              Body Double betekent: Luna blijft rustig naast je terwijl jij iets doet. Geen zwaar gesprek, alleen korte steun of één volgende stap als je vastloopt.
+              Body Double betekent: 66 blijft rustig naast je terwijl jij iets doet. Geen zwaar gesprek, alleen korte steun of één volgende stap als je vastloopt.
             </div>
           </motion.div>
         )}
@@ -349,7 +349,7 @@ export default function Chat() {
             {typing && <TypingIndicator />}
             {limitReached && !typing && mode === "normal" && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "24px", background: "linear-gradient(145deg, rgba(232,131,74,0.08), rgba(232,131,74,0.02))", border: "1px solid rgba(232,131,74,0.2)", borderRadius: 24, textAlign: "center", mt: 8 }}>
-                <p style={{ fontSize: 15, color: "var(--text)", marginBottom: 16 }}>Je hebt je gratis limiet voor vandaag bereikt. Upgrade naar Plus om onbeperkt door te praten.</p>
+                <p style={{ fontSize: 15, color: "var(--text)", marginBottom: 16 }}>Je hebt je gratis limiet voor vandaag bereikt. Upgrade naar 66 Plus om onbeperkt door te praten.</p>
                 <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
                   <button className="btn btn-primary press" style={{ height: 44, fontSize: 14, flex: 1 }} onClick={() => navigate("/pricing")}>Bekijk Plus</button>
                   <button className="btn btn-ghost press" style={{ height: 44, fontSize: 14, flex: 1 }} onClick={() => navigate("/home")}>Misschien later</button>
@@ -403,7 +403,7 @@ export default function Chat() {
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed bottom-0 left-0 right-0 z-[70]" style={{ background: "#0F0F1A", borderRadius: "32px 32px 0 0", padding: "32px 24px calc(40px + env(safe-area-inset-bottom, 0px))", maxWidth: 480, margin: "0 auto", border: "1px solid rgba(255,255,255,0.05)" }}>
               <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 24px" }} />
               <h3 className="font-display" style={{ fontSize: 28, color: "var(--text)", marginBottom: 12, letterSpacing: "-0.02em" }}>Gesprek wissen?</h3>
-              <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 28, lineHeight: 1.5 }}>Dit kan niet ongedaan gemaakt worden. Je chat met Luna wordt leeggemaakt.</p>
+              <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 28, lineHeight: 1.5 }}>Dit kan niet ongedaan gemaakt worden. Je chat met 66 wordt leeggemaakt.</p>
               <div style={{ display: "flex", gap: 12 }}>
                 <button onClick={() => setShowClearConfirm(false)} className="btn btn-ghost press" style={{ flex: 1, fontSize: 15, height: 50 }}>Annuleren</button>
                 <button onClick={clearConversation} className="btn btn-ghost-crisis press" style={{ flex: 1, fontSize: 15, height: 50 }}>Wissen</button>

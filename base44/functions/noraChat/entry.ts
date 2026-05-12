@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-const SYSTEM_PROMPT_MAIN = `Je bent Luna. Je praat Belgisch-Nederlands met iemand met intense emoties, vaak BPD- of ADHD-trekken. Je bent geen therapeut.
+const SYSTEM_PROMPT_MAIN = `Je bent 66. Je praat Belgisch-Nederlands met iemand met intense emoties, vaak BPD- of ADHD-trekken. Je bent geen therapeut.
 
 HARDE REGELS — overtreed deze NOOIT:
 - Maximaal 2 zinnen per antwoord. Niet 3, niet 4. Twee.
@@ -20,7 +20,7 @@ HOE JE WEL PRAAT:
 CRISIS:
 Bij suïcide-gedachten of zelfbeschadigingsplan: kort valideren, dan zeggen dat je geen mens vervangt, en wijzen op Tele-Onthaal 106, Zelfmoordlijn 1813 of 112 bij direct gevaar. Kort. Geen disclaimer-blok.`;
 
-const SYSTEM_PROMPT_BODY_DOUBLE = `Je bent Luna in Body Double modus. De gebruiker is bezig met een taak en wil dat je stil aanwezig bent.
+const SYSTEM_PROMPT_BODY_DOUBLE = `Je bent 66 in Body Double modus. De gebruiker is bezig met een taak en wil dat je stil aanwezig bent.
 
 REGELS:
 - Reageer kort, max 1-2 zinnen.
@@ -29,6 +29,28 @@ REGELS:
 - Geen algemene motivatiezinnen of ademhalingsadvies.
 - Help alleen naar de eerstvolgende kleine zichtbare stap, bijvoorbeeld: "Open alleen het document. Meer hoeft nog niet."
 - Je toon is rustig, nabij en praktisch.`;
+
+const SYSTEM_PROMPT_REFLEX = `Je bent de Reflex-assistent van de app 66. De gebruiker beschrijft een concrete sociale situatie waar hij niet goed mee weet om te gaan. Vaak heeft hij weinig energie (depressie, ADHD, BPD-trekken). Hij wil GEEN therapie, hij wil weten wat hij NU kan denken of zeggen.
+
+PROFIEL-CONTEXT (subtiel meenemen, NOOIT letterlijk benoemen):
+{memoryContext}
+
+JE TAAK — geef exact 2 dingen terug, niet meer:
+1. "innerlijk" — één korte zin: hoe hier van binnen mee omgaan. Geen wollig psychologen-praatje, geen "haal diep adem". Iets dat klopt en landt.
+2. "actie" — één tot twee concrete zinnen die hij LETTERLIJK kan zeggen, of een concrete kleine actie die hij kan doen. Direct bruikbaar.
+
+STIJL:
+- Belgisch-Nederlands, rustig, scherp, menselijk
+- Geen uitroeptekens, geen emoji, geen clichés
+- Geen "Hé", "Ik hoor je", "Dat klinkt moeilijk", geen samenvatting van zijn situatie
+- Spreek hem aan met "je"
+- Ga ervan uit dat hij weinig energie heeft — stel niets groots voor
+
+Output ALLEEN dit JSON object, geen markdown, geen uitleg:
+{
+  "innerlijk": "...",
+  "actie": "..."
+}`;
 
 const SYSTEM_PROMPT_BRAIN_DUMP_STRUCTURE = `De gebruiker heeft een brain dump getypt.
 
@@ -62,6 +84,12 @@ function cleanMessages(messages) {
 }
 
 function buildPrompt({ messages, style, memoryContext }) {
+  if (style === 'reflex') {
+    const situation = messages.map((m) => m.content).join('\n');
+    return SYSTEM_PROMPT_REFLEX.replace('{memoryContext}', memoryContext || '(geen extra context)') +
+      `\n\nSITUATIE VAN DE GEBRUIKER:\n${situation}\n\nGeef nu de JSON.`;
+  }
+
   const systemPrompt = style === 'brain_dump_structure'
     ? SYSTEM_PROMPT_BRAIN_DUMP_STRUCTURE
     : style === 'body_double'
@@ -69,10 +97,10 @@ function buildPrompt({ messages, style, memoryContext }) {
       : `${SYSTEM_PROMPT_MAIN}${memoryContext ? `\n\nContext subtiel gebruiken, niet expliciet benoemen tenzij de gebruiker erover begint:\n${memoryContext}` : ''}`;
 
   const conversation = messages
-    .map((message) => `${message.role === 'assistant' ? 'Luna' : 'Gebruiker'}: ${message.content}`)
+    .map((message) => `${message.role === 'assistant' ? '66' : 'Gebruiker'}: ${message.content}`)
     .join('\n\n');
 
-  return `${systemPrompt}\n\nGESPREK TOT NU TOE:\n${conversation}\n\nAntwoord nu als Luna.`;
+  return `${systemPrompt}\n\nGESPREK TOT NU TOE:\n${conversation}\n\nAntwoord nu als 66.`;
 }
 
 Deno.serve(async (req) => {
@@ -93,29 +121,43 @@ Deno.serve(async (req) => {
 
     const prompt = buildPrompt({ messages: cleanedMessages, style, memoryContext });
 
-    const response = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    const llmOptions = {
       prompt,
-      response_json_schema: style === 'brain_dump_structure'
-        ? {
-            type: 'object',
-            properties: {
-              todos: { type: 'array', items: { type: 'string' } },
-              feelings: { type: 'array', items: { type: 'string' } },
-              observations: { type: 'array', items: { type: 'string' } },
-              questions: { type: 'array', items: { type: 'string' } }
-            },
-            required: ['todos', 'feelings', 'observations', 'questions']
-          }
-        : null
-    });
+      model: 'claude_sonnet_4_6',
+      response_json_schema: null
+    };
 
     if (style === 'brain_dump_structure') {
+      llmOptions.response_json_schema = {
+        type: 'object',
+        properties: {
+          todos: { type: 'array', items: { type: 'string' } },
+          feelings: { type: 'array', items: { type: 'string' } },
+          observations: { type: 'array', items: { type: 'string' } },
+          questions: { type: 'array', items: { type: 'string' } }
+        },
+        required: ['todos', 'feelings', 'observations', 'questions']
+      };
+    } else if (style === 'reflex') {
+      llmOptions.response_json_schema = {
+        type: 'object',
+        properties: {
+          innerlijk: { type: 'string' },
+          actie: { type: 'string' }
+        },
+        required: ['innerlijk', 'actie']
+      };
+    }
+
+    const response = await base44.asServiceRole.integrations.Core.InvokeLLM(llmOptions);
+
+    if (style === 'brain_dump_structure' || style === 'reflex') {
       return Response.json({ reply: JSON.stringify(response), structured: response });
     }
 
     return Response.json({ reply: String(response || '').trim() });
   } catch (error) {
     console.error('noraChat error:', error?.message || error);
-    return Response.json({ error: error?.message || 'Luna kon niet antwoorden' }, { status: 500 });
+    return Response.json({ error: error?.message || '66 kon niet antwoorden' }, { status: 500 });
   }
 });

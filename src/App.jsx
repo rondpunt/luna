@@ -10,6 +10,7 @@ import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import OnboardingGate from "@/components/onboarding/OnboardingGate";
 import Chat from "./pages/Chat";
+import Reflex from "./pages/Reflex";
 import Diary from "./pages/Diary";
 import Skills from "./pages/Skills";
 import SkillDetail from "./pages/SkillDetail";
@@ -55,6 +56,7 @@ const AuthenticatedApp = () => {
       <Route element={<AppShell />}>
         <Route path="/home" element={<Home />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/reflex" element={<Reflex />} />
         <Route path="/diary" element={<Diary />} />
         <Route path="/skills" element={<Skills />} />
         <Route path="/skills/:key" element={<SkillDetail />} />

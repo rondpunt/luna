@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, differenceInDays, parseISO, subDays } from "date-fns";
 import { nl } from "date-fns/locale";
 import { motion } from "framer-motion";
-import { Flame, MessageCircle, BookOpen, BarChart2, ChevronRight } from "lucide-react";
+import { Flame, MessageCircle, Zap, Wind, ChevronRight } from "lucide-react";
 import { Orb } from "@/components/luna/Orb";
 
 const MOOD_LABELS = {
@@ -44,9 +44,9 @@ function dailyStreak(checkIns, includeToday) {
 }
 
 const QUICK_ACTIONS = [
-  { label: "Chat", desc: "Praat met Luna", icon: MessageCircle, to: "/chat", color: "#E8834A" },
-  { label: "Dagboek", desc: "Emoties bijhouden", icon: BookOpen, to: "/diary", color: "#A46BA8" },
-  { label: "Voortgang", desc: "Jouw patronen", icon: BarChart2, to: "/voortgang", color: "#6B8FD4" },
+  { label: "Chat", desc: "Praat vrijuit", icon: MessageCircle, to: "/chat", color: "#E8834A" },
+  { label: "Reflex", desc: "Hoe reageer ik?", icon: Zap, to: "/reflex", color: "#E8834A" },
+  { label: "Brain Dump", desc: "Gooi het eruit", icon: Wind, to: "/chat?mode=brain_dump", color: "#E8834A" },
 ];
 
 export default function Home() {
@@ -159,7 +159,7 @@ export default function Home() {
               <span style={{ fontSize: 22 }}>✓</span>
             </div>
             <p style={{ fontSize: 16, color: "var(--text)", fontWeight: 500, marginBottom: 4 }}>Vandaag ingecheckt.</p>
-            <p style={{ fontSize: 14, color: "var(--text-muted)" }}>Je kunt altijd met Luna praten.</p>
+            <p style={{ fontSize: 14, color: "var(--text-muted)" }}>Je kunt altijd met 66 praten.</p>
             <button onClick={() => navigate("/chat")} className="btn btn-ghost-accent press" style={{ marginTop: 20, height: 44, fontSize: 14 }}>
               Open chat
             </button>
@@ -212,7 +212,7 @@ export default function Home() {
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={saveAndChat} disabled={saving} className="btn btn-primary" style={{ flex: 2, height: 48, fontSize: 14 }}>
                 <MessageCircle size={15} strokeWidth={2} />
-                Praat met Luna
+                Praat met 66
               </button>
               <button onClick={saveOnly} disabled={saving} className="btn btn-ghost" style={{ flex: 1, height: 48, fontSize: 13, color: saved ? "#6BAD8A" : "var(--text-muted)" }}>
                 {saved ? "Opgeslagen ✓" : "Registreer"}
@@ -265,7 +265,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          onClick={() => navigate("/voortgang")}
+          onClick={() => navigate("/profiel")}
           className="press"
           style={{
             background: "rgba(255,255,255,0.025)",

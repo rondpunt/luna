@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 const FEATURES = [
-  { emoji: "💬", label: "Praat vrijuit", desc: "Geen oordeel. Geen suggesties tenzij je wilt." },
-  { emoji: "📔", label: "Diary card", desc: "DBT-gebaseerd dagboek voor emoties en urges." },
-  { emoji: "📊", label: "Patronen", desc: "Luna ziet wat jij misschien niet ziet." },
+  { label: "Praat vrijuit", desc: "Geen oordeel. Geen suggesties tenzij je wilt." },
+  { label: "Reflex", desc: "Concreet advies bij moeilijke situaties." },
+  { label: "Brain Dump", desc: "Gooi het eruit. 66 structureert." },
 ];
 
 export default function Landing() {
@@ -47,7 +47,7 @@ export default function Landing() {
           className="font-display text-center"
           style={{ fontSize: 52, color: "#F0EBE1", letterSpacing: "-0.025em", lineHeight: 1.0, marginTop: 56 }}
         >
-          Hallo, ik ben Luna.
+          Hallo, ik ben 66.
         </motion.h1>
 
         <motion.p
@@ -73,7 +73,6 @@ export default function Landing() {
               background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.055)",
               display: "flex", alignItems: "center", gap: 7,
             }}>
-              <span style={{ fontSize: 14 }}>{f.emoji}</span>
               <span style={{ fontSize: 12, color: "#7A7268", fontWeight: 500 }}>{f.label}</span>
             </div>
           ))}
@@ -115,7 +114,7 @@ export default function Landing() {
               onMouseEnter={(e) => e.currentTarget.style.color = "#E8834A"}
               onMouseLeave={(e) => e.currentTarget.style.color = "#7A7268"}
             >
-              Bekijk Luna Plus
+              Bekijk 66 Plus
             </button>
           </div>
         </motion.div>
