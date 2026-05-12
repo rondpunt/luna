@@ -26,7 +26,7 @@ const MODES = [
     label: "Brain Dump",
     desc: "Gooi alles eruit. Daarna gestructureerd.",
     icon: Wind,
-    to: "/chat?mode=brain_dump",
+    to: "/brain-dump",
     gradient: "linear-gradient(155deg, #1F2030 0%, #131421 100%)",
     accent: "#9FAAC9",
   },

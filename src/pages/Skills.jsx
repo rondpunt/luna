@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { SKILL_MODULES } from "@/lib/dbt-skills";
 import { ChevronRight, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import SkillsInfoTooltip from "@/components/skills/SkillsInfoTooltip";
 
 const MODULE_COLORS = {
   distress: "#6B8FD4",
@@ -17,11 +18,14 @@ export default function Skills() {
     <div className="fade-in px-5" style={{ paddingTop: "calc(28px + env(safe-area-inset-top, 0px))", paddingBottom: 8 }}>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
-        <p className="eyebrow" style={{ marginBottom: 6 }}>DBT SKILLS</p>
-        <h1 className="font-display" style={{ fontSize: 34, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.0 }}>
-          Skills.
-        </h1>
-        <p style={{ fontSize: 15, color: "var(--text-muted)", marginTop: 4 }}>Concrete tools. Geen geleuter.</p>
+        <p className="eyebrow" style={{ marginBottom: 6 }}>HANDVATTEN</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <h1 className="font-display" style={{ fontSize: 34, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.0 }}>
+            Skills.
+          </h1>
+          <SkillsInfoTooltip />
+        </div>
+        <p style={{ fontSize: 15, color: "var(--text-muted)", marginTop: 6 }}>Concrete tools voor zware momenten.</p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

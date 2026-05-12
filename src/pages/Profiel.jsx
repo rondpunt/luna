@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import {
   ChevronRight, Download, Trash2, AlertTriangle,
-  FileText, BookMarked, ClipboardCheck, Sparkles, Shield, LogOut
+  FileText, BookMarked, ClipboardCheck, Sparkles, Shield, LogOut,
+  Zap, TrendingUp, BookOpen
 } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -102,6 +103,9 @@ export default function Profiel() {
 
   return (
     <div className="fade-in px-5" style={{ paddingTop: "calc(28px + env(safe-area-inset-top, 0px))", paddingBottom: 8 }}>
+      <div style={{ marginBottom: 18 }}>
+        <p className="eyebrow-muted">INSTELLINGEN</p>
+      </div>
 
       {/* Profile header */}
       <motion.div
@@ -181,17 +185,32 @@ export default function Profiel() {
         <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>Geen score. Geen druk. Gewoon dat je er bent.</p>
       </motion.div>
 
-      {/* Tools */}
+      {/* Extra tools */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ delay: 0.13, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         style={{ marginBottom: 14 }}
       >
-        <p className="eyebrow-muted" style={{ marginBottom: 8, paddingLeft: 4 }}>TOOLS</p>
+        <p className="eyebrow-muted" style={{ marginBottom: 8, paddingLeft: 4 }}>EXTRA TOOLS</p>
         <ListCard items={[
-          { label: "Rapporten", icon: FileText, to: "/reports", desc: "Wekelijkse overzichten & exports" },
-          { label: "Zelftesten", icon: ClipboardCheck, to: "/selftests", desc: "Screenings, geen diagnoses" },
+          { label: "Reflex",     icon: Zap,         to: "/reflex",   desc: "Concreet advies bij een situatie" },
+          { label: "Dagboek",    icon: BookOpen,    to: "/diary",    desc: "Dagelijkse diary card" },
+          { label: "Voortgang",  icon: TrendingUp,  to: "/voortgang", desc: "Trends en patronen" },
+        ]} />
+      </motion.div>
+
+      {/* Rapportage */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.16, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ marginBottom: 14 }}
+      >
+        <p className="eyebrow-muted" style={{ marginBottom: 8, paddingLeft: 4 }}>RAPPORTAGE</p>
+        <ListCard items={[
+          { label: "Rapporten",  icon: FileText,         to: "/reports",   desc: "Wekelijkse overzichten & exports" },
+          { label: "Zelftesten", icon: ClipboardCheck,   to: "/selftests", desc: "Screenings, geen diagnoses" },
         ]} />
       </motion.div>
 

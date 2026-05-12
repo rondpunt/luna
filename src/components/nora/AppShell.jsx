@@ -1,16 +1,17 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Home as HomeIcon, MessageCircle, Zap, User } from "lucide-react";
+import { Home as HomeIcon, MessageCircle, Wind, Sparkles, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useActiveTimeTracker } from "@/hooks/useActiveTimeTracker";
 
 const NAV = [
-  { to: "/home",    label: "Home",    icon: HomeIcon },
-  { to: "/chat",    label: "Chat",    icon: MessageCircle },
-  { to: "/reflex",  label: "Reflex",  icon: Zap },
-  { to: "/profiel", label: "Profiel", icon: User },
+  { to: "/home",       label: "Home",       icon: HomeIcon },
+  { to: "/chat",       label: "Chat",       icon: MessageCircle },
+  { to: "/brain-dump", label: "Brain Dump", icon: Wind },
+  { to: "/skills",     label: "Skills",     icon: Sparkles },
+  { to: "/profiel",    label: "Instellingen", icon: Settings },
 ];
 
-const FULLSCREEN = ["/chat"];
+const FULLSCREEN = ["/chat", "/brain-dump"];
 
 export default function AppShell() {
   const { pathname } = useLocation();
@@ -61,7 +62,7 @@ export default function AppShell() {
             className="fixed z-50 left-1/2 -translate-x-1/2"
             style={{
               bottom: "calc(20px + env(safe-area-inset-bottom, 0px))",
-              width: 296,
+              width: 340,
               height: 64,
               borderRadius: 32,
               background: "rgba(20, 14, 28, 0.85)",
@@ -85,9 +86,9 @@ export default function AppShell() {
                   to={to}
                   aria-label={label}
                   style={{
-                    width: 56, height: 56,
+                    flex: 1, height: 56,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    textDecoration: "none", flexShrink: 0, position: "relative",
+                    textDecoration: "none", position: "relative",
                   }}
                 >
                   <motion.div
