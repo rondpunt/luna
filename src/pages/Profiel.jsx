@@ -59,12 +59,12 @@ function ListRow({ item, isLast }) {
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {item.icon && (
           <div style={{
-            width: 36, height: 36, borderRadius: 11,
-            background: item.danger ? "rgba(201,64,64,0.08)" : "rgba(232,131,74,0.08)",
-            border: item.danger ? "1px solid rgba(201,64,64,0.20)" : "1px solid rgba(232,131,74,0.18)",
+            width: 38, height: 38, borderRadius: 12,
+            background: item.danger ? "rgba(184,85,74,0.08)" : "rgba(212,175,137,0.10)",
+            border: item.danger ? "1px solid rgba(184,85,74,0.22)" : "1px solid rgba(212,175,137,0.22)",
             display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
           }}>
-            <item.icon size={16} style={{ color: item.danger ? "var(--crisis)" : "#E8834A" }} strokeWidth={1.8} />
+            <item.icon size={16} style={{ color: item.danger ? "var(--crisis)" : "#D4AF89" }} strokeWidth={1.8} />
           </div>
         )}
         <div>
@@ -114,12 +114,12 @@ export default function Profiel() {
         }}
       >
         <div style={{
-          width: 60, height: 60, borderRadius: "50%", flexShrink: 0,
-          background: "linear-gradient(135deg, rgba(232,131,74,0.15), rgba(232,131,74,0.05))",
-          border: "1.5px solid rgba(232,131,74,0.25)",
+          width: 62, height: 62, borderRadius: "50%", flexShrink: 0,
+          background: "linear-gradient(135deg, rgba(212,175,137,0.18), rgba(212,175,137,0.05))",
+          border: "1.5px solid rgba(212,175,137,0.30)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
-          <span className="font-display" style={{ fontSize: 22, color: "#E8834A" }}>{initials}</span>
+          <span className="font-display" style={{ fontSize: 22, color: "#D4AF89" }}>{initials}</span>
         </div>
         <div style={{ flex: 1 }}>
           <p className="font-display" style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.1 }}>{name}</p>
@@ -134,23 +134,23 @@ export default function Profiel() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         style={{
-          background: "linear-gradient(145deg, rgba(232,131,74,0.08), rgba(232,131,74,0.03))",
-          border: "1px solid rgba(232,131,74,0.20)",
-          borderRadius: 20, padding: "20px 20px 18px", marginBottom: 14,
+          background: "linear-gradient(145deg, rgba(61,42,77,0.40), rgba(212,175,137,0.06))",
+          border: "1px solid rgba(212,175,137,0.22)",
+          borderRadius: 22, padding: "22px 22px 18px", marginBottom: 14,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
             <p className="eyebrow" style={{ marginBottom: 4 }}>ABONNEMENT</p>
-            <p className="font-display" style={{ fontSize: 26, color: "var(--text)", letterSpacing: "-0.02em" }}>Gratis plan</p>
-            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>10 berichten per dag.</p>
+            <p className="font-display" style={{ fontSize: 28, color: "var(--text)", letterSpacing: "-0.02em" }}>Gratis plan</p>
+            <p style={{ fontSize: 13, color: "var(--text-soft)", marginTop: 2 }}>10 berichten per dag.</p>
           </div>
           <div style={{
-            width: 44, height: 44, borderRadius: 14,
-            background: "rgba(232,131,74,0.10)", border: "1px solid rgba(232,131,74,0.22)",
+            width: 46, height: 46, borderRadius: 14,
+            background: "rgba(212,175,137,0.12)", border: "1px solid rgba(212,175,137,0.24)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <Sparkles size={20} style={{ color: "#E8834A" }} strokeWidth={1.8} />
+            <Sparkles size={20} style={{ color: "#D4AF89" }} strokeWidth={1.8} />
           </div>
         </div>
         <Link to="/pricing" style={{ textDecoration: "none" }}>

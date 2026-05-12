@@ -96,13 +96,13 @@ export default function Home() {
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 style={{
                   display: "flex", alignItems: "center", gap: 5,
-                  background: "rgba(232,131,74,0.08)",
-                  border: "1px solid rgba(232,131,74,0.22)",
+                  background: "rgba(212,175,137,0.10)",
+                  border: "1px solid rgba(212,175,137,0.24)",
                   borderRadius: 999, padding: "5px 11px",
                 }}
               >
-                <Flame size={13} style={{ color: "#E8834A" }} strokeWidth={2.2} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#E8834A", letterSpacing: "-0.01em" }}>{streak}</span>
+                <Flame size={13} style={{ color: "#D4AF89" }} strokeWidth={2.2} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#D4AF89", letterSpacing: "-0.01em" }}>{streak}</span>
               </motion.div>
             )}
           </div>
@@ -117,7 +117,7 @@ export default function Home() {
         >
           {greeting}{firstName ? `,` : "."}
           {firstName && (
-            <span style={{ color: "#E8834A", display: "block" }}>{firstName}.</span>
+            <span className="font-display-italic" style={{ color: "#D4AF89", display: "block" }}>{firstName}.</span>
           )}
         </motion.h1>
         <motion.p

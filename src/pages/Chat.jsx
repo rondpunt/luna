@@ -274,7 +274,7 @@ export default function Chat() {
           <ArrowLeft size={20} strokeWidth={1.5} />
         </button>
         <div style={{ marginLeft: 4 }}>
-          <p className="font-display" style={{ fontSize: 28, color: "#E8834A", letterSpacing: "-0.03em", lineHeight: 1 }}>66</p>
+          <p className="font-display" style={{ fontSize: 30, color: "#D4AF89", letterSpacing: "-0.03em", lineHeight: 1 }}>66</p>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
             <PresenceDot color={statusColor} />
             <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{statusLabel || "Aanwezig"}</span>
@@ -295,10 +295,10 @@ export default function Chat() {
             key={key}
             onClick={() => { if (key !== mode) { setMode(key); setShowBodyDoubleInfo(false); setMessages([]); setBrainDumpDone(false); setBrainDumpResult(null); } }}
             style={{
-              height: 32, padding: "0 16px", borderRadius: 16, fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0,
-              background: mode === key ? "rgba(232,131,74,0.12)" : "rgba(255,255,255,0.03)",
-              border: mode === key ? "1px solid rgba(232,131,74,0.3)" : "1px solid rgba(255,255,255,0.06)",
-              color: mode === key ? "#E8834A" : "var(--text-muted)", cursor: "pointer", transition: "all 0.15s",
+              height: 34, padding: "0 16px", borderRadius: 17, fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0,
+              background: mode === key ? "rgba(212,175,137,0.13)" : "rgba(242,237,228,0.03)",
+              border: mode === key ? "1px solid rgba(212,175,137,0.32)" : "1px solid rgba(242,237,228,0.06)",
+              color: mode === key ? "#D4AF89" : "var(--text-muted)", cursor: "pointer", transition: "all 0.15s",
               display: "flex", alignItems: "center", gap: 6,
             }}
           >
@@ -328,7 +328,7 @@ export default function Chat() {
           <div ref={containerRef} className="flex-1 overflow-y-auto" style={{ padding: "24px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
             {isEmpty && mode === "normal" && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col items-center" style={{ marginTop: "18vh" }}>
-                <div className="font-display" style={{ fontSize: 72, color: "#E8834A", letterSpacing: "-0.04em", lineHeight: 1, filter: "drop-shadow(0 0 24px rgba(232,131,74,0.2))" }}>66</div>
+                <div className="font-display" style={{ fontSize: 80, color: "#D4AF89", letterSpacing: "-0.04em", lineHeight: 1, filter: "drop-shadow(0 0 28px rgba(212,175,137,0.22))" }}>66</div>
                 <div style={{ marginTop: 28, maxWidth: 320, textAlign: "center", fontSize: 16, color: "var(--text-muted)", lineHeight: 1.6 }}>
                   Hé. Geen druk.<br/>Wat zit er nu het meest op je?
                 </div>

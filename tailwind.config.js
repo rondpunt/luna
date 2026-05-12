@@ -5,22 +5,25 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans:    ["'Geist'", "'Manrope'", "system-ui", "sans-serif"],
-        display: ["'Instrument Serif'", "Georgia", "serif"],
+        sans:    ["'Inter'", "system-ui", "sans-serif"],
+        display: ["'Fraunces'", "Georgia", "serif"],
       },
       colors: {
-        // Luna design tokens as Tailwind colors
-        bg:           "#080810",
-        "bg-elevated":"#0F0F1A",
-        "bg-card":    "#111118",
-        accent:       "#E8834A",
-        "accent-hover":"#D26B36",
-        crisis:       "#C94040",
-        "text-base":  "#F0EBE1",
-        "text-muted": "#7A7268",
-        "text-faint": "#3A3630",
+        // Atelier Nocturne palette
+        ink:          "#0E0B14",
+        "ink-soft":   "#15101D",
+        "ink-card":   "#1F1828",
+        aubergine:    "#3D2A4D",
+        champagne:    "#D4AF89",
+        "champagne-warm": "#E8C9A3",
+        "champagne-deep": "#A8835E",
+        ivory:        "#F2EDE4",
+        "ivory-soft": "#C8BEB0",
+        "ivory-muted":"#847A6E",
+        "ivory-faint":"#4A4239",
+        crisis:       "#B8554A",
 
-        // shadcn compat (amber-based, NOT purple)
+        // shadcn tokens
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
@@ -37,42 +40,24 @@ module.exports = {
         lg:   "var(--radius)",
         md:   "calc(var(--radius) - 2px)",
         sm:   "calc(var(--radius) - 4px)",
-        xl:   "20px",
-        "2xl": "24px",
-        "3xl": "32px",
+        xl:   "22px",
+        "2xl": "28px",
+        "3xl": "36px",
         pill: "999px",
       },
       keyframes: {
         "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },
         "accordion-up":   { from: { height: "var(--radix-accordion-content-height)" }, to: { height: "0" } },
-        orbBreathe: {
-          "0%, 100%": { transform: "scale(1)" },
-          "50%":      { transform: "scale(1.025)" },
-        },
-        fadeUp: {
-          from: { opacity: "0", transform: "translateY(10px)" },
-          to:   { opacity: "1", transform: "translateY(0)" },
-        },
-        fadeIn: {
-          from: { opacity: "0" },
-          to:   { opacity: "1" },
-        },
-        typingDot: {
-          "0%, 60%, 100%": { transform: "translateY(0)", opacity: "0.3" },
-          "30%":           { transform: "translateY(-4px)", opacity: "1" },
-        },
+        fadeUp: { from: { opacity: "0", transform: "translateY(10px)" }, to: { opacity: "1", transform: "translateY(0)" } },
+        fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up":   "accordion-up 0.2s ease-out",
-        "orb-breathe":    "orbBreathe 4s ease-in-out infinite",
-        "fade-up":        "fadeUp 0.4s cubic-bezier(0.32, 0.72, 0, 1) both",
-        "fade-in":        "fadeIn 0.3s ease-out both",
-        "typing-dot":     "typingDot 1.2s ease-in-out infinite",
+        "fade-up":        "fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "fade-in":        "fadeIn 0.35s ease-out both",
       },
-      maxWidth: {
-        app: "480px",
-      },
+      maxWidth: { app: "480px" },
     },
   },
   plugins: [require("tailwindcss-animate")],

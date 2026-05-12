@@ -5,12 +5,12 @@ import { MessageCircle, Zap, Wind, ArrowUpRight } from "lucide-react";
 const MODES = [
   {
     key: "chat",
-    label: "Open gesprek",
+    label: "Gesprek",
     desc: "Praat vrijuit. 66 luistert zonder oordeel.",
     icon: MessageCircle,
     to: "/chat",
-    gradient: "linear-gradient(145deg, #2D1A0E 0%, #1A0E08 100%)",
-    accent: "#E8834A",
+    gradient: "linear-gradient(155deg, #2A1F38 0%, #1A1424 100%)",
+    accent: "#D4AF89",
   },
   {
     key: "reflex",
@@ -18,8 +18,8 @@ const MODES = [
     desc: "Wat zeg of doe ik nu? Twee zinnen, geen therapie.",
     icon: Zap,
     to: "/reflex",
-    gradient: "linear-gradient(145deg, #2D2418 0%, #1A1610 100%)",
-    accent: "#E8B14A",
+    gradient: "linear-gradient(155deg, #2D2218 0%, #1C1610 100%)",
+    accent: "#E8C9A3",
   },
   {
     key: "dump",
@@ -27,8 +27,8 @@ const MODES = [
     desc: "Gooi alles eruit. 66 structureert het.",
     icon: Wind,
     to: "/chat?mode=brain_dump",
-    gradient: "linear-gradient(145deg, #1A1D2E 0%, #0E1018 100%)",
-    accent: "#7B9FE8",
+    gradient: "linear-gradient(155deg, #1F2030 0%, #131421 100%)",
+    accent: "#9FAAC9",
   },
 ];
 
@@ -38,9 +38,9 @@ export default function ModeCarousel() {
     <div style={{ marginLeft: -20, marginRight: -20 }}>
       <div style={{
         display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory",
-        padding: "0 20px 4px", scrollbarWidth: "none",
+        padding: "0 20px 6px", scrollbarWidth: "none",
       }}>
-        {MODES.map(({ key, label, desc, icon: Icon, to, gradient, accent }, i) => (
+        {MODES.map(({ key, label, desc, icon: ModeIcon, to, gradient, accent }, i) => (
           <motion.button
             key={key}
             initial={{ opacity: 0, y: 16 }}
@@ -49,37 +49,37 @@ export default function ModeCarousel() {
             onClick={() => navigate(to)}
             className="press"
             style={{
-              flex: "0 0 220px", scrollSnapAlign: "start",
-              padding: "22px 20px 24px", borderRadius: 24,
+              flex: "0 0 224px", scrollSnapAlign: "start",
+              padding: "22px 20px 24px", borderRadius: 26,
               background: gradient,
               border: `1px solid ${accent}22`,
               textAlign: "left", cursor: "pointer",
               display: "flex", flexDirection: "column", justifyContent: "space-between",
-              minHeight: 168, position: "relative", overflow: "hidden",
-              boxShadow: `0 12px 32px ${accent}14`,
+              minHeight: 172, position: "relative", overflow: "hidden",
+              boxShadow: `0 14px 36px ${accent}12`,
             }}
           >
             <div style={{
               position: "absolute", top: -30, right: -30,
-              width: 110, height: 110, borderRadius: "50%",
-              background: `radial-gradient(circle, ${accent}1F, transparent 70%)`,
+              width: 120, height: 120, borderRadius: "50%",
+              background: `radial-gradient(circle, ${accent}1A, transparent 70%)`,
               pointerEvents: "none",
             }} />
             <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div style={{
-                width: 40, height: 40, borderRadius: 12,
+                width: 42, height: 42, borderRadius: 13,
                 background: `${accent}1A`, border: `1px solid ${accent}33`,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                <Icon size={18} style={{ color: accent }} strokeWidth={1.8} />
+                <ModeIcon size={18} style={{ color: accent }} strokeWidth={1.7} />
               </div>
               <ArrowUpRight size={16} style={{ color: "var(--text-muted)" }} strokeWidth={1.5} />
             </div>
             <div style={{ position: "relative", zIndex: 1 }}>
-              <p className="font-display" style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: 6, lineHeight: 1.1 }}>
+              <p className="font-display" style={{ fontSize: 24, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: 6, lineHeight: 1.1 }}>
                 {label}
               </p>
-              <p style={{ fontSize: 12.5, color: "var(--text-muted)", lineHeight: 1.45 }}>{desc}</p>
+              <p style={{ fontSize: 12.5, color: "var(--text-soft)", lineHeight: 1.5 }}>{desc}</p>
             </div>
           </motion.button>
         ))}

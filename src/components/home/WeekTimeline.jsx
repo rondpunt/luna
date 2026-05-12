@@ -5,9 +5,9 @@ import { nl } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
 
 const MOOD_COLORS = {
-  1: "#C94040", 2: "#C94040", 3: "#D4A86B", 4: "#D4A86B",
-  5: "#8A8278", 6: "#8A8278", 7: "#6BAD8A", 8: "#6BAD8A",
-  9: "#E8834A", 10: "#E8834A",
+  1: "#9C5A5A", 2: "#9C5A5A", 3: "#8A8278", 4: "#8A8278",
+  5: "#8A9482", 6: "#8A9482", 7: "#B89572", 8: "#B89572",
+  9: "#D4AF89", 10: "#D4AF89",
 };
 
 export default function WeekTimeline({ checkIns }) {
@@ -79,7 +79,7 @@ export default function WeekTimeline({ checkIns }) {
               />
               <span style={{
                 fontSize: 11, fontWeight: isToday ? 600 : 400,
-                color: isToday ? "#E8834A" : "var(--text-faint)",
+                color: isToday ? "#D4AF89" : "var(--text-faint)",
                 letterSpacing: "0.05em",
               }}>{d.letter}</span>
             </div>

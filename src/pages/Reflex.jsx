@@ -101,7 +101,7 @@ export default function Reflex() {
           <ArrowLeft size={18} style={{ color: "var(--text-muted)" }} strokeWidth={1.8} />
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Zap size={14} style={{ color: "#E8834A" }} strokeWidth={2} fill="#E8834A" />
+          <Zap size={14} style={{ color: "#D4AF89" }} strokeWidth={2} fill="#D4AF89" />
           <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", letterSpacing: "-0.01em" }}>Reflex</span>
         </div>
         <div style={{ width: 40 }} />
@@ -147,9 +147,9 @@ export default function Reflex() {
                 style={{
                   padding: "10px 14px",
                   borderRadius: 999,
-                  background: active ? "rgba(232,131,74,0.12)" : "rgba(255,255,255,0.035)",
-                  border: active ? "1px solid rgba(232,131,74,0.32)" : "1px solid rgba(255,255,255,0.07)",
-                  color: active ? "#E8834A" : "var(--text-muted)",
+                  background: active ? "rgba(212,175,137,0.13)" : "rgba(242,237,228,0.035)",
+                  border: active ? "1px solid rgba(212,175,137,0.32)" : "1px solid rgba(242,237,228,0.07)",
+                  color: active ? "#D4AF89" : "var(--text-muted)",
                   fontSize: 13,
                   fontWeight: 500,
                   cursor: "pointer",
@@ -218,7 +218,7 @@ export default function Reflex() {
             animate={{ opacity: [0.4, 1, 0.4] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
             className="font-display"
-            style={{ fontSize: 56, color: "#E8834A", letterSpacing: "-0.04em", lineHeight: 1 }}
+            style={{ fontSize: 64, color: "#D4AF89", letterSpacing: "-0.04em", lineHeight: 1 }}
           >
             66
           </motion.div>
@@ -253,10 +253,10 @@ export default function Reflex() {
 
             {/* Result card */}
             <div style={{
-              background: "linear-gradient(145deg, rgba(255,255,255,0.04), rgba(232,131,74,0.04))",
-              border: "1px solid rgba(232,131,74,0.18)",
-              borderRadius: 24,
-              padding: "26px 22px",
+              background: "linear-gradient(145deg, rgba(61,42,77,0.25), rgba(212,175,137,0.06))",
+              border: "1px solid rgba(212,175,137,0.20)",
+              borderRadius: 26,
+              padding: "28px 24px",
               marginBottom: 18,
             }}>
               <div style={{ marginBottom: 22 }}>
