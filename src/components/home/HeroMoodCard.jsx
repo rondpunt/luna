@@ -1,30 +1,74 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Check } from "lucide-react";
 
-const MOOD_LABELS = {
-  1: "Erg zwaar", 2: "Zwaar", 3: "Moeilijk", 4: "Niet makkelijk",
-  5: "Het gaat", 6: "Redelijk", 7: "Goed", 8: "Goed",
-  9: "Heel goed", 10: "Uitstekend",
-};
+/* 5 states — geen cijfers, geen smileys, geen "score".
+   Elk woord is bewust dubbelzinnig (kan slaan op binnen of buiten). */
+const STATES = [
+  { key: "zwaar",   label: "Zwaar",        score: 2,  accent: "#A14848", bgDark: "#2B1414" },
+  { key: "vlak",    label: "Vlak",         score: 4,  accent: "#8A7A6E", bgDark: "#1F1B17" },
+  { key: "rustig",  label: "Rustig",       score: 6,  accent: "#8A8F7E", bgDark: "#1A1E1A" },
+  { key: "open",    label: "Open",         score: 8,  accent: "#C68A55", bgDark: "#241710" },
+  { key: "helder",  label: "Helder",       score: 10, accent: "#E8834A", bgDark: "#2D1A0E" },
+];
 
-const MOOD_GRADIENTS = {
-  1: ["#3A1818", "#C94040"], 2: ["#3A1818", "#C94040"],
-  3: ["#3A2818", "#D4A86B"], 4: ["#3A2818", "#D4A86B"],
-  5: ["#23201D", "#8A8278"], 6: ["#23201D", "#8A8278"],
-  7: ["#1A2D24", "#6BAD8A"], 8: ["#1A2D24", "#6BAD8A"],
-  9: ["#2D1A0E", "#E8834A"], 10: ["#2D1A0E", "#E8834A"],
-};
+/* Visuele textuur per state — abstract, geen gezichten */
+function TextureBar({ state, active }) {
+  const { key, accent } = state;
+  const baseProps = { width: "100%", height: 36, viewBox: "0 0 100 36", preserveAspectRatio: "none" };
+  const stroke = active ? accent : "rgba(255,255,255,0.22)";
+  const opacity = active ? 1 : 0.45;
 
-const MOOD_ACCENT = {
-  1: "#C94040", 2: "#C94040", 3: "#D4A86B", 4: "#D4A86B",
-  5: "#8A8278", 6: "#8A8278", 7: "#6BAD8A", 8: "#6BAD8A",
-  9: "#E8834A", 10: "#E8834A",
-};
+  if (key === "zwaar") {
+    // Dichte, drukkende verticale strepen
+    return (
+      <svg {...baseProps} style={{ opacity }}>
+        {[...Array(14)].map((_, i) => (
+          <line key={i} x1={i * 7.5 + 4} y1="2" x2={i * 7.5 + 4} y2="34" stroke={stroke} strokeWidth="1.8" />
+        ))}
+      </svg>
+    );
+  }
+  if (key === "vlak") {
+    // Horizontale lijn — niets beweegt
+    return (
+      <svg {...baseProps} style={{ opacity }}>
+        <line x1="2" y1="18" x2="98" y2="18" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (key === "rustig") {
+    // Trage golf
+    return (
+      <svg {...baseProps} style={{ opacity }}>
+        <path d="M 2 18 Q 25 10, 50 18 T 98 18" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (key === "open") {
+    // Verspreide stippen — beweging zonder druk
+    return (
+      <svg {...baseProps} style={{ opacity }}>
+        {[12, 28, 44, 60, 76, 92].map((x, i) => (
+          <circle key={i} cx={x} cy={18 + (i % 2 === 0 ? -4 : 4)} r="1.8" fill={stroke} />
+        ))}
+      </svg>
+    );
+  }
+  // helder — opwaartse beweging
+  return (
+    <svg {...baseProps} style={{ opacity }}>
+      <path d="M 2 28 L 25 22 L 50 16 L 75 10 L 98 6" fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, saving, saved, checkedToday, onOpenChat }) {
-  const [bgDark, bgLight] = MOOD_GRADIENTS[mood] || MOOD_GRADIENTS[5];
-  const accent = MOOD_ACCENT[mood] || "#E8834A";
-  const fillPct = ((mood - 1) / 9) * 100;
+  // Map externe `mood` (1-10) naar onze state index
+  const currentIdx = Math.max(0, Math.min(STATES.length - 1, Math.floor((mood - 1) / 2)));
+  const current = STATES[currentIdx];
+  const { accent, bgDark } = current;
+
+  const handleSelect = (idx) => setMood(STATES[idx].score);
 
   if (checkedToday && !saved) {
     return (
@@ -33,9 +77,7 @@ export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, sav
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         style={{
-          position: "relative",
-          borderRadius: 32,
-          overflow: "hidden",
+          position: "relative", borderRadius: 32, overflow: "hidden",
           padding: "40px 28px",
           background: "linear-gradient(160deg, #1A2D24 0%, #0F1814 60%, #080810 100%)",
           border: "1px solid rgba(107,173,138,0.18)",
@@ -69,78 +111,79 @@ export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, sav
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       style={{
-        position: "relative",
-        borderRadius: 32,
-        overflow: "hidden",
-        padding: "32px 28px 28px",
+        position: "relative", borderRadius: 32, overflow: "hidden",
+        padding: "30px 26px 26px",
         background: `linear-gradient(160deg, ${bgDark} 0%, #0F0F1A 65%, #080810 100%)`,
-        border: `1px solid ${accent}22`,
-        transition: "background 0.6s ease, border-color 0.6s ease",
-        boxShadow: `0 24px 60px ${accent}18, 0 0 0 1px rgba(255,255,255,0.02) inset`,
+        border: `1px solid ${accent}26`,
+        transition: "background 0.7s ease, border-color 0.7s ease",
+        boxShadow: `0 24px 60px ${accent}1A, 0 0 0 1px rgba(255,255,255,0.02) inset`,
       }}
     >
       {/* Ambient glow */}
       <motion.div
-        animate={{ opacity: [0.5, 0.8, 0.5] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ opacity: [0.45, 0.75, 0.45] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
         style={{
-          position: "absolute", top: -80, right: -60,
-          width: 240, height: 240, borderRadius: "50%",
+          position: "absolute", top: -100, right: -70,
+          width: 260, height: 260, borderRadius: "50%",
           background: `radial-gradient(circle, ${accent}22, transparent 70%)`,
           pointerEvents: "none",
         }}
       />
 
       <div style={{ position: "relative", zIndex: 1 }}>
-        <p className="eyebrow" style={{ marginBottom: 24, color: accent }}>HOE IS HET NU?</p>
+        <p className="eyebrow" style={{ marginBottom: 22, color: accent }}>HOE VOELT HET?</p>
 
-        {/* Big mood number */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 8 }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={mood}
-              initial={{ y: 16, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -16, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 380, damping: 25 }}
-              className="font-display"
-              style={{
-                fontSize: 96, lineHeight: 0.95, color: accent,
-                letterSpacing: "-0.05em",
-                filter: `drop-shadow(0 0 24px ${accent}55)`,
-              }}
-            >
-              {mood}
-            </motion.div>
-          </AnimatePresence>
-          <span style={{ fontSize: 24, color: "var(--text-faint)", lineHeight: 1, fontWeight: 300 }}>/ 10</span>
-        </div>
-
+        {/* Current label — groot, serif */}
         <AnimatePresence mode="wait">
-          <motion.p
-            key={mood}
-            initial={{ opacity: 0, y: 4 }}
+          <motion.div
+            key={current.key}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            style={{ fontSize: 17, color: "var(--text)", fontWeight: 500, marginBottom: 24, letterSpacing: "-0.01em" }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="font-display"
+            style={{
+              fontSize: 56, lineHeight: 1, color: accent,
+              letterSpacing: "-0.035em", marginBottom: 28,
+              filter: `drop-shadow(0 0 28px ${accent}40)`,
+            }}
           >
-            {MOOD_LABELS[mood]}
-          </motion.p>
+            {current.label}
+          </motion.div>
         </AnimatePresence>
 
-        {/* Slider */}
-        <div style={{ marginBottom: 28 }}>
-          <input
-            type="range" min={1} max={10} value={mood}
-            onChange={(e) => setMood(Number(e.target.value))}
-            className="mood-slider"
-            style={{ background: `linear-gradient(to right, ${accent} ${fillPct}%, rgba(255,255,255,0.06) ${fillPct}%)` }}
-            aria-label="Stemming"
-          />
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
-            <span style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.1em" }}>zwaar</span>
-            <span style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.1em" }}>licht</span>
-          </div>
+        {/* 5 texture pills — geen cijfers, geen emoji */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 28 }}>
+          {STATES.map((s, i) => {
+            const active = i === currentIdx;
+            return (
+              <button
+                key={s.key}
+                onClick={() => handleSelect(i)}
+                aria-label={s.label}
+                className="press"
+                style={{
+                  flex: 1, padding: "14px 8px 12px",
+                  background: active ? `${s.accent}14` : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${active ? s.accent + "44" : "rgba(255,255,255,0.06)"}`,
+                  borderRadius: 16, cursor: "pointer",
+                  transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                }}
+              >
+                <TextureBar state={s} active={active} />
+                <span style={{
+                  fontSize: 10, fontWeight: 600,
+                  color: active ? s.accent : "var(--text-faint)",
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  transition: "color 0.3s",
+                }}>
+                  {s.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Actions */}
