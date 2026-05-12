@@ -4,8 +4,8 @@ import { ArrowUp, Trash2, Send, HelpCircle, ArrowLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BodyDoubleFocus from "@/components/luna/BodyDoubleFocus";
-import CrisisSheet from "@/components/luna/CrisisSheet";
 import { useLunaPresence } from "@/hooks/useLunaPresence";
+import { useFeatureVisibility } from "@/hooks/useFeatureVisibility";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -15,9 +15,9 @@ const FREE_MESSAGE_LIMIT = 10;
 const MIN_USAGE_DAYS_BEFORE_PAYWALL = 5;
 
 const MODES = [
-  { key: "normal",      label: "Gesprek",       desc: "66 luistert en reageert." },
-  { key: "body_double", label: "Body Double",    desc: "Een aparte focusruimte: 66 blijft aanwezig zonder de chat te vullen." },
-  { key: "brain_dump",  label: "Brain Dump",     desc: "Gooi alles eruit. 66 structureert daarna." },
+  { key: "normal",      label: "Gesprek",       desc: "Open chat — luisteren en reageren." },
+  { key: "body_double", label: "Body Double",    desc: "Een aparte focusruimte: stille aanwezigheid zonder de chat te vullen." },
+  { key: "brain_dump",  label: "Brain Dump",     desc: "Gooi alles eruit. Daarna gestructureerd." },
 ];
 
 function TypingIndicator() {
@@ -86,8 +86,8 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
   const [convId, setConvId] = useState(null);
-  const [showCrisis, setShowCrisis] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const { showPremium } = useFeatureVisibility();
   const [messageCount, setMessageCount] = useState(0);
   const [usageDays, setUsageDays] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
@@ -131,7 +131,7 @@ export default function Chat() {
     if (mode === "body_double") {
       setMessages([{ role: "assistant", content: "Ik ben hier. Vertel waar je mee bezig bent — of niet. Ik laat je werken.", id: "bd-init" }]);
     } else if (mode === "brain_dump") {
-      setMessages([{ role: "assistant", content: "Stort het uit. Geen volgorde, geen logica. Ik luister. Druk op 'Klaar' als je klaar bent.", id: "dump-init" }]);
+      setMessages([{ role: "assistant", content: "Stort het uit. Geen volgorde, geen logica. Druk op 'Klaar' als je klaar bent.", id: "dump-init" }]);
     }
   }, [mode, convId]);
 
@@ -191,7 +191,7 @@ export default function Chat() {
   const send = useCallback(async () => {
     const text = input.trim();
     if (!text || typing) return;
-    if (limitReached && mode === "normal") return;
+    if (limitReached && mode === "normal" && showPremium) return;
     if (mode === "brain_dump") {
       setInput("");
       if (inputRef.current) inputRef.current.style.height = "auto";
@@ -218,7 +218,7 @@ export default function Chat() {
         style: mode === "body_double" ? "body_double" : "gentle",
         memoryContext,
       });
-      const assistantContent = resp?.data?.reply || "66 kon net niet antwoorden. Probeer het nog eens.";
+      const assistantContent = resp?.data?.reply || "Even niet gelukt om te antwoorden. Probeer het nog eens.";
       const assistantMsg = { role: "assistant", content: assistantContent, id: Date.now() + 1 };
       setMessages((prev) => [...prev, assistantMsg]);
       onLunaReply();
@@ -233,8 +233,8 @@ export default function Chat() {
       setUsageDays(nextUsageDays);
       if (nextCount >= FREE_MESSAGE_LIMIT && nextUsageDays >= MIN_USAGE_DAYS_BEFORE_PAYWALL) setLimitReached(true);
     } catch (error) {
-      console.error("Luna chat error:", error);
-      setMessages((prev) => [...prev, { role: "assistant", content: "66 kon net niet antwoorden. Probeer het nog eens.", id: Date.now() + 2 }]);
+      console.error("chat error:", error);
+      setMessages((prev) => [...prev, { role: "assistant", content: "Even niet gelukt om te antwoorden. Probeer het nog eens.", id: Date.now() + 2 }]);
       onLunaReply();
     } finally {
       setTyping(false);
@@ -274,15 +274,14 @@ export default function Chat() {
           <ArrowLeft size={20} strokeWidth={1.5} />
         </button>
         <div style={{ marginLeft: 4 }}>
-          <p className="font-display" style={{ fontSize: 30, color: "#D4AF89", letterSpacing: "-0.03em", lineHeight: 1 }}>66</p>
+          <p className="font-display" style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}>Nieuw gesprek</p>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
             <PresenceDot color={statusColor} />
             <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{statusLabel || "Aanwezig"}</span>
           </div>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => setShowCrisis(true)} className="press" style={{ fontSize: 13, fontWeight: 600, color: "var(--crisis)", background: "rgba(201,64,64,0.1)", border: "1px solid rgba(201,64,64,0.2)", padding: "6px 12px", borderRadius: 16, cursor: "pointer" }}>Hulp</button>
-          <button onClick={() => setShowClearConfirm(true)} className="press" aria-label="Gesprek wissen" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          <button onClick={() => setShowClearConfirm(true)} className="press" aria-label="Gesprek wissen" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(242,237,228,0.04)", border: "1px solid rgba(242,237,228,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             <Trash2 size={16} style={{ color: "var(--text-muted)" }} strokeWidth={1.5} />
           </button>
         </div>
@@ -327,10 +326,14 @@ export default function Chat() {
         <>
           <div ref={containerRef} className="flex-1 overflow-y-auto" style={{ padding: "24px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
             {isEmpty && mode === "normal" && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col items-center" style={{ marginTop: "18vh" }}>
-                <div className="font-display" style={{ fontSize: 80, color: "#D4AF89", letterSpacing: "-0.04em", lineHeight: 1, filter: "drop-shadow(0 0 28px rgba(212,175,137,0.22))" }}>66</div>
-                <div style={{ marginTop: 28, maxWidth: 320, textAlign: "center", fontSize: 16, color: "var(--text-muted)", lineHeight: 1.6 }}>
-                  Hé. Geen druk.<br/>Wat zit er nu het meest op je?
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col items-center" style={{ marginTop: "20vh" }}>
+                <p className="eyebrow" style={{ color: "#D4AF89", marginBottom: 18 }}>66</p>
+                <div className="font-display" style={{ fontSize: 38, color: "var(--text)", letterSpacing: "-0.025em", lineHeight: 1.1, textAlign: "center", maxWidth: 340 }}>
+                  Wat zit er nu<br/>
+                  <span className="font-display-italic" style={{ color: "#D4AF89" }}>op je?</span>
+                </div>
+                <div style={{ marginTop: 18, maxWidth: 280, textAlign: "center", fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                  Geen druk. Schrijf wat in je opkomt.
                 </div>
               </motion.div>
             )}
@@ -345,11 +348,11 @@ export default function Chat() {
               </motion.div>
             ))}
             {typing && <TypingIndicator />}
-            {limitReached && !typing && mode === "normal" && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "24px", background: "linear-gradient(145deg, rgba(232,131,74,0.08), rgba(232,131,74,0.02))", border: "1px solid rgba(232,131,74,0.2)", borderRadius: 24, textAlign: "center", mt: 8 }}>
-                <p style={{ fontSize: 15, color: "var(--text)", marginBottom: 16 }}>Je hebt je gratis limiet voor vandaag bereikt. Upgrade naar 66 Plus om onbeperkt door te praten.</p>
+            {limitReached && !typing && mode === "normal" && showPremium && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "24px", background: "linear-gradient(145deg, rgba(61,42,77,0.30), rgba(212,175,137,0.04))", border: "1px solid rgba(212,175,137,0.22)", borderRadius: 24, textAlign: "center" }}>
+                <p style={{ fontSize: 15, color: "var(--text)", marginBottom: 16 }}>Je hebt je dagelijkse berichtenlimiet bereikt. Upgrade om onbeperkt door te praten.</p>
                 <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                  <button className="btn btn-primary press" style={{ height: 44, fontSize: 14, flex: 1 }} onClick={() => navigate("/pricing")}>Bekijk Plus</button>
+                  <button className="btn btn-primary press" style={{ height: 44, fontSize: 14, flex: 1 }} onClick={() => navigate("/pricing")}>Bekijk opties</button>
                   <button className="btn btn-ghost press" style={{ height: 44, fontSize: 14, flex: 1 }} onClick={() => navigate("/home")}>Misschien later</button>
                 </div>
               </motion.div>
@@ -357,7 +360,7 @@ export default function Chat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {(!limitReached || mode !== "normal") && (
+          {(!limitReached || mode !== "normal" || !showPremium) && (
             <div style={{ padding: "12px 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
               {mode === "brain_dump" && messages.filter(m => m.role === "user").length > 0 && !processing && (
                 <button onClick={processBrainDump} className="btn btn-primary press" style={{ marginBottom: 12, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48 }}>
@@ -401,7 +404,7 @@ export default function Chat() {
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed bottom-0 left-0 right-0 z-[70]" style={{ background: "#0F0F1A", borderRadius: "32px 32px 0 0", padding: "32px 24px calc(40px + env(safe-area-inset-bottom, 0px))", maxWidth: 480, margin: "0 auto", border: "1px solid rgba(255,255,255,0.05)" }}>
               <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 24px" }} />
               <h3 className="font-display" style={{ fontSize: 28, color: "var(--text)", marginBottom: 12, letterSpacing: "-0.02em" }}>Gesprek wissen?</h3>
-              <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 28, lineHeight: 1.5 }}>Dit kan niet ongedaan gemaakt worden. Je chat met 66 wordt leeggemaakt.</p>
+              <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 28, lineHeight: 1.5 }}>Dit kan niet ongedaan gemaakt worden. Dit gesprek wordt leeggemaakt.</p>
               <div style={{ display: "flex", gap: 12 }}>
                 <button onClick={() => setShowClearConfirm(false)} className="btn btn-ghost press" style={{ flex: 1, fontSize: 15, height: 50 }}>Annuleren</button>
                 <button onClick={clearConversation} className="btn btn-ghost-crisis press" style={{ flex: 1, fontSize: 15, height: 50 }}>Wissen</button>

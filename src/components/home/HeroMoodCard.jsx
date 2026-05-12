@@ -87,11 +87,11 @@ export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, sav
           Vandaag ingecheckt.
         </h2>
         <p style={{ fontSize: 15, color: "var(--text-soft)", marginBottom: 30, lineHeight: 1.5 }}>
-          Je hoeft niets meer te doen. 66 is er als je wil praten.
+          Je hoeft niets meer te doen. Open een gesprek als je wil.
         </p>
         <button onClick={onOpenChat} className="btn btn-primary press" style={{ maxWidth: 240, margin: "0 auto", height: 50, fontSize: 15 }}>
           <MessageCircle size={16} strokeWidth={2} />
-          Praat met 66
+          Open chat
         </button>
       </motion.div>
     );
@@ -185,7 +185,7 @@ export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, sav
             transition: "all 0.2s",
           }}>
             <MessageCircle size={16} strokeWidth={2.2} />
-            Praat met 66
+            Open chat
           </button>
           <button onClick={onSave} disabled={saving || saved} className="press" style={{
             flex: 1, height: 52, borderRadius: 26,

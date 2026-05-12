@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const FEATURES = [
   { label: "Praat vrijuit", desc: "Geen oordeel. Geen suggesties tenzij je wilt." },
@@ -107,17 +107,7 @@ export default function Landing() {
             Verder met Google of e-mail
           </button>
 
-          <div style={{ marginTop: 20, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-            <Sparkles size={13} style={{ color: "#E8834A" }} strokeWidth={1.8} />
-            <button
-              onClick={() => navigate("/pricing")}
-              style={{ fontSize: 13, color: "#7A7268", background: "none", border: "none", cursor: "pointer" }}
-              onMouseEnter={(e) => e.currentTarget.style.color = "#E8834A"}
-              onMouseLeave={(e) => e.currentTarget.style.color = "#7A7268"}
-            >
-              Bekijk 66 Plus
-            </button>
-          </div>
+
         </motion.div>
       </div>
     </div>

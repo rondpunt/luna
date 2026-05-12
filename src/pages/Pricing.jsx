@@ -52,7 +52,7 @@ export default function Pricing() {
             <Orb size="md" />
           </div>
           <h1 className="font-display" style={{ fontSize: 40, color: "var(--text)", letterSpacing: "-0.025em", lineHeight: 1 }}>
-            Luna Plus.
+            Meer ruimte.
           </h1>
           <p style={{ fontSize: 16, color: "var(--text-muted)", marginTop: 10 }}>Voor wie hier vaker wil zijn.</p>
         </motion.div>
@@ -99,8 +99,8 @@ export default function Pricing() {
           <div style={{ position: "absolute", top: -60, right: -60, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(232,131,74,0.15), transparent 70%)", pointerEvents: "none" }} />
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <p className="eyebrow" style={{ marginBottom: 0 }}>LUNA PLUS</p>
-            <span style={{ fontSize: 11, fontWeight: 600, color: "#E8834A", background: "rgba(232,131,74,0.10)", border: "1px solid rgba(232,131,74,0.22)", padding: "3px 10px", borderRadius: 999 }}>
+            <p className="eyebrow" style={{ marginBottom: 0 }}>UITGEBREID</p>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#D4AF89", background: "rgba(212,175,137,0.10)", border: "1px solid rgba(212,175,137,0.24)", padding: "3px 10px", borderRadius: 999 }}>
               Aanbevolen
             </span>
           </div>
@@ -120,7 +120,7 @@ export default function Pricing() {
 
           <button className="btn btn-primary press" style={{ fontSize: 15, marginBottom: 10 }} onClick={handleLogin}>
             <Zap size={15} strokeWidth={2} />
-            Start met Luna Plus
+            Activeer abonnement
           </button>
           <button onClick={handleLogin} className="btn btn-ghost press" style={{ fontSize: 15, gap: 10 }}>
             <span style={{ width: 22, height: 22, borderRadius: "50%", background: "#F0EBE1", color: "#11131A", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, flexShrink: 0 }}>G</span>
@@ -132,8 +132,7 @@ export default function Pricing() {
         </motion.div>
 
         <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center", lineHeight: 1.6 }}>
-          Luna is geen vervanging voor professionele hulp.<br />
-          Bij crisis: bel 1813 of 106.
+          Deze app is geen vervanging voor professionele zorg.
         </p>
       </div>
     </div>

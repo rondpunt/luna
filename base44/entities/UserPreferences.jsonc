@@ -5,39 +5,49 @@
     "userId": {
       "type": "string"
     },
-    "concern": {
-      "type": "string",
-      "enum": ["bpd", "adhd", "both", "unsure", "other"],
-      "description": "Primary concern uit onboarding stap 4"
-    },
-    "onboardingCompleted": {
-      "type": "boolean",
-      "default": false,
-      "description": "Vlag voor onboarding loop-fix"
-    },
     "goals": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "primary_moods": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Hoe gebruiker zich meestal voelt (onboarding stap 2)"
+      "items": {
+        "type": "string"
+      },
+      "description": "Hoe gebruiker zich meestal voelt (onboarding hook)"
     },
     "preferred_moments": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Wanneer gebruiker Luna wil gebruiken (onboarding stap 3)"
+      "items": {
+        "type": "string"
+      },
+      "description": "Wanneer gebruiker de app wil gebruiken (onboarding hook)"
     },
-    "notificationTime": { "type": "string" },
+    "notificationTime": {
+      "type": "string"
+    },
     "theme": {
       "type": "string",
-      "enum": ["light", "dark", "auto"],
-      "default": "dark"
+      "enum": [
+        "light",
+        "dark",
+        "auto"
+      ],
+      "default": "auto"
+    },
+    "voiceEnabled": {
+      "type": "boolean",
+      "default": true
     },
     "aiResponseStyle": {
       "type": "string",
-      "enum": ["shorter", "deeper", "practical"],
+      "enum": [
+        "shorter",
+        "deeper",
+        "practical"
+      ],
       "default": "shorter"
     },
     "preferredLanguage": {
@@ -47,7 +57,53 @@
     "crisisDisclaimerAccepted": {
       "type": "boolean",
       "default": false
+    },
+    "active_app_seconds": {
+      "type": "number",
+      "default": 0,
+      "description": "Cumulatieve actieve tijd in de app, in seconden"
+    },
+    "first_seen_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Eerste keer dat de gebruiker de app actief opende"
+    },
+    "chatSettings": {
+      "type": "object",
+      "description": "Chat overzicht voorkeuren",
+      "properties": {
+        "showSearch": {
+          "type": "boolean",
+          "default": false
+        },
+        "showPin": {
+          "type": "boolean",
+          "default": false
+        },
+        "showArchive": {
+          "type": "boolean",
+          "default": false
+        },
+        "showQuickMove": {
+          "type": "boolean",
+          "default": false
+        },
+        "showCounts": {
+          "type": "boolean",
+          "default": false
+        },
+        "compactList": {
+          "type": "boolean",
+          "default": false
+        },
+        "showDateGroups": {
+          "type": "boolean",
+          "default": true
+        }
+      }
     }
   },
-  "required": ["userId"]
+  "required": [
+    "userId"
+  ]
 }

@@ -217,10 +217,16 @@ export default function Reflex() {
           <motion.div
             animate={{ opacity: [0.4, 1, 0.4] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-            className="font-display"
-            style={{ fontSize: 64, color: "#D4AF89", letterSpacing: "-0.04em", lineHeight: 1 }}
+            style={{ display: "flex", gap: 8 }}
           >
-            66
+            {[0, 1, 2].map((i) => (
+              <motion.span
+                key={i}
+                animate={{ y: [0, -8, 0], opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.18 }}
+                style={{ width: 10, height: 10, borderRadius: "50%", background: "#D4AF89" }}
+              />
+            ))}
           </motion.div>
           <p style={{ fontSize: 14, color: "var(--text-muted)" }}>Even kijken…</p>
         </motion.div>

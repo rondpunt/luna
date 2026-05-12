@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { Home as HomeIcon, MessageCircle, Zap, User } from "lucide-react";
-import CrisisButton from "@/components/luna/CrisisButton";
 import { motion, AnimatePresence } from "framer-motion";
+import { useActiveTimeTracker } from "@/hooks/useActiveTimeTracker";
 
 const NAV = [
   { to: "/home",    label: "Home",    icon: HomeIcon },
@@ -10,13 +10,12 @@ const NAV = [
   { to: "/profiel", label: "Profiel", icon: User },
 ];
 
-const NO_CRISIS = ["/landing", "/onboarding"];
 const FULLSCREEN = ["/chat"];
 
 export default function AppShell() {
   const { pathname } = useLocation();
   const isFullscreen = FULLSCREEN.includes(pathname);
-  const showCrisis = !NO_CRISIS.some((p) => pathname.startsWith(p));
+  useActiveTimeTracker();
 
   return (
     <div className="flex flex-col min-h-dvh relative" style={{ background: "var(--bg)" }}>
@@ -38,8 +37,6 @@ export default function AppShell() {
           mixBlendMode: "overlay",
         }} />
       </div>
-
-      {showCrisis && !isFullscreen && <CrisisButton />}
 
       <main
         className="flex-1 mx-auto w-full max-w-[480px]"

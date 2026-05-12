@@ -9,6 +9,7 @@ import {
 import { format, differenceInDays, parseISO } from "date-fns";
 import { nl } from "date-fns/locale";
 import { motion } from "framer-motion";
+import { useFeatureVisibility } from "@/hooks/useFeatureVisibility";
 
 function rhythmSentence(checkIns, user) {
   if (!checkIns?.length) return "Je bent hier voor het eerst. Fijn dat je er bent.";
@@ -86,6 +87,7 @@ export default function Profiel() {
   });
   const [loggingOut, setLoggingOut] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { showPremium } = useFeatureVisibility();
 
   const rawName = user?.full_name || "";
   const name = rawName.length > 1 ? rawName : (user?.email?.split("@")[0] || "Jij");
@@ -128,39 +130,41 @@ export default function Profiel() {
         </div>
       </motion.div>
 
-      {/* Subscription card */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        style={{
-          background: "linear-gradient(145deg, rgba(61,42,77,0.40), rgba(212,175,137,0.06))",
-          border: "1px solid rgba(212,175,137,0.22)",
-          borderRadius: 22, padding: "22px 22px 18px", marginBottom: 14,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <div>
-            <p className="eyebrow" style={{ marginBottom: 4 }}>ABONNEMENT</p>
-            <p className="font-display" style={{ fontSize: 28, color: "var(--text)", letterSpacing: "-0.02em" }}>Gratis plan</p>
-            <p style={{ fontSize: 13, color: "var(--text-soft)", marginTop: 2 }}>10 berichten per dag.</p>
+      {/* Subscription card — alleen na trial (7 dagen + 30 actieve minuten) */}
+      {showPremium && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          style={{
+            background: "linear-gradient(145deg, rgba(61,42,77,0.40), rgba(212,175,137,0.06))",
+            border: "1px solid rgba(212,175,137,0.22)",
+            borderRadius: 22, padding: "22px 22px 18px", marginBottom: 14,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div>
+              <p className="eyebrow" style={{ marginBottom: 4 }}>ABONNEMENT</p>
+              <p className="font-display" style={{ fontSize: 28, color: "var(--text)", letterSpacing: "-0.02em" }}>Gratis plan</p>
+              <p style={{ fontSize: 13, color: "var(--text-soft)", marginTop: 2 }}>10 berichten per dag.</p>
+            </div>
+            <div style={{
+              width: 46, height: 46, borderRadius: 14,
+              background: "rgba(212,175,137,0.12)", border: "1px solid rgba(212,175,137,0.24)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Sparkles size={20} style={{ color: "#D4AF89" }} strokeWidth={1.8} />
+            </div>
           </div>
-          <div style={{
-            width: 46, height: 46, borderRadius: 14,
-            background: "rgba(212,175,137,0.12)", border: "1px solid rgba(212,175,137,0.24)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <Sparkles size={20} style={{ color: "#D4AF89" }} strokeWidth={1.8} />
-          </div>
-        </div>
-        <Link to="/pricing" style={{ textDecoration: "none" }}>
-          <button className="btn btn-primary press" style={{ fontSize: 14, height: 46 }}>
-            <Sparkles size={14} strokeWidth={2} />
-            Upgrade naar Luna Plus
-          </button>
-        </Link>
-        <p style={{ fontSize: 11, color: "var(--text-faint)", textAlign: "center", marginTop: 8 }}>€9,99/maand — maandelijks opzegbaar</p>
-      </motion.div>
+          <Link to="/pricing" style={{ textDecoration: "none" }}>
+            <button className="btn btn-primary press" style={{ fontSize: 14, height: 46 }}>
+              <Sparkles size={14} strokeWidth={2} />
+              Bekijk opties
+            </button>
+          </Link>
+          <p style={{ fontSize: 11, color: "var(--text-faint)", textAlign: "center", marginTop: 8 }}>Maandelijks opzegbaar</p>
+        </motion.div>
+      )}
 
       {/* Ritme */}
       <motion.div

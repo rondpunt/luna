@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Contact() {
@@ -20,14 +20,14 @@ export default function Contact() {
           Vragen, feedback of een probleem melden? We lezen alles.
         </p>
 
-        <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: 24, display: "flex", gap: 16, alignItems: "center", marginBottom: 24 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(232,131,74,0.1)", border: "1px solid rgba(232,131,74,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Mail size={18} style={{ color: "#E8834A" }} strokeWidth={1.8} />
+        <div style={{ background: "rgba(242,237,228,0.025)", border: "1px solid rgba(242,237,228,0.06)", borderRadius: 20, padding: 24, display: "flex", gap: 16, alignItems: "center", marginBottom: 24 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(212,175,137,0.12)", border: "1px solid rgba(212,175,137,0.24)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Mail size={18} style={{ color: "#D4AF89" }} strokeWidth={1.8} />
           </div>
           <div>
             <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", marginBottom: 2 }}>E-mail</p>
-            <a href="mailto:hallo@luna-app.be" style={{ fontSize: 14, color: "#E8834A", textDecoration: "none" }}>
-              hallo@luna-app.be
+            <a href="mailto:hallo@66-app.be" style={{ fontSize: 14, color: "#D4AF89", textDecoration: "none" }}>
+              hallo@66-app.be
             </a>
           </div>
         </div>
@@ -35,15 +35,6 @@ export default function Contact() {
         <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center", marginBottom: 40 }}>
           We proberen binnen 48 uur te antwoorden.
         </p>
-
-        <div style={{ padding: "20px", background: "rgba(201,64,64,0.06)", border: "1px solid rgba(201,64,64,0.2)", borderRadius: 20 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-            <AlertTriangle size={18} style={{ color: "var(--crisis)", marginTop: 2, flexShrink: 0 }} strokeWidth={2} />
-            <p style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.6 }}>
-              <span style={{ color: "var(--crisis)", fontWeight: 600 }}>Nood of crisis?</span> Luna is geen crisislijn. <br/>Bel 1813 (Zelfmoordlijn) of 106 (Tele-Onthaal). Bij direct gevaar: bel 112.
-            </p>
-          </div>
-        </div>
       </motion.div>
     </div>
   );

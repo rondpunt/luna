@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldAlert, Lock, Sparkles, FileText, TrendingUp, ExternalLink } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, FileText, TrendingUp, ExternalLink } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
+import { useFeatureVisibility } from "@/hooks/useFeatureVisibility";
 
 const TESTS = [
   { name: "PHQ-9", area: "Depressieve klachten", description: "Veelgebruikte screening voor depressieve symptomen in de voorbije twee weken.", url: "https://www.phqscreeners.com/select-screener" },
@@ -14,6 +15,7 @@ const TESTS = [
 
 export default function SelfTests() {
   const navigate = useNavigate();
+  const { showPremium } = useFeatureVisibility();
 
   const handleLogin = () => base44.auth.redirectToLogin(window.location.href);
 
@@ -34,68 +36,53 @@ export default function SelfTests() {
         </p>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.4 }}
-        style={{
-          padding: 16, marginBottom: 20, borderRadius: 20,
-          background: "rgba(201,64,64,0.06)", border: "1px solid rgba(201,64,64,0.20)",
-        }}
-      >
-        <div style={{ display: "flex", gap: 12 }}>
-          <ShieldAlert size={18} style={{ color: "var(--crisis)", flexShrink: 0, marginTop: 2 }} strokeWidth={1.5} />
-          <p style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
-            Bij acute nood: bel 112. Bij zelfmoordgedachten in België: bel 1813 of Tele-Onthaal 106.
-          </p>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.4 }}
-        style={{
-          padding: 24, marginBottom: 24, borderRadius: 24,
-          background: "linear-gradient(145deg, rgba(232,131,74,0.12), rgba(232,131,74,0.02))",
-          border: "1px solid rgba(232,131,74,0.25)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(232,131,74,0.15)", border: "1px solid rgba(232,131,74,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Lock size={16} style={{ color: "#E8834A" }} strokeWidth={2} />
-          </div>
-          <div>
-            <p className="eyebrow" style={{ marginBottom: 2, color: "#E8834A" }}>LUNA PLUS</p>
-            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Premium functionaliteit</p>
-          </div>
-        </div>
-        <h2 className="font-display" style={{ fontSize: 28, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 12 }}>
-          Meer dan alleen een link.
-        </h2>
-        <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6, marginBottom: 20 }}>
-          Met Plus krijg je scores opgeslagen in Luna, zachte AI-duiding, trends over tijd en een export voor je therapeut.
-        </p>
-        <div style={{ display: "grid", gap: 10, marginBottom: 24 }}>
-          {[
-            { icon: Sparkles, text: "AI-uitleg zonder diagnose-taal" },
-            { icon: TrendingUp, text: "Verloop en patronen per test" },
-            { icon: FileText, text: "PDF-bundel voor therapie" },
-          ].map((item) => (
-            <div key={item.text} style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--text)", fontSize: 14 }}>
-              <item.icon size={16} style={{ color: "#E8834A", flexShrink: 0 }} strokeWidth={1.8} />
-              {item.text}
+      {showPremium && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          style={{
+            padding: 24, marginBottom: 24, borderRadius: 24,
+            background: "linear-gradient(145deg, rgba(61,42,77,0.35), rgba(212,175,137,0.04))",
+            border: "1px solid rgba(212,175,137,0.22)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(212,175,137,0.14)", border: "1px solid rgba(212,175,137,0.28)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Lock size={16} style={{ color: "#D4AF89" }} strokeWidth={2} />
             </div>
-          ))}
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <button onClick={() => navigate("/pricing")} className="btn btn-primary press" style={{ height: 48, fontSize: 15 }}>Bekijk Premium</button>
-          <button onClick={handleLogin} className="btn btn-ghost press" style={{ height: 48, fontSize: 14, gap: 10 }}>
-            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#F0EBE1", color: "#11131A", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>G</span>
-            Verder met Google of e-mail
-          </button>
-        </div>
-      </motion.div>
+            <div>
+              <p className="eyebrow" style={{ marginBottom: 2 }}>UITGEBREID</p>
+              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>Extra functionaliteit</p>
+            </div>
+          </div>
+          <h2 className="font-display" style={{ fontSize: 28, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 12 }}>
+            Meer dan alleen een link.
+          </h2>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6, marginBottom: 20 }}>
+            Scores opgeslagen, zachte AI-duiding, trends over tijd en een export voor je therapeut.
+          </p>
+          <div style={{ display: "grid", gap: 10, marginBottom: 24 }}>
+            {[
+              { icon: Sparkles, text: "AI-uitleg zonder diagnose-taal" },
+              { icon: TrendingUp, text: "Verloop en patronen per test" },
+              { icon: FileText, text: "PDF-bundel voor therapie" },
+            ].map((item) => (
+              <div key={item.text} style={{ display: "flex", alignItems: "center", gap: 12, color: "var(--text)", fontSize: 14 }}>
+                <item.icon size={16} style={{ color: "#D4AF89", flexShrink: 0 }} strokeWidth={1.8} />
+                {item.text}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <button onClick={() => navigate("/pricing")} className="btn btn-primary press" style={{ height: 48, fontSize: 15 }}>Bekijk opties</button>
+            <button onClick={handleLogin} className="btn btn-ghost press" style={{ height: 48, fontSize: 14, gap: 10 }}>
+              <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#F0EBE1", color: "#11131A", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12 }}>G</span>
+              Verder met Google of e-mail
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {TESTS.map((test, idx) => (

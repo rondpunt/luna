@@ -6,7 +6,7 @@ const MODES = [
   {
     key: "chat",
     label: "Gesprek",
-    desc: "Praat vrijuit. 66 luistert zonder oordeel.",
+    desc: "Praat vrijuit. Een rustig oor zonder oordeel.",
     icon: MessageCircle,
     to: "/chat",
     gradient: "linear-gradient(155deg, #2A1F38 0%, #1A1424 100%)",
@@ -24,7 +24,7 @@ const MODES = [
   {
     key: "dump",
     label: "Brain Dump",
-    desc: "Gooi alles eruit. 66 structureert het.",
+    desc: "Gooi alles eruit. Daarna gestructureerd.",
     icon: Wind,
     to: "/chat?mode=brain_dump",
     gradient: "linear-gradient(155deg, #1F2030 0%, #131421 100%)",
