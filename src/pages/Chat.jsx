@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowUp, Trash2, Send, HelpCircle, ArrowLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Orb } from "@/components/luna/Orb";
 import BodyDoubleFocus from "@/components/luna/BodyDoubleFocus";
 import CrisisSheet from "@/components/luna/CrisisSheet";
 import { useLunaPresence } from "@/hooks/useLunaPresence";
@@ -274,9 +273,8 @@ export default function Chat() {
         <button onClick={() => navigate("/home")} className="press" style={{ background: "none", border: "none", color: "var(--text-muted)", marginRight: 8, padding: 8 }}>
           <ArrowLeft size={20} strokeWidth={1.5} />
         </button>
-        <Orb size="sm" />
-        <div style={{ marginLeft: 12 }}>
-          <p className="font-display" style={{ fontSize: 24, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1 }}>66</p>
+        <div style={{ marginLeft: 4 }}>
+          <p className="font-display" style={{ fontSize: 28, color: "#E8834A", letterSpacing: "-0.03em", lineHeight: 1 }}>66</p>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
             <PresenceDot color={statusColor} />
             <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{statusLabel || "Aanwezig"}</span>
@@ -329,9 +327,9 @@ export default function Chat() {
         <>
           <div ref={containerRef} className="flex-1 overflow-y-auto" style={{ padding: "24px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
             {isEmpty && mode === "normal" && (
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="flex flex-col items-center" style={{ marginTop: "15vh" }}>
-                <Orb size="md" />
-                <div className="bubble-luna" style={{ marginTop: 32, maxWidth: 320, textAlign: "center", background: "transparent", border: "none", fontSize: 16, color: "var(--text-muted)" }}>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col items-center" style={{ marginTop: "18vh" }}>
+                <div className="font-display" style={{ fontSize: 72, color: "#E8834A", letterSpacing: "-0.04em", lineHeight: 1, filter: "drop-shadow(0 0 24px rgba(232,131,74,0.2))" }}>66</div>
+                <div style={{ marginTop: 28, maxWidth: 320, textAlign: "center", fontSize: 16, color: "var(--text-muted)", lineHeight: 1.6 }}>
                   Hé. Geen druk.<br/>Wat zit er nu het meest op je?
                 </div>
               </motion.div>

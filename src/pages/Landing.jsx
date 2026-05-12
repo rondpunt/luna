@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Orb } from "@/components/luna/Orb";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
@@ -28,15 +27,17 @@ export default function Landing() {
       </div>
 
       <div className="w-full max-w-[480px] flex flex-col items-center">
-        <div style={{ flex: "0 0 14vh" }} />
+        <div style={{ flex: "0 0 22vh" }} />
 
-        {/* Orb */}
+        {/* 66 wordmark */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="font-display"
+          style={{ fontSize: 128, color: "#E8834A", letterSpacing: "-0.04em", lineHeight: 1, filter: "drop-shadow(0 0 32px rgba(232,131,74,0.25))" }}
         >
-          <Orb size="xl" />
+          66
         </motion.div>
 
         {/* Heading */}
@@ -45,9 +46,9 @@ export default function Landing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="font-display text-center"
-          style={{ fontSize: 52, color: "#F0EBE1", letterSpacing: "-0.025em", lineHeight: 1.0, marginTop: 56 }}
+          style={{ fontSize: 44, color: "#F0EBE1", letterSpacing: "-0.025em", lineHeight: 1.05, marginTop: 32 }}
         >
-          Hallo, ik ben 66.
+          Een plek om door<br/>het zware te komen.
         </motion.h1>
 
         <motion.p

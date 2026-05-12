@@ -6,7 +6,6 @@ import { format, differenceInDays, parseISO, subDays } from "date-fns";
 import { nl } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { Flame, MessageCircle, Zap, Wind, ChevronRight } from "lucide-react";
-import { Orb } from "@/components/luna/Orb";
 
 const MOOD_LABELS = {
   1: "Erg zwaar", 2: "Zwaar", 3: "Moeilijk", 4: "Niet makkelijk",
@@ -120,7 +119,7 @@ export default function Home() {
               <span style={{ fontSize: 14, fontWeight: 600, color: "#E8834A" }}>{streak}</span>
             </div>
           )}
-          <Orb size="sm" />
+          <span className="font-display" style={{ fontSize: 36, color: "#E8834A", letterSpacing: "-0.04em", lineHeight: 1, filter: "drop-shadow(0 0 12px rgba(232,131,74,0.25))" }}>66</span>
         </div>
       </div>
 

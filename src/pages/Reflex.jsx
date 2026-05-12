@@ -4,7 +4,6 @@ import { ArrowLeft, Zap, Send, RotateCcw, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Orb } from "@/components/luna/Orb";
 import { buildLunaUserState, formatLunaUserState } from "@/lib/lunaUserState";
 
 const SITUATION_CHIPS = [
@@ -213,9 +212,16 @@ export default function Reflex() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 40, gap: 18 }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 60, gap: 20 }}
         >
-          <Orb size="md" />
+          <motion.div
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            className="font-display"
+            style={{ fontSize: 56, color: "#E8834A", letterSpacing: "-0.04em", lineHeight: 1 }}
+          >
+            66
+          </motion.div>
           <p style={{ fontSize: 14, color: "var(--text-muted)" }}>Even kijken…</p>
         </motion.div>
       )}
