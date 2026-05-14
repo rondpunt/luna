@@ -60,7 +60,7 @@ export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, sav
   const current = STATES[currentIdx];
   const { accent, bgDark } = current;
 
-  const handleSelect = (idx) => setMood(STATES[idx].score);
+  const handleSelect = (idx) => { import("@/lib/haptics").then(({ haptic }) => haptic.soft()); setMood(STATES[idx].score); };
 
   if (checkedToday && !saved) {
     return (
@@ -176,7 +176,7 @@ export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, sav
         </div>
 
         <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={onSaveAndChat} disabled={saving} className="press" style={{
+          <button onClick={() => { import("@/lib/haptics").then(({ haptic }) => haptic.medium()); onSaveAndChat?.(); }} disabled={saving} className="press" style={{
             flex: 2, height: 52, borderRadius: 26, border: "none",
             background: `linear-gradient(135deg, ${accent}, ${accent}CC)`,
             color: "#1A120A", fontSize: 15, fontWeight: 600, cursor: "pointer",
@@ -187,7 +187,7 @@ export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, sav
             <MessageCircle size={16} strokeWidth={2.2} />
             Open chat
           </button>
-          <button onClick={onSave} disabled={saving || saved} className="press" style={{
+          <button onClick={() => { import("@/lib/haptics").then(({ haptic }) => haptic.soft()); onSave?.(); }} disabled={saving || saved} className="press" style={{
             flex: 1, height: 52, borderRadius: 26,
             background: "rgba(242,237,228,0.04)", border: "1px solid rgba(242,237,228,0.09)",
             color: saved ? "#8A9482" : "var(--text)", fontSize: 13, fontWeight: 500, cursor: "pointer",
@@ -195,6 +195,12 @@ export default function HeroMoodCard({ mood, setMood, onSave, onSaveAndChat, sav
           }}>
             {saved ? "✓ Opgeslagen" : "Alleen opslaan"}
           </button>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
+          <span style={{ fontSize: 11, color: "var(--text-faint)", letterSpacing: "0.04em" }}>
+            🔒 Alleen jij ziet dit · niets gedeeld
+          </span>
         </div>
       </div>
     </motion.div>

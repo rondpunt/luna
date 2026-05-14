@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowUp, Trash2, Send, HelpCircle, ArrowLeft } from "lucide-react";
+import { ArrowUp, Trash2, Send, HelpCircle, ArrowLeft, Plus } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BodyDoubleFocus from "@/components/luna/BodyDoubleFocus";
@@ -10,6 +10,9 @@ import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { buildLunaUserState, formatLunaUserState } from "@/lib/lunaUserState";
+import PrivacyBadge from "@/components/ui/PrivacyBadge";
+import ToolsMenuSheet from "@/components/ui/ToolsMenuSheet";
+import { haptic } from "@/lib/haptics";
 
 const FREE_MESSAGE_LIMIT = 10;
 const MIN_USAGE_DAYS_BEFORE_PAYWALL = 5;
@@ -96,6 +99,7 @@ export default function Chat() {
   const [brainDumpDone, setBrainDumpDone] = useState(false);
   const [brainDumpResult, setBrainDumpResult] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [showTools, setShowTools] = useState(false);
 
   const { statusLabel, statusColor, initPresence, onUserMessage, onLunaReply } = useLunaPresence();
   const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
@@ -275,9 +279,12 @@ export default function Chat() {
         </button>
         <div style={{ marginLeft: 4 }}>
           <p className="font-display" style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}>Nieuw gesprek</p>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
-            <PresenceDot color={statusColor} />
-            <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{statusLabel || "Aanwezig"}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <PresenceDot color={statusColor} />
+              <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{statusLabel || "Aanwezig"}</span>
+            </div>
+            <PrivacyBadge />
           </div>
         </div>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
@@ -369,7 +376,20 @@ export default function Chat() {
               )}
               {processing && <div style={{ textAlign: "center", padding: "10px 0 12px", fontSize: 14, color: "var(--text-muted)" }}>Even structureren…</div>}
               
-              <div className="glass" style={{ display: "flex", alignItems: "flex-end", gap: 10, borderRadius: 28, padding: "10px 10px 10px 18px", border: "1px solid rgba(255,255,255,0.12)" }}>
+              <div className="glass" style={{ display: "flex", alignItems: "flex-end", gap: 8, borderRadius: 28, padding: "10px 10px 10px 12px", border: "1px solid rgba(255,255,255,0.12)" }}>
+                <button
+                  onClick={() => { haptic.soft(); setShowTools(true); }}
+                  aria-label="Tools openen"
+                  style={{
+                    width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
+                    background: "rgba(212,175,137,0.10)",
+                    border: "1px solid rgba(212,175,137,0.22)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", marginBottom: 3,
+                  }}
+                >
+                  <Plus size={17} style={{ color: "#D4AF89" }} strokeWidth={2} />
+                </button>
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -384,7 +404,7 @@ export default function Chat() {
                   style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 16, color: "var(--text)", lineHeight: 1.5, resize: "none", fontFamily: "'Geist', system-ui, sans-serif", maxHeight: 120, overflowY: "auto", padding: "8px 0" }}
                 />
                 <button
-                  onClick={send}
+                  onClick={() => { haptic.medium(); send(); }}
                   disabled={!input.trim() || typing}
                   aria-label="Verstuur"
                   style={{ width: 44, height: 44, borderRadius: "50%", flexShrink: 0, background: input.trim() && !typing ? "linear-gradient(135deg, #F09050, #D2682E)" : "rgba(255,255,255,0.06)", border: "none", cursor: input.trim() && !typing ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", boxShadow: input.trim() && !typing ? "0 4px 12px rgba(232,131,74,0.3)" : "none" }}
@@ -396,6 +416,8 @@ export default function Chat() {
           )}
         </>
       )}
+
+      <ToolsMenuSheet open={showTools} onClose={() => setShowTools(false)} />
 
       <AnimatePresence>
         {showClearConfirm && (

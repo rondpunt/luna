@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowUp, RotateCcw, Wind, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import PrivacyBadge from "@/components/ui/PrivacyBadge";
+import { haptic } from "@/lib/haptics";
 
 const SECTIONS = [
   { key: "todos",        label: "ACTIES",       color: "#D4AF89" },
@@ -25,6 +27,7 @@ export default function BrainDump() {
   const add = () => {
     const t = input.trim();
     if (!t) return;
+    haptic.soft();
     setDumps((d) => [...d, t]);
     setInput("");
     if (inputRef.current) inputRef.current.style.height = "auto";
@@ -32,6 +35,7 @@ export default function BrainDump() {
 
   const structure = async () => {
     if (!dumps.length) return;
+    haptic.medium();
     setProcessing(true);
     try {
       const raw = dumps.join("\n");
@@ -42,6 +46,7 @@ export default function BrainDump() {
       });
       const parsed = resp?.data?.structured || JSON.parse(resp?.data?.reply || "{}");
       await base44.entities.BrainDump.create({ rawText: raw, aiStructured: JSON.stringify(parsed) }).catch(() => {});
+      haptic.success();
       setResult(parsed);
     } catch {}
     setProcessing(false);
@@ -64,6 +69,9 @@ export default function BrainDump() {
             <p className="font-display" style={{ fontSize: 20, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}>Brain Dump</p>
             <p style={{ fontSize: 11, color: "var(--text-muted)" }}>Gooi alles eruit.</p>
           </div>
+        </div>
+        <div style={{ marginLeft: "auto" }}>
+          <PrivacyBadge />
         </div>
       </header>
 
