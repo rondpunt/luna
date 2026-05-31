@@ -5,9 +5,11 @@ import { nl } from "date-fns/locale";
 import { ChevronRight } from "lucide-react";
 
 const MOOD_COLORS = {
-  1: "#9C5A5A", 2: "#9C5A5A", 3: "#8A8278", 4: "#8A8278",
-  5: "#8A9482", 6: "#8A9482", 7: "#B89572", 8: "#B89572",
-  9: "#D4AF89", 10: "#D4AF89",
+  1: "#EC6F6F", 2: "#EC6F6F",
+  3: "#9B7FC4", 4: "#9B7FC4",
+  5: "#7BC096", 6: "#7BC096",
+  7: "#F0C674", 8: "#F0C674",
+  9: "#6A9AD9", 10: "#6A9AD9",
 };
 
 export default function WeekTimeline({ checkIns }) {
@@ -42,27 +44,28 @@ export default function WeekTimeline({ checkIns }) {
       onClick={() => navigate("/profiel")}
       className="press"
       style={{
-        width: "100%", padding: "22px 22px 24px", borderRadius: 24,
-        background: "rgba(255,255,255,0.025)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        width: "100%", padding: "22px 22px 24px", borderRadius: 22,
+        background: "#FFFFFF",
+        border: "1px solid #F0E6D8",
         cursor: "pointer", textAlign: "left",
+        boxShadow: "0 4px 16px rgba(45, 42, 58, 0.06), 0 1px 3px rgba(45, 42, 58, 0.04)",
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
         <div>
           <p className="eyebrow-muted" style={{ marginBottom: 4 }}>JE WEEK</p>
-          <p className="font-display" style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em" }}>
+          <p className="font-display-bold" style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em" }}>
             7 dagen terug
           </p>
         </div>
-        <ChevronRight size={18} style={{ color: "var(--text-faint)" }} strokeWidth={1.5} />
+        <ChevronRight size={18} style={{ color: "var(--text-muted)" }} strokeWidth={2} />
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 6, height: 64 }}>
         {days.map((d, i) => {
           const score = d.checkin?.score;
           const h = score ? Math.max(8, (score / 10) * 48) : 4;
-          const col = score ? MOOD_COLORS[score] : "rgba(255,255,255,0.06)";
+          const col = score ? MOOD_COLORS[score] : "#F0E6D8";
           const isToday = i === 6;
           return (
             <div key={d.key} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
@@ -73,13 +76,13 @@ export default function WeekTimeline({ checkIns }) {
                 style={{
                   width: "100%", maxWidth: 16, height: h, borderRadius: 8,
                   background: col,
-                  boxShadow: score ? `0 4px 12px ${col}40` : "none",
-                  opacity: score ? 1 : 0.4,
+                  boxShadow: score ? `0 4px 12px ${col}55` : "none",
+                  opacity: score ? 1 : 0.5,
                 }}
               />
               <span style={{
-                fontSize: 11, fontWeight: isToday ? 600 : 400,
-                color: isToday ? "#D4AF89" : "var(--text-faint)",
+                fontSize: 11, fontWeight: isToday ? 700 : 500,
+                color: isToday ? "#F0925E" : "var(--text-muted)",
                 letterSpacing: "0.05em",
               }}>{d.letter}</span>
             </div>

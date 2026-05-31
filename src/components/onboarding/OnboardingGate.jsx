@@ -20,7 +20,7 @@ export default function OnboardingGate() {
     check();
   }, []);
 
-  if (state === "loading") return <div className="min-h-dvh" style={{ background: "#050508" }} />;
+  if (state === "loading") return <div className="min-h-dvh" style={{ background: "#FFFBF7" }} />;
   if (state === "onboarding") return <ConsoleOnboarding />;
   return <Navigate to="/home" replace />;
 }

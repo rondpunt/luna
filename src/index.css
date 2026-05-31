@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────
-   FONTS — Fraunces (serif display) + Inter (body)
+   JUNIE — Light, warm, Disney-friendly
+   Mental ChatApp · vriendelijk pastel design
    ───────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
 
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
-    color-scheme: dark;
+    color-scheme: light;
     height: 100%;
   }
 
   body {
-    background: #0E0B14;
-    color: #F2EDE4;
+    background: #FFFBF7;
+    color: #2D2A3A;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior: none;
@@ -25,14 +25,14 @@
   }
 
   .font-display {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: normal;
-    font-weight: 400;
-    letter-spacing: -0.02em;
+    font-family: 'Quicksand', 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
-  .font-display-italic {
-    font-family: 'Fraunces', Georgia, serif;
-    font-style: italic;
+  .font-display-bold {
+    font-family: 'Quicksand', 'Inter', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.015em;
   }
 
   * {
@@ -41,96 +41,104 @@
   }
 
   ::-webkit-scrollbar { width: 0; height: 0; }
-  ::placeholder { color: #5A4F66; }
-  ::selection { background: rgba(212, 175, 137, 0.28); color: #F2EDE4; }
+  ::placeholder { color: #B8B0C2; }
+  ::selection { background: rgba(255, 168, 84, 0.25); color: #2D2A3A; }
 
   :focus-visible {
-    outline: 2px solid rgba(212, 175, 137, 0.45);
+    outline: 2px solid rgba(106, 154, 217, 0.6);
     outline-offset: 2px;
-    border-radius: 10px;
+    border-radius: 12px;
   }
 }
 
 /* ─────────────────────────────────────────
-   DESIGN TOKENS — Premium "Atelier Nocturne"
-   Midnight aubergine + warm ivory + champagne
+   JUNIE BRAND PALETTE
+   Inspired by logo: blue, green, orange, coral
    ───────────────────────────────────────── */
 :root {
-  /* Base canvas */
-  --bg:             #0E0B14;
-  --bg-soft:        #15101D;
-  --bg-elevated:    #1B1525;
-  --bg-card:        #1F1828;
+  /* Canvas — warm cream white */
+  --bg:             #FFFBF7;
+  --bg-soft:        #FFF6EC;
+  --bg-cream:       #FDF4E8;
+  --bg-card:        #FFFFFF;
 
-  /* Aubergine accents */
-  --aubergine:      #3D2A4D;
-  --aubergine-soft: rgba(61, 42, 77, 0.35);
+  /* Junie brand colors (from logo) */
+  --junie-blue:     #6A9AD9;
+  --junie-blue-soft:#A8C6EB;
+  --junie-green:    #7BC096;
+  --junie-green-soft:#B5DDC2;
+  --junie-yellow:   #F0C674;
+  --junie-orange:   #F0925E;
+  --junie-coral:    #EC6F6F;
+  --junie-coral-soft:#F4A8A8;
+  --junie-purple:   #9B7FC4;
 
-  /* Champagne / brass — primary accent */
-  --accent:         #D4AF89;
-  --accent-warm:    #E8C9A3;
-  --accent-deep:    #A8835E;
-  --accent-dim:     rgba(212, 175, 137, 0.08);
-  --accent-soft:    rgba(212, 175, 137, 0.14);
-  --accent-border:  rgba(212, 175, 137, 0.22);
-  --on-accent:      #1A120A;
+  /* Primary action — warm orange */
+  --accent:         #F0925E;
+  --accent-warm:    #F4A77A;
+  --accent-deep:    #D67541;
+  --accent-soft:    rgba(240, 146, 94, 0.12);
+  --accent-border:  rgba(240, 146, 94, 0.28);
+  --on-accent:      #FFFFFF;
 
   /* Surfaces */
-  --surface:        rgba(255, 250, 244, 0.025);
-  --surface-hover:  rgba(255, 250, 244, 0.045);
-  --surface-active: rgba(255, 250, 244, 0.065);
+  --surface:        #FFFFFF;
+  --surface-soft:   #FFF8F0;
+  --surface-hover:  #FFF1E3;
+  --surface-active: #FFE9D2;
 
-  /* Borders — warm */
-  --border:         rgba(242, 237, 228, 0.06);
-  --border-strong:  rgba(242, 237, 228, 0.11);
+  /* Borders — warm cream */
+  --border:         #F0E6D8;
+  --border-strong:  #E5D6BF;
 
-  /* Text — warm ivory ladder */
-  --text:           #F2EDE4;
-  --text-soft:      #C8BEB0;
-  --text-muted:     #847A6E;
-  --text-faint:     #4A4239;
+  /* Text ladder */
+  --text:           #2D2A3A;
+  --text-soft:      #5A546B;
+  --text-muted:     #8A8499;
+  --text-faint:     #B8B0C2;
+  --text-inverse:   #FFFFFF;
 
-  /* Mood semantics — desaturated, dignified */
-  --color-heavy:    #9C5A5A; /* dusty rose */
-  --color-flat:     #8A8278; /* warm grey */
-  --color-calm:     #8A9482; /* sage */
-  --color-open:     #B89572; /* terracotta */
-  --color-clear:    #D4AF89; /* champagne */
+  /* Mood colors — bright but soft */
+  --color-heavy:    #EC6F6F;
+  --color-flat:     #B8B0C2;
+  --color-calm:     #7BC096;
+  --color-open:     #F0C674;
+  --color-clear:    #6A9AD9;
 
-  /* Crisis — restrained */
-  --crisis:         #B8554A;
-  --crisis-soft:    rgba(184, 85, 74, 0.08);
-  --crisis-border:  rgba(184, 85, 74, 0.28);
+  /* Crisis */
+  --crisis:         #DC4545;
+  --crisis-soft:    rgba(220, 69, 69, 0.08);
+  --crisis-border:  rgba(220, 69, 69, 0.28);
 
   /* Radius */
-  --r-xs:   10px;
-  --r-sm:   14px;
-  --r-card: 22px;
+  --r-xs:   12px;
+  --r-sm:   16px;
+  --r-card: 24px;
   --r-lg:   28px;
   --r-xl:   36px;
   --r-pill: 999px;
 
-  /* shadcn compat — aligned to new palette */
-  --background: 263 25% 6%;
-  --foreground: 36 30% 92%;
-  --card: 263 22% 10%;
-  --card-foreground: 36 30% 92%;
-  --popover: 263 22% 10%;
-  --popover-foreground: 36 30% 92%;
-  --primary: 31 47% 69%;
-  --primary-foreground: 30 60% 8%;
-  --secondary: 263 18% 14%;
-  --secondary-foreground: 36 30% 92%;
-  --muted: 263 18% 14%;
-  --muted-foreground: 30 12% 55%;
-  --accent: 31 47% 69%;
-  --accent-foreground: 30 60% 8%;
-  --destructive: 8 45% 51%;
+  /* shadcn compat — light theme */
+  --background: 30 100% 98%;
+  --foreground: 250 14% 20%;
+  --card: 0 0% 100%;
+  --card-foreground: 250 14% 20%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 250 14% 20%;
+  --primary: 22 81% 65%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 35 60% 95%;
+  --secondary-foreground: 250 14% 20%;
+  --muted: 35 60% 95%;
+  --muted-foreground: 250 10% 55%;
+  --accent: 22 81% 65%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 70% 56%;
   --destructive-foreground: 0 0% 100%;
-  --border: 36 15% 18%;
-  --input: 263 18% 11%;
-  --ring: 31 47% 69%;
-  --radius: 1.25rem;
+  --border: 35 35% 88%;
+  --input: 35 50% 96%;
+  --ring: 22 81% 65%;
+  --radius: 1rem;
 }
 
 /* ─────────────────────────────────────────
@@ -140,35 +148,28 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-card);
+  box-shadow: 0 1px 2px rgba(45, 42, 58, 0.04);
 }
 
 .surface-elevated {
-  background: var(--bg-elevated);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  box-shadow: 0 4px 16px rgba(45, 42, 58, 0.06), 0 1px 3px rgba(45, 42, 58, 0.04);
+}
+
+.surface-soft {
+  background: var(--bg-soft);
   border: 1px solid var(--border);
   border-radius: var(--r-card);
 }
 
-.surface-warm {
-  background: linear-gradient(160deg, rgba(61,42,77,0.32), rgba(31,24,40,0.5));
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-card);
-}
-
-/* ─────────────────────────────────────────
-   GLASS — premium frosted layer
-   ───────────────────────────────────────── */
+/* Glass — light frosted */
 .glass {
-  background: rgba(20, 14, 28, 0.72);
-  backdrop-filter: blur(40px) saturate(150%);
-  -webkit-backdrop-filter: blur(40px) saturate(150%);
-  border: 1px solid rgba(242, 237, 228, 0.07);
-}
-
-.glass-light {
-  background: rgba(242, 237, 228, 0.03);
+  background: rgba(255, 251, 247, 0.85);
   backdrop-filter: blur(24px) saturate(140%);
   -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid rgba(242, 237, 228, 0.06);
+  border: 1px solid rgba(240, 230, 216, 0.6);
 }
 
 /* ─────────────────────────────────────────
@@ -184,8 +185,8 @@
   border-radius: var(--r-pill);
   font-family: 'Inter', system-ui, sans-serif;
   font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  letter-spacing: -0.005em;
   transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
   cursor: pointer;
   width: 100%;
@@ -193,38 +194,39 @@
   overflow: hidden;
   border: 1px solid transparent;
 }
-.btn:active { transform: scale(0.98); }
+.btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.4; pointer-events: none; }
 
 .btn-primary {
-  background: linear-gradient(135deg, #E8C9A3, #C29871);
-  color: #1A120A;
-  box-shadow: 0 10px 28px rgba(212, 175, 137, 0.22), 0 2px 8px rgba(212, 175, 137, 0.12);
+  background: linear-gradient(135deg, #F0925E, #EC6F6F);
+  color: #FFFFFF;
+  box-shadow: 0 8px 24px rgba(240, 146, 94, 0.32), 0 2px 6px rgba(236, 111, 111, 0.18);
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #F0D4B0, #C9A07C);
-  box-shadow: 0 14px 36px rgba(212, 175, 137, 0.30), 0 4px 12px rgba(212, 175, 137, 0.18);
+  background: linear-gradient(135deg, #F4A77A, #EE8585);
+  box-shadow: 0 12px 32px rgba(240, 146, 94, 0.42), 0 4px 12px rgba(236, 111, 111, 0.24);
   transform: translateY(-1px);
 }
 
 .btn-ghost {
-  background: rgba(242, 237, 228, 0.035);
+  background: #FFFFFF;
   color: var(--text-soft);
   border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(45, 42, 58, 0.04);
 }
 .btn-ghost:hover {
-  background: rgba(242, 237, 228, 0.065);
+  background: var(--surface-hover);
   color: var(--text);
   border-color: var(--border-strong);
 }
 
 .btn-ghost-accent {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-deep);
   border: 1px solid var(--accent-border);
 }
 .btn-ghost-accent:hover {
-  background: rgba(212, 175, 137, 0.18);
+  background: rgba(240, 146, 94, 0.20);
 }
 
 .btn-ghost-crisis {
@@ -240,34 +242,32 @@
    ───────────────────────────────────────── */
 .eyebrow {
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 10.5px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.20em;
-  color: var(--accent);
+  letter-spacing: 0.16em;
+  color: var(--accent-deep);
 }
 .eyebrow-muted {
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.20em;
-  color: var(--text-faint);
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
 }
-
-.serif-xl { font-family: 'Fraunces', Georgia, serif; font-weight: 400; letter-spacing: -0.025em; line-height: 1.02; }
 
 /* ─────────────────────────────────────────
    PRESS FEEDBACK
    ───────────────────────────────────────── */
 .press { transition: transform 0.12s ease, opacity 0.12s ease; cursor: pointer; }
-.press:active { transform: scale(0.97); opacity: 0.85; }
+.press:active { transform: scale(0.97); opacity: 0.88; }
 
 /* ─────────────────────────────────────────
    ANIMATIONS
    ───────────────────────────────────────── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .fade-up { animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -284,6 +284,12 @@
 }
 .scale-in { animation: scaleIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+.float-y { animation: floatY 4s ease-in-out infinite; }
+
 /* Safe area helpers */
 .pb-safe { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 .pt-safe { padding-top: max(0px, env(safe-area-inset-top)); }
@@ -299,30 +305,32 @@
 }
 
 /* ─────────────────────────────────────────
-   CHAT BUBBLES — refined
+   CHAT BUBBLES — Junie style (ChatGPT-like)
    ───────────────────────────────────────── */
 .bubble-luna {
-  max-width: 82%;
+  max-width: 86%;
   align-self: flex-start;
   padding: 14px 18px;
-  background: rgba(242, 237, 228, 0.035);
-  border: 1px solid rgba(242, 237, 228, 0.06);
+  background: #FFFFFF;
+  border: 1px solid var(--border);
   border-radius: 22px 22px 22px 6px;
   font-size: 15px;
   line-height: 1.6;
   color: var(--text);
+  box-shadow: 0 2px 8px rgba(45, 42, 58, 0.04);
 }
 
 .bubble-user {
-  max-width: 82%;
+  max-width: 86%;
   align-self: flex-end;
   padding: 14px 18px;
-  background: rgba(212, 175, 137, 0.10);
-  border: 1px solid rgba(212, 175, 137, 0.20);
+  background: linear-gradient(135deg, #F0925E, #EC6F6F);
+  border: none;
   border-radius: 22px 22px 6px 22px;
   font-size: 15px;
   line-height: 1.6;
-  color: var(--text);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(240, 146, 94, 0.28);
 }
 
 /* ─────────────────────────────────────────
@@ -344,19 +352,11 @@
    ICON BADGE
    ───────────────────────────────────────── */
 .icon-badge {
-  width: 40px; height: 40px;
-  border-radius: 13px;
+  width: 42px; height: 42px;
+  border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
   background: var(--accent-soft);
   border: 1px solid var(--accent-border);
-  flex-shrink: 0;
-}
-.icon-badge-muted {
-  width: 40px; height: 40px;
-  border-radius: 13px;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(242, 237, 228, 0.04);
-  border: 1px solid var(--border);
   flex-shrink: 0;
 }
 
@@ -373,3 +373,12 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 .msg-enter { animation: msgEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Rainbow ambient blob */
+.junie-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.5;
+  pointer-events: none;
+}

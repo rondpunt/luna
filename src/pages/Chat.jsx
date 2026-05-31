@@ -12,15 +12,16 @@ import ReactMarkdown from "react-markdown";
 import { buildLunaUserState, formatLunaUserState } from "@/lib/lunaUserState";
 import PrivacyBadge from "@/components/ui/PrivacyBadge";
 import ToolsMenuSheet from "@/components/ui/ToolsMenuSheet";
+import JunieLogo from "@/components/brand/JunieLogo";
 import { haptic } from "@/lib/haptics";
 
 const FREE_MESSAGE_LIMIT = 10;
 const MIN_USAGE_DAYS_BEFORE_PAYWALL = 5;
 
 const MODES = [
-  { key: "normal",      label: "Gesprek",       desc: "Open chat — luisteren en reageren." },
-  { key: "body_double", label: "Body Double",    desc: "Een aparte focusruimte: stille aanwezigheid zonder de chat te vullen." },
-  { key: "brain_dump",  label: "Brain Dump",     desc: "Gooi alles eruit. Daarna gestructureerd." },
+  { key: "normal",      label: "Gesprek",       color: "#6A9AD9" },
+  { key: "body_double", label: "Body Double",   color: "#7BC096" },
+  { key: "brain_dump",  label: "Brain Dump",    color: "#F0C674" },
 ];
 
 function TypingIndicator() {
@@ -31,7 +32,7 @@ function TypingIndicator() {
           key={i}
           animate={{ y: [0, -5, 0], opacity: [0.3, 1, 0.3] }}
           transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
-          style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--text-muted)" }}
+          style={{ width: 6, height: 6, borderRadius: "50%", background: "#F0925E" }}
         />
       ))}
     </div>
@@ -39,15 +40,15 @@ function TypingIndicator() {
 }
 
 function PresenceDot({ color }) {
-  return <div style={{ width: 6, height: 6, borderRadius: "50%", background: color, transition: "background 0.4s", boxShadow: `0 0 8px ${color}` }} />;
+  return <div style={{ width: 7, height: 7, borderRadius: "50%", background: color, transition: "background 0.4s", boxShadow: `0 0 6px ${color}AA` }} />;
 }
 
 function BrainDumpResult({ data, onClose }) {
   const sections = [
-    { key: "todos", label: "Acties", color: "#E8834A" },
-    { key: "feelings", label: "Gevoelens", color: "#A46BA8" },
-    { key: "observations", label: "Observaties", color: "#6B8FD4" },
-    { key: "questions", label: "Open vragen", color: "#D4A86B" },
+    { key: "todos", label: "Acties", color: "#F0925E" },
+    { key: "feelings", label: "Gevoelens", color: "#9B7FC4" },
+    { key: "observations", label: "Observaties", color: "#6A9AD9" },
+    { key: "questions", label: "Open vragen", color: "#F0C674" },
   ];
   return (
     <motion.div
@@ -62,10 +63,10 @@ function BrainDumpResult({ data, onClose }) {
         if (!items?.length) return null;
         return (
           <div key={key} style={{ marginBottom: 24 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", color, textTransform: "uppercase", marginBottom: 10 }}>{label}</p>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", color, textTransform: "uppercase", marginBottom: 10 }}>{label}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {items.map((item, i) => (
-                <div key={i} style={{ padding: "14px 16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, fontSize: 14, color: "var(--text)", lineHeight: 1.5 }}>
+                <div key={i} style={{ padding: "14px 16px", background: `${color}10`, border: `1px solid ${color}30`, borderRadius: 16, fontSize: 14, color: "var(--text)", lineHeight: 1.5 }}>
                   {item}
                 </div>
               ))}
@@ -104,9 +105,7 @@ export default function Chat() {
   const { statusLabel, statusColor, initPresence, onUserMessage, onLunaReply } = useLunaPresence();
   const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, typing]);
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, typing]);
 
   useEffect(() => {
     initPresence();
@@ -133,7 +132,7 @@ export default function Chat() {
   useEffect(() => {
     if (!convId || messages.length > 0) return;
     if (mode === "body_double") {
-      setMessages([{ role: "assistant", content: "Ik ben hier. Vertel waar je mee bezig bent — of niet. Ik laat je werken.", id: "bd-init" }]);
+      setMessages([{ role: "assistant", content: "Hé, ik ben Junie. Ik blijf rustig naast je terwijl jij iets doet. Geen druk.", id: "bd-init" }]);
     } else if (mode === "brain_dump") {
       setMessages([{ role: "assistant", content: "Stort het uit. Geen volgorde, geen logica. Druk op 'Klaar' als je klaar bent.", id: "dump-init" }]);
     }
@@ -267,61 +266,68 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col" style={{ height: "100dvh", background: "var(--bg)", paddingTop: "env(safe-area-inset-top, 0px)" }}>
-      {/* Ambient background */}
-      <div className="fixed inset-0 -z-10" style={{ background: "#080810" }}>
-        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 0%, rgba(232,131,74,0.06), transparent 60%)" }} />
+      {/* Junie ambient (light) */}
+      <div className="fixed inset-0 -z-10" style={{ background: "#FFFBF7" }}>
+        <div className="junie-blob" style={{ top: -60, right: -40, width: 220, height: 220, background: "#F0925E", opacity: 0.25 }} />
+        <div className="junie-blob" style={{ bottom: 200, left: -60, width: 200, height: 200, background: "#6A9AD9", opacity: 0.18 }} />
       </div>
 
       {/* Header */}
       <header className="glass shrink-0 flex items-center px-4" style={{ height: 68, borderTop: "none", borderLeft: "none", borderRight: "none", zIndex: 10 }}>
-        <button onClick={() => navigate("/home")} className="press" style={{ background: "none", border: "none", color: "var(--text-muted)", marginRight: 8, padding: 8 }}>
-          <ArrowLeft size={20} strokeWidth={1.5} />
+        <button onClick={() => navigate("/home")} className="press" style={{ background: "none", border: "none", color: "var(--text-soft)", marginRight: 6, padding: 8 }} aria-label="Terug">
+          <ArrowLeft size={20} strokeWidth={2} />
         </button>
-        <div style={{ marginLeft: 4 }}>
-          <p className="font-display" style={{ fontSize: 22, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.05 }}>Nieuw gesprek</p>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <JunieLogo variant="mark" size={32} />
+          <div>
+            <p className="font-display-bold" style={{ fontSize: 17, color: "var(--text)", letterSpacing: "-0.01em", lineHeight: 1.05 }}>Junie</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
               <PresenceDot color={statusColor} />
-              <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}>{statusLabel || "Aanwezig"}</span>
+              <span style={{ fontSize: 11.5, color: "var(--text-muted)", fontWeight: 500 }}>{statusLabel || "Aanwezig"}</span>
             </div>
-            <PrivacyBadge />
           </div>
         </div>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => setShowClearConfirm(true)} className="press" aria-label="Gesprek wissen" style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(242,237,228,0.04)", border: "1px solid rgba(242,237,228,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-            <Trash2 size={16} style={{ color: "var(--text-muted)" }} strokeWidth={1.5} />
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+          <PrivacyBadge />
+          <button onClick={() => setShowClearConfirm(true)} className="press" aria-label="Gesprek wissen" style={{ width: 36, height: 36, borderRadius: "50%", background: "#FFFFFF", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 1px 3px rgba(45,42,58,0.04)" }}>
+            <Trash2 size={15} style={{ color: "var(--text-muted)" }} strokeWidth={2} />
           </button>
         </div>
       </header>
 
       {/* Modes */}
-      <div style={{ padding: "10px 16px 4px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" }}>
-        {MODES.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => { if (key !== mode) { setMode(key); setShowBodyDoubleInfo(false); setMessages([]); setBrainDumpDone(false); setBrainDumpResult(null); } }}
-            style={{
-              height: 34, padding: "0 16px", borderRadius: 17, fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0,
-              background: mode === key ? "rgba(212,175,137,0.13)" : "rgba(242,237,228,0.03)",
-              border: mode === key ? "1px solid rgba(212,175,137,0.32)" : "1px solid rgba(242,237,228,0.06)",
-              color: mode === key ? "#D4AF89" : "var(--text-muted)", cursor: "pointer", transition: "all 0.15s",
-              display: "flex", alignItems: "center", gap: 6,
-            }}
-          >
-            {label}
-            {key === "body_double" && (
-              <span onClick={(e) => { e.stopPropagation(); setShowBodyDoubleInfo(!showBodyDoubleInfo); }} style={{ display: "inline-flex", alignItems: "center" }}>
-                <HelpCircle size={14} strokeWidth={1.8} />
-              </span>
-            )}
-          </button>
-        ))}
+      <div style={{ padding: "12px 16px 4px", display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" }}>
+        {MODES.map(({ key, label, color }) => {
+          const active = mode === key;
+          return (
+            <button
+              key={key}
+              onClick={() => { if (key !== mode) { setMode(key); setShowBodyDoubleInfo(false); setMessages([]); setBrainDumpDone(false); setBrainDumpResult(null); } }}
+              style={{
+                height: 34, padding: "0 16px", borderRadius: 17, fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0,
+                background: active ? color : "#FFFFFF",
+                border: active ? `1.5px solid ${color}` : "1px solid var(--border)",
+                color: active ? "#FFFFFF" : "var(--text-soft)",
+                cursor: "pointer", transition: "all 0.15s",
+                display: "flex", alignItems: "center", gap: 6,
+                boxShadow: active ? `0 3px 10px ${color}55` : "0 1px 2px rgba(45,42,58,0.04)",
+              }}
+            >
+              {label}
+              {key === "body_double" && (
+                <span onClick={(e) => { e.stopPropagation(); setShowBodyDoubleInfo(!showBodyDoubleInfo); }} style={{ display: "inline-flex", alignItems: "center" }}>
+                  <HelpCircle size={14} strokeWidth={2} />
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
       <AnimatePresence>
         {showBodyDoubleInfo && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} style={{ overflow: "hidden" }}>
-            <div style={{ margin: "4px 16px 8px", padding: "14px 16px", borderRadius: 16, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", color: "var(--text-muted)", fontSize: 13, lineHeight: 1.5 }}>
-              Body Double betekent: 66 blijft rustig naast je terwijl jij iets doet. Geen zwaar gesprek, alleen korte steun of één volgende stap als je vastloopt.
+            <div style={{ margin: "4px 16px 8px", padding: "14px 16px", borderRadius: 16, background: "#FFF8F0", border: "1px solid var(--border)", color: "var(--text-soft)", fontSize: 13, lineHeight: 1.5 }}>
+              Body Double betekent: Junie blijft rustig naast je terwijl jij iets doet. Geen zwaar gesprek, alleen korte steun of één volgende stap als je vastloopt.
             </div>
           </motion.div>
         )}
@@ -333,13 +339,21 @@ export default function Chat() {
         <>
           <div ref={containerRef} className="flex-1 overflow-y-auto" style={{ padding: "24px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
             {isEmpty && mode === "normal" && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col items-center" style={{ marginTop: "20vh" }}>
-                <p className="eyebrow" style={{ color: "#D4AF89", marginBottom: 18 }}>66</p>
-                <div className="font-display" style={{ fontSize: 38, color: "var(--text)", letterSpacing: "-0.025em", lineHeight: 1.1, textAlign: "center", maxWidth: 340 }}>
-                  Wat zit er nu<br/>
-                  <span className="font-display-italic" style={{ color: "#D4AF89" }}>op je?</span>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col items-center" style={{ marginTop: "14vh" }}>
+                <div className="float-y">
+                  <JunieLogo variant="mark" size={72} />
                 </div>
-                <div style={{ marginTop: 18, maxWidth: 280, textAlign: "center", fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                <div className="font-display-bold" style={{ fontSize: 30, color: "var(--text)", letterSpacing: "-0.02em", lineHeight: 1.15, textAlign: "center", maxWidth: 320, marginTop: 22 }}>
+                  Hé, ik ben{" "}
+                  <span style={{
+                    background: "linear-gradient(135deg, #6A9AD9, #7BC096, #F0C674, #EC6F6F)",
+                    WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}>Junie</span>.
+                  <br/>
+                  Wat zit er <span style={{ color: "#F0925E" }}>op je?</span>
+                </div>
+                <div style={{ marginTop: 14, maxWidth: 280, textAlign: "center", fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}>
                   Geen druk. Schrijf wat in je opkomt.
                 </div>
               </motion.div>
@@ -356,7 +370,7 @@ export default function Chat() {
             ))}
             {typing && <TypingIndicator />}
             {limitReached && !typing && mode === "normal" && showPremium && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "24px", background: "linear-gradient(145deg, rgba(61,42,77,0.30), rgba(212,175,137,0.04))", border: "1px solid rgba(212,175,137,0.22)", borderRadius: 24, textAlign: "center" }}>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "24px", background: "linear-gradient(145deg, #FFF0E5, #FFE5D2)", border: "1.5px solid #F0925E55", borderRadius: 22, textAlign: "center" }}>
                 <p style={{ fontSize: 15, color: "var(--text)", marginBottom: 16 }}>Je hebt je dagelijkse berichtenlimiet bereikt. Upgrade om onbeperkt door te praten.</p>
                 <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
                   <button className="btn btn-primary press" style={{ height: 44, fontSize: 14, flex: 1 }} onClick={() => navigate("/pricing")}>Bekijk opties</button>
@@ -371,24 +385,30 @@ export default function Chat() {
             <div style={{ padding: "12px 16px", paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
               {mode === "brain_dump" && messages.filter(m => m.role === "user").length > 0 && !processing && (
                 <button onClick={processBrainDump} className="btn btn-primary press" style={{ marginBottom: 12, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48 }}>
-                  <Send size={16} strokeWidth={2} /> Klaar — structureer dit
+                  <Send size={16} strokeWidth={2.4} /> Klaar — structureer dit
                 </button>
               )}
               {processing && <div style={{ textAlign: "center", padding: "10px 0 12px", fontSize: 14, color: "var(--text-muted)" }}>Even structureren…</div>}
-              
-              <div className="glass" style={{ display: "flex", alignItems: "flex-end", gap: 8, borderRadius: 28, padding: "10px 10px 10px 12px", border: "1px solid rgba(255,255,255,0.12)" }}>
+
+              <div style={{
+                display: "flex", alignItems: "flex-end", gap: 8,
+                borderRadius: 28, padding: "8px 8px 8px 10px",
+                background: "#FFFFFF",
+                border: "1.5px solid var(--border-strong)",
+                boxShadow: "0 4px 16px rgba(45,42,58,0.06)",
+              }}>
                 <button
                   onClick={() => { haptic.soft(); setShowTools(true); }}
                   aria-label="Tools openen"
                   style={{
-                    width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
-                    background: "rgba(212,175,137,0.10)",
-                    border: "1px solid rgba(212,175,137,0.22)",
+                    width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+                    background: "linear-gradient(135deg, #FFF0E5, #FFE5D2)",
+                    border: "1.5px solid #F0925E55",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", marginBottom: 3,
+                    cursor: "pointer", marginBottom: 2,
                   }}
                 >
-                  <Plus size={17} style={{ color: "#D4AF89" }} strokeWidth={2} />
+                  <Plus size={18} style={{ color: "#F0925E" }} strokeWidth={2.4} />
                 </button>
                 <textarea
                   ref={inputRef}
@@ -399,17 +419,24 @@ export default function Chat() {
                     e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
                   }}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                  placeholder={mode === "brain_dump" ? "Alles wat in je opkomt…" : mode === "body_double" ? "Optioneel bericht…" : "Schrijf iets..."}
+                  placeholder={mode === "brain_dump" ? "Alles wat in je opkomt…" : mode === "body_double" ? "Optioneel bericht…" : "Bericht aan Junie..."}
                   rows={1}
-                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 16, color: "var(--text)", lineHeight: 1.5, resize: "none", fontFamily: "'Geist', system-ui, sans-serif", maxHeight: 120, overflowY: "auto", padding: "8px 0" }}
+                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 16, color: "var(--text)", lineHeight: 1.5, resize: "none", fontFamily: "'Inter', system-ui, sans-serif", maxHeight: 120, overflowY: "auto", padding: "10px 4px" }}
                 />
                 <button
                   onClick={() => { haptic.medium(); send(); }}
                   disabled={!input.trim() || typing}
                   aria-label="Verstuur"
-                  style={{ width: 44, height: 44, borderRadius: "50%", flexShrink: 0, background: input.trim() && !typing ? "linear-gradient(135deg, #F09050, #D2682E)" : "rgba(255,255,255,0.06)", border: "none", cursor: input.trim() && !typing ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", boxShadow: input.trim() && !typing ? "0 4px 12px rgba(232,131,74,0.3)" : "none" }}
+                  style={{
+                    width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+                    background: input.trim() && !typing ? "linear-gradient(135deg, #F0925E, #EC6F6F)" : "#F0E6D8",
+                    border: "none", cursor: input.trim() && !typing ? "pointer" : "default",
+                    display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s",
+                    boxShadow: input.trim() && !typing ? "0 4px 14px rgba(240, 146, 94, 0.4)" : "none",
+                    marginBottom: 2,
+                  }}
                 >
-                  <ArrowUp size={20} style={{ color: input.trim() && !typing ? "#1A0E08" : "var(--text-muted)" }} strokeWidth={2.5} />
+                  <ArrowUp size={20} style={{ color: input.trim() && !typing ? "#FFFFFF" : "var(--text-muted)" }} strokeWidth={2.6} />
                 </button>
               </div>
             </div>
@@ -422,11 +449,11 @@ export default function Chat() {
       <AnimatePresence>
         {showClearConfirm && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60]" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(12px)" }} onClick={() => setShowClearConfirm(false)} />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed bottom-0 left-0 right-0 z-[70]" style={{ background: "#0F0F1A", borderRadius: "32px 32px 0 0", padding: "32px 24px calc(40px + env(safe-area-inset-bottom, 0px))", maxWidth: 480, margin: "0 auto", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ width: 40, height: 4, borderRadius: 2, background: "rgba(255,255,255,0.15)", margin: "0 auto 24px" }} />
-              <h3 className="font-display" style={{ fontSize: 28, color: "var(--text)", marginBottom: 12, letterSpacing: "-0.02em" }}>Gesprek wissen?</h3>
-              <p style={{ fontSize: 15, color: "var(--text-muted)", marginBottom: 28, lineHeight: 1.5 }}>Dit kan niet ongedaan gemaakt worden. Dit gesprek wordt leeggemaakt.</p>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60]" style={{ background: "rgba(45,42,58,0.45)", backdropFilter: "blur(8px)" }} onClick={() => setShowClearConfirm(false)} />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed bottom-0 left-0 right-0 z-[70]" style={{ background: "#FFFFFF", borderRadius: "32px 32px 0 0", padding: "28px 24px calc(40px + env(safe-area-inset-bottom, 0px))", maxWidth: 480, margin: "0 auto", border: "1px solid var(--border)", borderBottom: "none", boxShadow: "0 -10px 40px rgba(45,42,58,0.15)" }}>
+              <div style={{ width: 40, height: 4, borderRadius: 2, background: "#F0E6D8", margin: "0 auto 24px" }} />
+              <h3 className="font-display-bold" style={{ fontSize: 24, color: "var(--text)", marginBottom: 10, letterSpacing: "-0.02em" }}>Gesprek wissen?</h3>
+              <p style={{ fontSize: 15, color: "var(--text-soft)", marginBottom: 24, lineHeight: 1.5 }}>Dit kan niet ongedaan gemaakt worden. Dit gesprek wordt leeggemaakt.</p>
               <div style={{ display: "flex", gap: 12 }}>
                 <button onClick={() => setShowClearConfirm(false)} className="btn btn-ghost press" style={{ flex: 1, fontSize: 15, height: 50 }}>Annuleren</button>
                 <button onClick={clearConversation} className="btn btn-ghost-crisis press" style={{ flex: 1, fontSize: 15, height: 50 }}>Wissen</button>

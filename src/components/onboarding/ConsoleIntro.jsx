@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 const LINES = [
   "Kies een paar woorden die iets over jou zeggen.",
   "Tik op een woord als het klopt. Het verdwijnt vanzelf.",
-  "Je hoeft niets uit te leggen. Luna sluit zachter aan."
+  "Je hoeft niets uit te leggen. Junie sluit zachter aan."
 ];
 
 export default function ConsoleIntro({ onDone }) {

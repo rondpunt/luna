@@ -1,12 +1,10 @@
 import { Lock } from "lucide-react";
 
 /**
- * Premium privacy badge — volgens UX-blueprint:
- * altijd zichtbaar bij gevoelige flows, slotje + microcopy.
- *
+ * Junie privacy badge — light theme, vriendelijk.
  * Varianten:
  *  - inline: subtiele pill (default)
- *  - banner: bredere strip (chat/braindump bovenkant)
+ *  - banner: bredere strip
  */
 export default function PrivacyBadge({ variant = "inline", text }) {
   const label = text || "Versleuteld · alleen jij";
@@ -19,15 +17,15 @@ export default function PrivacyBadge({ variant = "inline", text }) {
         style={{
           display: "flex", alignItems: "center", gap: 8,
           padding: "8px 14px",
-          background: "rgba(138,148,130,0.08)",
-          border: "1px solid rgba(138,148,130,0.18)",
+          background: "#EEF8F1",
+          border: "1px solid #C9E5D3",
           borderRadius: 999,
-          fontSize: 11.5, fontWeight: 500, letterSpacing: "0.02em",
-          color: "var(--text-soft)",
+          fontSize: 11.5, fontWeight: 600, letterSpacing: "0.01em",
+          color: "#3D7A52",
           width: "fit-content",
         }}
       >
-        <Lock size={11} strokeWidth={2} style={{ color: "#8A9482" }} />
+        <Lock size={11} strokeWidth={2.4} style={{ color: "#5BAE7A" }} />
         <span>{label}</span>
       </div>
     );
@@ -38,11 +36,16 @@ export default function PrivacyBadge({ variant = "inline", text }) {
       aria-label={label}
       style={{
         display: "inline-flex", alignItems: "center", gap: 5,
-        fontSize: 10.5, color: "var(--text-muted)",
-        letterSpacing: "0.04em",
+        padding: "4px 10px",
+        borderRadius: 999,
+        background: "#EEF8F1",
+        border: "1px solid #C9E5D3",
+        fontSize: 10.5, fontWeight: 600,
+        color: "#3D7A52",
+        letterSpacing: "0.02em",
       }}
     >
-      <Lock size={10} strokeWidth={2} style={{ color: "#8A9482" }} />
+      <Lock size={9} strokeWidth={2.4} style={{ color: "#5BAE7A" }} />
       {label}
     </span>
   );

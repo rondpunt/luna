@@ -6,22 +6,22 @@ module.exports = {
     extend: {
       fontFamily: {
         sans:    ["'Inter'", "system-ui", "sans-serif"],
-        display: ["'Fraunces'", "Georgia", "serif"],
+        display: ["'Quicksand'", "'Inter'", "system-ui", "sans-serif"],
       },
       colors: {
-        // Atelier Nocturne palette
-        ink:          "#0E0B14",
-        "ink-soft":   "#15101D",
-        "ink-card":   "#1F1828",
-        aubergine:    "#3D2A4D",
-        champagne:    "#D4AF89",
-        "champagne-warm": "#E8C9A3",
-        "champagne-deep": "#A8835E",
-        ivory:        "#F2EDE4",
-        "ivory-soft": "#C8BEB0",
-        "ivory-muted":"#847A6E",
-        "ivory-faint":"#4A4239",
-        crisis:       "#B8554A",
+        // Junie brand palette
+        cream:         "#FFFBF7",
+        "cream-soft":  "#FFF6EC",
+        "junie-blue":   "#6A9AD9",
+        "junie-green":  "#7BC096",
+        "junie-yellow": "#F0C674",
+        "junie-orange": "#F0925E",
+        "junie-coral":  "#EC6F6F",
+        "junie-purple": "#9B7FC4",
+        ink:           "#2D2A3A",
+        "ink-soft":    "#5A546B",
+        "ink-muted":   "#8A8499",
+        "ink-faint":   "#B8B0C2",
 
         // shadcn tokens
         background: "hsl(var(--background))",
